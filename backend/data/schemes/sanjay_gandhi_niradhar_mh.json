@@ -1,0 +1,80 @@
+{
+  "id": "sanjay_gandhi_niradhar_mh",
+  "name_en": "Sanjay Gandhi Niradhar Anudan Yojana",
+  "name_hi": "संजय गांधी निराधार अनुदान योजना (महाराष्ट्र)",
+  "level": "state",
+  "applicable_states": ["Maharashtra"],
+  "category": "Social Security",
+  "benefit_en": "Monthly financial assistance of ₹1,500 per month for single beneficiary (or ₹2,000 for family with children) provided by Government of Maharashtra.",
+  "benefit_hi": "महाराष्ट्र शासन द्वारा एकल लाभार्थी को ₹1,500 प्रति माह (या बच्चों वाले परिवार के लिए ₹2,000) की वित्तीय सहायता।",
+  "description_en": "Maharashtra state social assistance scheme providing monthly pension to destitute persons, destitute widows, abandoned women and disabled persons.",
+  "description_hi": "निराधार व्यक्तियों, निराधार विधवाओं, परित्यक्ता महिलाओं और दिव्यांगजनों को मासिक पेंशन प्रदान करने वाली महाराष्ट्र सरकार की योजना।",
+  "rules": [
+    {
+      "field": "annual_income",
+      "operator": "lte",
+      "value": 21000.0,
+      "description_en": "Family annual income must not exceed ₹21,000 per year.",
+      "description_hi": "परिवार की वार्षिक आय ₹21,000 प्रति वर्ष से अधिक नहीं होनी चाहिए।"
+    },
+    {
+      "field": "age",
+      "operator": "gte",
+      "value": 18,
+      "description_en": "Applicant must be aged 18 years or above.",
+      "description_hi": "आवेदक की आयु 18 वर्ष या उससे अधिक होनी चाहिए।"
+    }
+  ],
+  "restrictions": [
+    "Applicant must have lived in Maharashtra for at least 15 continuous years.",
+    "Major sons should not be employed in regular paid occupations capable of supporting the applicant."
+  ],
+  "required_documents": [
+    {
+      "id": "aadhaar",
+      "name_en": "Aadhaar Card",
+      "name_hi": "आधार कार्ड",
+      "purpose_en": "Identity and age verification.",
+      "purpose_hi": "पहचान और आयु सत्यापन।",
+      "how_to_get_en": "Issued by UIDAI.",
+      "how_to_get_hi": "UIDAI द्वारा जारी।",
+      "online_url": "https://myaadhaar.uidai.gov.in/",
+      "offline_office": "Aadhaar Center"
+    },
+    {
+      "id": "mh_domicile_15years",
+      "name_en": "15 Years Maharashtra Domicile / Residence Certificate",
+      "name_hi": "15 वर्ष का महाराष्ट्र अधिवास (डोमिसाइल) प्रमाण पत्र",
+      "purpose_en": "Proof of 15 years continuous residence in Maharashtra.",
+      "purpose_hi": "महाराष्ट्र में 15 वर्षों के निरंतर निवास का प्रमाण।",
+      "how_to_get_en": "Issued through Aaple Sarkar portal or Tehsildar office.",
+      "how_to_get_hi": "आपले सरकार (aaplesarkar.mahaonline.gov.in) पोर्टल या तहसील कार्यालय से।",
+      "online_url": "https://aaplesarkar.mahaonline.gov.in/",
+      "offline_office": "Tehsildar Office / Setu Kendra"
+    },
+    {
+      "id": "income_cert_tehsildar",
+      "name_en": "Income Certificate (Under ₹21,000) issued by Tehsildar",
+      "name_hi": "तहसीलदार द्वारा जारी आय प्रमाण पत्र (₹21,000 से कम)",
+      "purpose_en": "Official confirmation of destitute income criteria.",
+      "purpose_hi": "निराधार आय मानदंड का आधिकारिक प्रमाण।",
+      "how_to_get_en": "Apply via Aaple Sarkar or Talathi/Tehsil.",
+      "how_to_get_hi": "तलाठी रिपोर्ट के साथ तहसील कार्यालय से जारी।",
+      "online_url": "https://aaplesarkar.mahaonline.gov.in/",
+      "offline_office": "Tehsil Office"
+    }
+  ],
+  "application_procedure": [
+    "Step 1: Download or collect Sanjay Gandhi Niradhar Anudan form from Nayab Tehsildar (Sanjay Gandhi Yojana Section).",
+    "Step 2: Attach 15-year residence certificate, income certificate (<₹21,000), age proof and Aadhaar.",
+    "Step 3: Submit application to Talathi / Tehsildar office.",
+    "Step 4: The Talathi visits for local spot enquiry and submits inquiry report to Sanjay Gandhi Committee.",
+    "Step 5: Committee meets monthly and sanctions pension to eligible beneficiaries."
+  ],
+  "official_source_url": "https://sjsa.maharashtra.gov.in/",
+  "last_verified_date": "2026-10-15",
+  "max_allowed_age_days": 180,
+  "verification_status": "verified",
+  "conflicting_schemes": [],
+  "helpline": "1800-120-8040"
+}

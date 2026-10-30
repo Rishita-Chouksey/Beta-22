@@ -1,0 +1,68 @@
+{
+  "id": "pm_jay_ayushman",
+  "name_en": "Ayushman Bharat PM-JAY",
+  "name_hi": "आयुष्मान भारत प्रधानमंत्री जन आरोग्य योजना (PM-JAY)",
+  "level": "central",
+  "applicable_states": ["ALL"],
+  "category": "Health",
+  "benefit_en": "Cashless health cover of up to ₹5,00,000 per family per year for secondary and tertiary care hospitalization across all empaneled public and private hospitals.",
+  "benefit_hi": "सभी सूचीबद्ध सरकारी और निजी अस्पतालों में द्वितीयक और तृतीयक देखभाल हेतु प्रति परिवार प्रति वर्ष ₹5,00,000 तक का कैशलेस स्वास्थ्य बीमा।",
+  "description_en": "The world's largest government-funded health assurance scheme covering over 50 crore vulnerable citizens.",
+  "description_hi": "50 करोड़ से अधिक कमजोर नागरिकों को स्वास्थ्य सुरक्षा प्रदान करने वाली विश्व की सबसे बड़ी सरकारी स्वास्थ्य आश्वासन योजना।",
+  "rules": [
+    {
+      "field": "annual_income",
+      "operator": "lte",
+      "value": 250000.0,
+      "description_en": "Family annual income should not exceed ₹2,50,000 or must hold eligible ration card.",
+      "description_hi": "परिवार की वार्षिक आय ₹2,50,000 से अधिक नहीं होनी चाहिए अथवा पात्र राशन कार्ड होना चाहिए।"
+    },
+    {
+      "field": "holds_constitutional_post",
+      "operator": "eq",
+      "value": false,
+      "description_en": "Must not have government service medical reimbursement coverage.",
+      "description_hi": "सरकारी सेवा चिकित्सा प्रतिपूर्ति कवरेज नहीं होना चाहिए।"
+    }
+  ],
+  "restrictions": [
+    "Families covered under Central Government Health Scheme (CGHS) or ESIC are not covered under PM-JAY."
+  ],
+  "required_documents": [
+    {
+      "id": "aadhaar",
+      "name_en": "Aadhaar Card",
+      "name_hi": "आधार कार्ड",
+      "purpose_en": "Individual KYC identification.",
+      "purpose_hi": "व्यक्तिगत केवाईसी पहचान।",
+      "how_to_get_en": "Issued by UIDAI.",
+      "how_to_get_hi": "UIDAI द्वारा जारी।",
+      "online_url": "https://myaadhaar.uidai.gov.in/",
+      "offline_office": "Aadhaar Seva Kendra"
+    },
+    {
+      "id": "ration_card",
+      "name_en": "Ration Card (NFSA / BPL / Priority Household)",
+      "name_hi": "राशन कार्ड (राष्ट्रीय खाद्य सुरक्षा / बीपीएल)",
+      "purpose_en": "Family tree identification and socio-economic entitlement.",
+      "purpose_hi": "पारिवारिक पात्रता सत्यापन।",
+      "how_to_get_en": "Issued by State Food and Civil Supplies Department.",
+      "how_to_get_hi": "राज्य खाद्य एवं नागरिक आपूर्ति विभाग द्वारा जारी।",
+      "online_url": "https://nfsa.gov.in/",
+      "offline_office": "Tehsil / Food Office"
+    }
+  ],
+  "application_procedure": [
+    "Step 1: Visit beneficiary.nha.gov.in or nearest Ayushman Arogya Mandir / CSC center.",
+    "Step 2: Enter Aadhaar number or Ration Card number to search family records.",
+    "Step 3: Complete e-KYC using Aadhaar OTP or biometric fingerprint scanning.",
+    "Step 4: Download your digital Ayushman PVC Card or print it instantly.",
+    "Step 5: Present Ayushman Card at the 'Ayushman Mitra' desk of any empaneled hospital for cashless treatment."
+  ],
+  "official_source_url": "https://beneficiary.nha.gov.in/",
+  "last_verified_date": "2026-10-15",
+  "max_allowed_age_days": 180,
+  "verification_status": "verified",
+  "conflicting_schemes": [],
+  "helpline": "14555 / 1800-111-565"
+}

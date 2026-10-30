@@ -1,0 +1,87 @@
+{
+  "id": "pm_awas_yojana_gramin",
+  "name_en": "Pradhan Mantri Awaas Yojana - Gramin (PMAY-G)",
+  "name_hi": "प्रधानमंत्री आवास योजना - ग्रामीण (PMAY-G)",
+  "level": "central",
+  "applicable_states": ["ALL"],
+  "category": "Housing",
+  "benefit_en": "Financial grant of ₹1,20,000 (plains) / ₹1,30,000 (hilly/difficult areas) directly transferred in installments for construction of a permanent pucca house, plus ₹12,000 for toilet under SBM-G and 90-95 days of MGNREGA wages.",
+  "benefit_hi": "पक्के मकान के निर्माण के लिए सीधे किस्तों में ₹1,20,000 (मैदानी क्षेत्र) / ₹1,30,000 (पहाड़ी/दुर्गम क्षेत्र) का अनुदान, साथ ही शौचालय हेतु ₹12,000 और 90-95 दिनों की मनरेगा मजदूरी।",
+  "description_en": "Flagship social welfare program to provide housing for all rural homeless and families living in kutcha or dilapidated houses.",
+  "description_hi": "ग्रामीण क्षेत्रों में बेघर और कच्चे या जीर्ण-शीर्ण मकानों में रहने वाले परिवारों को पक्के आवास उपलब्ध कराने की प्रमुख योजना।",
+  "rules": [
+    {
+      "field": "residence_type",
+      "operator": "eq",
+      "value": "rural",
+      "description_en": "Must reside in a rural area / village.",
+      "description_hi": "ग्रामीण क्षेत्र / गांव का निवासी होना चाहिए।"
+    },
+    {
+      "field": "has_pucca_house",
+      "operator": "eq",
+      "value": false,
+      "description_en": "Beneficiary family must not own a pucca brick house in their name anywhere in India.",
+      "description_hi": "लाभार्थी परिवार के नाम पर भारत में कहीं भी पक्का मकान नहीं होना चाहिए।"
+    },
+    {
+      "field": "annual_income",
+      "operator": "lte",
+      "value": 200000.0,
+      "description_en": "Household income must be under ₹2,00,000 per year (or identified in Awaas+ rural deprivation list).",
+      "description_hi": "परिवार की वार्षिक आय ₹2,00,000 से कम होनी चाहिए (या आवास+ सूची में शामिल)।"
+    }
+  ],
+  "restrictions": [
+    "Families owning motorized 3-4 wheelers or mechanized agricultural equipment (like tractors) are excluded.",
+    "Households having any member as a government employee are excluded."
+  ],
+  "required_documents": [
+    {
+      "id": "aadhaar",
+      "name_en": "Aadhaar Card of all adult members",
+      "name_hi": "सभी वयस्क सदस्यों का आधार कार्ड",
+      "purpose_en": "Identity and family unit verification.",
+      "purpose_hi": "पहचान और पारिवारिक इकाई सत्यापन।",
+      "how_to_get_en": "Issued by UIDAI.",
+      "how_to_get_hi": "UIDAI द्वारा जारी।",
+      "online_url": "https://myaadhaar.uidai.gov.in/",
+      "offline_office": "Aadhaar Seva Kendra"
+    },
+    {
+      "id": "job_card_mgnrega",
+      "name_en": "MGNREGA Job Card Number",
+      "name_hi": "मनरेगा जॉब कार्ड संख्या",
+      "purpose_en": "To link unskilled labor wage entitlement (90-95 days) during house construction.",
+      "purpose_hi": "मकान निर्माण के दौरान अकुशल मजदूरी भुगतान को जोड़ने के लिए।",
+      "how_to_get_en": "Issued by Gram Panchayat.",
+      "how_to_get_hi": "ग्राम पंचायत कार्यालय से प्राप्त करें।",
+      "online_url": "https://nrega.nic.in/",
+      "offline_office": "Gram Panchayat Office / Rojgar Sahayak"
+    },
+    {
+      "id": "bank_passbook",
+      "name_en": "Bank Account Details (Aadhaar Seeded)",
+      "name_hi": "बैंक खाता विवरण (आधार सीडेड)",
+      "purpose_en": "For DBT transfer of construction stage installments based on geotagged photos.",
+      "purpose_hi": "जियो-टैग्ड फोटो के आधार पर निर्माण किस्तों के सीधे भुगतान के लिए।",
+      "how_to_get_en": "Account in applicant's name in commercial or regional rural bank.",
+      "how_to_get_hi": "राष्ट्रीयकृत या क्षेत्रीय ग्रामीण बैंक में आवेदक का खाता।",
+      "online_url": null,
+      "offline_office": "Bank Branch"
+    }
+  ],
+  "application_procedure": [
+    "Step 1: Contact your Gram Panchayat or Gram Rozgar Sahayak to verify if your name is listed on the Awaas+ portal.",
+    "Step 2: Submit Aadhaar consent form and bank account details.",
+    "Step 3: Verification team inspects existing kutcha dwelling and captures geotagged photo via AwaasApp.",
+    "Step 4: Sanction letter is approved and first installment released for foundation work.",
+    "Step 5: Subsequent installments released after geotagging plinth, lintel and roof completion stages."
+  ],
+  "official_source_url": "https://pmayg.nic.in/",
+  "last_verified_date": "2026-10-15",
+  "max_allowed_age_days": 180,
+  "verification_status": "verified",
+  "conflicting_schemes": [],
+  "helpline": "1800-11-6446"
+}
