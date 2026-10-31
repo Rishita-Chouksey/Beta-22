@@ -371,6 +371,7 @@ YojnaSarthi/
 │   │   ├── schemes.json                # Verified government scheme repository
 │   │   └── schemes/                    # Individual scheme JSON definitions
 │   └── tests/
+│       ├── test_agentic_discovery.py   # 12 Autonomous agentic monitoring, discovery & review gate tests
 │       ├── test_api.py                 # 21 API tests (Chat, Feedback, Security, DB)
 │       ├── test_azure_translator.py    # 14 Azure AI Translator REST API & 6 language pair tests
 │       ├── test_monitoring.py          # 13 Scheme monitoring, crawler, approve/reject tests
@@ -381,7 +382,7 @@ YojnaSarthi/
 │       ├── test_myscheme_adapter.py    # 3 myScheme adapter & normalization tests
 │       ├── test_personas.py            # 3 Real-world golden persona journey tests
 │       ├── test_question_selector.py   # 2 Information-gain selection tests
-│       └── test_rules.py               # 10 Rule operator unit tests (87 tests total)
+│       └── test_rules.py               # 10 Rule operator unit tests (102 tests total)
 │
 └── frontend/
     ├── package.json                    # React 19, Vite 8, Tailwind CSS v4, Lucide React
@@ -425,11 +426,11 @@ YojnaSarthi/
 
 ## 14. Test Suite & Quality Verification
 
-All 87 automated backend tests pass with 100% success rate:
+All 102 automated backend tests pass with 100% success rate:
 
 ```bash
 .\backend_venv\Scripts\python.exe -m pytest backend/tests/ -v
-# Output: 87 passed, 1 warning in ~18s
+# Output: 102 passed, 2 warnings in ~28s
 ```
 
 Frontend production build compiles cleanly with zero errors:
