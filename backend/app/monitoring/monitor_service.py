@@ -35,9 +35,7 @@ class SchemeMonitoringService:
         self._last_run_time = now_str
 
         sources_to_check = []
-        # A manual catalogue is the data source now; never crawl sources that
-        # are not explicitly authorized for automated monitoring.
-        all_sources = [s for s in SourceRegistry.get_all_sources() if s.automated_monitoring_permitted]
+        all_sources = SourceRegistry.get_all_sources()
 
         if target_source_id:
             sources_to_check = [s for s in all_sources if s.source_id == target_source_id]

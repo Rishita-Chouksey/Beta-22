@@ -178,19 +178,6 @@ python -m pytest -v
 
 ## 🚀 Deployment Instructions
 
-### Local admin setup (PowerShell)
-The Admin Monitor is disabled until a username, PBKDF2 password hash, and 32+ character session secret are configured. From `backend`:
-
-```powershell
-Copy-Item .env.example .env
-.\.venv\Scripts\python.exe -c "from getpass import getpass; from app.admin_auth import hash_admin_password; print(hash_admin_password(getpass('Admin password: ')))"
-python -c "import secrets; print(secrets.token_urlsafe(48))"
-```
-
-Put the generated password hash and session secret in `backend/.env`, set `ADMIN_USERNAME`, and keep `ADMIN_COOKIE_SECURE=false` only for local HTTP development. Production must use HTTPS, `ADMIN_COOKIE_SECURE=true`, and set `CORS_ALLOWED_ORIGINS` to the deployed frontend origin. For a separate frontend/backend site (for example Vercel + Render), also set `ADMIN_COOKIE_SAMESITE=none`; keep the CSRF header protection enabled. A same-site custom domain can use `strict`. Login is rate-limited; sessions expire after 30 minutes and use HttpOnly cookies plus CSRF checks. Do not use `X-Admin-Key`; shared-key access has been removed. Citizen scheme details are served from the local JSON catalogue, with myScheme page links; no myScheme API credentials are required and scheduled scraping is disabled by default.
-
-`ENABLE_MONITORING_DEMO_DATA` defaults to `false`. Set it to `true` only for a demo database; synthetic rows are excluded from normal monitoring counts and lists.
-
 ### Frontend (Vercel)
 1. Push repository to GitHub.
 2. In Vercel, import the repository and set **Root Directory** to `frontend`.
@@ -202,7 +189,7 @@ Put the generated password hash and session secret in `backend/.env`, set `ADMIN
 2. Set **Root Directory** to `backend`.
 3. Build Command: `pip install -r requirements.txt`.
 4. Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
-5. Add backend environment variables from `backend/.env.example`; generate the admin password hash as shown above. Set `ADMIN_COOKIE_SECURE=true` and the deployed frontend origin in `CORS_ALLOWED_ORIGINS`.
+5. Add Environment Variables from `.env.example`.
 6. Deploy!
 
 ---

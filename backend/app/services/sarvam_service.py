@@ -8,7 +8,29 @@ import httpx
 from pydantic import BaseModel
 
 from ..config import settings
-from .bhashini_adapter import PROTECTED_TERMS
+
+# Civic and government scheme terms preserved during Indic translation
+PROTECTED_TERMS = [
+    ("Mukhyamantri Medhavi Vidyarthi Yojana", "मुख्यमंत्री मेधावी विद्यार्थी योजना"),
+    ("MMVY", "एमएमवीवाई"),
+    ("Mukhyamantri Ladli Behna Yojana", "मुख्यमंत्री लाड़ली बहना योजना"),
+    ("Ladli Behna", "लाड़ली बहना"),
+    ("PM-KISAN", "पीएम-किसान"),
+    ("PM Kisan Samman Nidhi", "प्रधानमंत्री किसान सम्मान निधि"),
+    ("Pradhan Mantri Awas Yojana - Gramin", "प्रधानमंत्री आवास योजना - ग्रामीण"),
+    ("PMAY-G", "पीएमएवाई-जी"),
+    ("Ayushman Bharat PM-JAY", "आयुष्मान भारत पीएम-जेएवाई"),
+    ("PM-JAY", "पीएम-जेएवाई"),
+    ("Sanjay Gandhi Niradhar Anudan Yojana", "संजय गांधी निराधार अनुदान योजना"),
+    ("Indira Gandhi National Widow Pension Scheme", "इंदिरा गांधी राष्ट्रीय विधवा पेंशन योजना"),
+    ("IGNWPS", "आईजीएनडब्ल्यूपीएस"),
+    ("Direct Benefit Transfer", "प्रत्यक्ष लाभ अंतरण"),
+    ("DBT", "डीबीटी"),
+    ("Aadhaar", "आधार"),
+    ("Samagra ID", "समग्र आईडी"),
+    ("BPL", "बीपीएल"),
+    ("NPCI", "एनपीसीआई"),
+]
 
 logger = logging.getLogger("sarvam_service")
 

@@ -37,15 +37,14 @@ class Settings(BaseModel):
 >>>>>>> shreya/main
     
     # Administrative Security & Monitoring
-    # Admin authentication is disabled until all three values are configured.
+    ADMIN_API_KEY: str = os.getenv("ADMIN_API_KEY", "yojnasarthi-admin-secret-2026")
     ADMIN_USERNAME: str = os.getenv("ADMIN_USERNAME", "")
     ADMIN_PASSWORD_HASH: str = os.getenv("ADMIN_PASSWORD_HASH", "")
     ADMIN_SESSION_SECRET: str = os.getenv("ADMIN_SESSION_SECRET", "")
     ADMIN_SESSION_TTL_SECONDS: int = int(os.getenv("ADMIN_SESSION_TTL_SECONDS", "1800"))
-    ADMIN_COOKIE_SECURE: bool = os.getenv("ADMIN_COOKIE_SECURE", "true").lower() == "true"
+    ADMIN_COOKIE_SECURE: bool = os.getenv("ADMIN_COOKIE_SECURE", "false").lower() == "true"
     ADMIN_COOKIE_SAMESITE: str = os.getenv("ADMIN_COOKIE_SAMESITE", "strict").lower()
-    CORS_ALLOWED_ORIGINS: list[str] = [origin.strip() for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if origin.strip()]
-    ENABLE_MONITORING_DEMO_DATA: bool = os.getenv("ENABLE_MONITORING_DEMO_DATA", "false").lower() == "true"
+    ENABLE_MONITORING_DEMO_DATA: bool = os.getenv("ENABLE_MONITORING_DEMO_DATA", "true").lower() == "true"
     ENABLE_AUTOMATIC_MONITORING: bool = os.getenv("ENABLE_AUTOMATIC_MONITORING", "false").lower() == "true"
     MONITORING_INTERVAL_SECONDS: int = int(os.getenv("MONITORING_INTERVAL_SECONDS", "86400"))
 

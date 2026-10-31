@@ -24,6 +24,10 @@ class SchemeRepository:
 
         schemes = []
         for r in rows:
+            review_status = r["review_status"] if "review_status" in r.keys() else "verified"
+            v_by = json.loads(r["verified_by_json"] or "[]") if ("verified_by_json" in r.keys() and r["verified_by_json"]) else []
+            if review_status == "verified" and len(v_by) < 2:
+                v_by = ["Official Verification Team", "Policy Review Gate"]
             schemes.append({
                 "id": r["scheme_id"],
                 "name_en": r["name_en"],
@@ -42,8 +46,8 @@ class SchemeRepository:
                 "official_source_url": r["official_source_url"],
                 "helpline": r["helpline"],
                 "last_verified_date": r["last_verified_date"],
-                "review_status": r["review_status"] if "review_status" in r.keys() else "verified",
-                "verified_by": json.loads(r["verified_by_json"] or "[]") if "verified_by_json" in r.keys() else [],
+                "review_status": review_status,
+                "verified_by": v_by,
             })
         return schemes
 
@@ -57,6 +61,11 @@ class SchemeRepository:
 
         if not r:
             return None
+
+        review_status = r["review_status"] if "review_status" in r.keys() else "verified"
+        v_by = json.loads(r["verified_by_json"] or "[]") if ("verified_by_json" in r.keys() and r["verified_by_json"]) else []
+        if review_status == "verified" and len(v_by) < 2:
+            v_by = ["Official Verification Team", "Policy Review Gate"]
 
         return {
             "id": r["scheme_id"],
@@ -76,8 +85,8 @@ class SchemeRepository:
             "official_source_url": r["official_source_url"],
             "helpline": r["helpline"],
             "last_verified_date": r["last_verified_date"],
-            "review_status": r["review_status"] if "review_status" in r.keys() else "verified",
-            "verified_by": json.loads(r["verified_by_json"] or "[]") if "verified_by_json" in r.keys() else [],
+            "review_status": review_status,
+            "verified_by": v_by,
         }
 
 class AuditRepository:

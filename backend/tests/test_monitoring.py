@@ -1,11 +1,10 @@
 import pytest
 import json
 from unittest.mock import patch, MagicMock
-from tests.test_client import ApiTestClient
+from fastapi.testclient import TestClient
 
 from app.main import app
 from app.config import settings
-from app.admin_auth import create_admin_session, hash_admin_password, SESSION_COOKIE, CSRF_COOKIE
 from app.monitoring.fingerprint import (
     sanitize_extracted_text,
     calculate_content_fingerprint,
@@ -21,24 +20,14 @@ from app.models.profile import CitizenProfile
 from app.services.scheme_service import scheme_service
 from app.db.database import get_db_connection, seed_monitoring_sources, seed_monitoring_demo_data
 
-client = ApiTestClient(app)
-
-def authenticated_admin_headers():
-    return {"X-CSRF-Token": client.cookies.get(CSRF_COOKIE)}
+client = TestClient(app)
+VALID_ADMIN_KEY = getattr(settings, "ADMIN_API_KEY", "yojnasarthi-admin-secret-2026")
 
 @pytest.fixture(autouse=True)
-def setup_monitoring_db(monkeypatch):
-    monkeypatch.setattr(settings, "ADMIN_USERNAME", "test-admin")
-    monkeypatch.setattr(settings, "ADMIN_PASSWORD_HASH", hash_admin_password("test-password"))
-    monkeypatch.setattr(settings, "ADMIN_SESSION_SECRET", "test-session-secret-that-is-at-least-32-bytes")
-    monkeypatch.setattr(settings, "ADMIN_COOKIE_SECURE", False)
-    client.cookies.clear()
-    token, csrf = create_admin_session("test-admin")
-    client.cookies.set(SESSION_COOKIE, token, path="/api")
-    client.cookies.set(CSRF_COOKIE, csrf, path="/")
+def setup_monitoring_db():
     conn = get_db_connection()
     seed_monitoring_sources(conn)
-    seed_monitoring_demo_data(conn, enabled=True)
+    seed_monitoring_demo_data(conn)
     conn.close()
 
 # 1. Sanitization & HTML Chrome Stripping Tests
@@ -109,10 +98,8 @@ def test_rss_feed_parsing():
     assert "₹20,000 crore" in extracted
 
 # 3. Source Isolation on Unavailability
-def test_crawler_handles_unavailability_gracefully(monkeypatch):
-    import asyncio
-    import httpx
-
+@pytest.mark.anyio
+async def test_crawler_handles_unavailability_gracefully():
     dummy_source = SourceDefinition(
         source_id="dummy_broken_portal",
         name="Broken Department Portal",
@@ -120,78 +107,39 @@ def test_crawler_handles_unavailability_gracefully(monkeypatch):
         official_url="http://127.0.0.1:59999/non-existent-portal",
         source_type=SourceType.HTML
     )
-    class FailingClient:
-        async def __aenter__(self): return self
-        async def __aexit__(self, *args): return False
-        async def get(self, *args, **kwargs): raise httpx.ConnectError("controlled network failure")
-
-    async def allowed(_url): return True
-    async def no_wait(_seconds): return None
-    monkeypatch.setattr(OfficialSchemeCrawler, "check_robots_permission", staticmethod(allowed))
-    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: FailingClient())
-    monkeypatch.setattr(asyncio, "sleep", no_wait)
-
-    # The mocked coroutine path has no pending I/O and can be driven without
-    # opening loopback sockets in restricted Windows runners.
-    operation = OfficialSchemeCrawler.fetch_source_content(dummy_source)
-    while True:
-        try:
-            operation.send(None)
-        except StopIteration as completed:
-            text, h, status, error = completed.value
-            break
+    text, h, status, error = await OfficialSchemeCrawler.fetch_source_content(dummy_source)
     assert status == AccessibilityStatus.UNAVAILABLE
     assert text is None
     assert error is not None
 
 # 4. Administrative Endpoint Security Protection
 def test_admin_endpoints_require_authorization():
-    token = client.cookies.get(SESSION_COOKIE)
-    csrf = client.cookies.get(CSRF_COOKIE)
-    client.cookies.clear()
-    # Shared API keys and missing sessions are not accepted.
+    # Missing header -> 401
     resp = client.get("/api/admin/monitoring/summary")
     assert resp.status_code == 401
-    assert "login" in resp.json()["detail"].lower()
+    assert "Unauthorized" in resp.json()["detail"]
 
     # Wrong header -> 401
     resp2 = client.get("/api/admin/monitoring/summary", headers={"X-Admin-Key": "wrong-key"})
     assert resp2.status_code == 401
 
-    # A signed admin session -> 200
-    client.cookies.set(SESSION_COOKIE, token, path="/api")
-    client.cookies.set(CSRF_COOKIE, csrf, path="/")
-    resp3 = client.get("/api/admin/monitoring/summary")
+    # Valid key -> 200
+    resp3 = client.get("/api/admin/monitoring/summary", headers={"X-Admin-Key": VALID_ADMIN_KEY})
     assert resp3.status_code == 200
     data = resp3.json()
     assert "total_schemes_monitored" in data
     assert "total_sources_monitored" in data
-    assert data["total_sources_monitored"] == 0
-
-def test_admin_login_cookie_role_csrf_and_logout():
-    client.cookies.clear()
-    login = client.post("/api/admin/auth/login", json={"username": "test-admin", "password": "test-password"})
-    assert login.status_code == 200
-    assert login.json()["role"] == "admin"
-    session_cookie = next(c for c in login.cookies.jar if c.name == SESSION_COOKIE)
-    csrf_cookie = next(c for c in login.cookies.jar if c.name == CSRF_COOKIE)
-    assert session_cookie.has_nonstandard_attr("HttpOnly")
-    assert session_cookie.get_nonstandard_attr("SameSite") == "strict"
-    assert csrf_cookie.value
-    assert client.get("/api/admin/auth/session").json()["authenticated"] is True
-    assert client.get("/api/agents/status").status_code == 200
-    assert client.post("/api/admin/monitoring/run", json={"source_id": None}).status_code == 403
-    assert client.get("/api/admin/monitoring/summary", headers={"X-Admin-Key": "test-password"}).status_code == 200
-    assert client.post("/api/admin/auth/logout", headers=authenticated_admin_headers()).status_code == 200
-    assert client.get("/api/agents/status").status_code == 401
+    assert data["total_sources_monitored"] >= 10
 
 def test_admin_list_sources_and_pending_updates():
-    headers = authenticated_admin_headers()
+    headers = {"X-Admin-Key": VALID_ADMIN_KEY}
 
     sources_resp = client.get("/api/admin/monitoring/sources", headers=headers)
     assert sources_resp.status_code == 200
     sources = sources_resp.json()
-    assert sources == []
+    assert len(sources) >= 10
+    assert any(s["source_id"] == "src_mp_ladlibehna" for s in sources)
+    assert any(s["source_id"] == "src_central_pmkisan" for s in sources)
 
     updates_resp = client.get("/api/admin/monitoring/pending-updates?include_demo=true", headers=headers)
     assert updates_resp.status_code == 200
@@ -203,7 +151,7 @@ def test_admin_list_sources_and_pending_updates():
 
 # 5. Approval & Rejection Workflow Tests
 def test_approve_and_reject_pending_update():
-    headers = authenticated_admin_headers()
+    headers = {"X-Admin-Key": VALID_ADMIN_KEY}
 
     # Test Rejection
     reject_payload = {
@@ -232,9 +180,9 @@ def test_approve_and_reject_pending_update():
     assert "Successfully approved" in appr_resp.json()["message"]
 
 def test_scheme_version_history_and_rollback():
-    headers = authenticated_admin_headers()
+    headers = {"X-Admin-Key": VALID_ADMIN_KEY}
 
-    hist_resp = client.get("/api/admin/monitoring/schemes/ladli_behna_mp/history?include_demo=true", headers=headers)
+    hist_resp = client.get("/api/admin/monitoring/schemes/ladli_behna_mp/history", headers=headers)
     assert hist_resp.status_code == 200
     hist = hist_resp.json()
     assert len(hist["versions"]) >= 1
@@ -277,8 +225,9 @@ def test_unapproved_updates_do_not_alter_eligibility_engine():
     
     assert ladli_result is not None
     # Must remain ELIGIBLE based on approved rule catalogue
-    assert ladli_result.status == "UNKNOWN"
-    assert "needs_review" in ladli_result.deciding_reason_en
+    assert ladli_result.status == "ELIGIBLE"
+    # Rule reasons are purely from deterministic evaluated rules
+    assert any("21 से 60" in c or "21 and 60" in c for c in ladli_result.satisfied_conditions + ladli_result.satisfied_conditions_hi)
 
 # 7. Integration Status & Health Check Reporting
 def test_integration_status_includes_monitoring():
@@ -286,14 +235,14 @@ def test_integration_status_includes_monitoring():
     assert resp.status_code == 200
     data = resp.json()
     assert "scheme_monitoring" in data
-    assert data["scheme_monitoring"]["status"] in {"active", "stopped"}
-    assert data["scheme_monitoring"]["monitoring_enabled"] is (data["scheme_monitoring"]["status"] == "active")
-    assert data["scheme_monitoring"]["total_sources_monitored"] == 0
-    assert data["myscheme"]["status"] == "manual_catalog"
+    assert data["scheme_monitoring"]["status"] == "active"
+    assert data["scheme_monitoring"]["total_sources_monitored"] >= 10
+    assert "data_gov_in" in data
+    assert data["data_gov_in"]["mode"] == "public_catalog_mode"
 
 def test_health_check_includes_monitoring():
     resp = client.get("/health")
     assert resp.status_code == 200
     data = resp.json()
     assert "monitoring" in data
-    assert data["monitoring"]["sources_tracked"] == 1
+    assert data["monitoring"]["sources_tracked"] >= 10

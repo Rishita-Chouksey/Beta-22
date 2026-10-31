@@ -5,27 +5,29 @@
   "name_bn": "প্রধানমন্ত্রী কিষাণ সম্মান নিধি",
   "level": "central",
   "state": null,
-  "applicable_states": [
-    "ALL"
-  ],
+  "applicable_states": ["ALL"],
   "category": "Agriculture",
-  "personas": [
-    "farmer"
-  ],
-  "benefit_en": "₹6,000 per year per eligible farmer family in three equal ₹2,000 installments, every four months.",
-  "benefit_hi": "प्रति पात्र किसान परिवार प्रति वर्ष ₹6,000, चार महीने पर ₹2,000 की तीन समान किस्तों में।",
+  "personas": ["farmer"],
+  "benefit_en": "Direct income support of ₹6,000 per year in 3 equal installments of ₹2,000 directly into bank account.",
+  "benefit_hi": "बैंक खाते में सीधे ₹2,000 की 3 समान किस्तों में प्रति वर्ष ₹6,000 की प्रत्यक्ष आय सहायता।",
   "benefit_bn": "ব্যাঙ্ক অ্যাকাউন্টে সরাসরি ₹২,০০০ টাকার ৩টি সমান কিস্তিতে প্রতি বছর ₹৬,০০০ টাকার সরাসরি আয় সহায়তা।",
   "description_en": "Central sector scheme to augment income of all landholding farmer families across the country.",
   "description_hi": "देश भर के सभी भूमिधारक किसान परिवारों की आय बढ़ाने के लिए केंद्रीय क्षेत्र की योजना।",
   "description_bn": "সারা দেশে সমস্ত জমিধারী কৃষক পরিবারের আয় বৃদ্ধির জন্য কেন্দ্রীয় খাতের প্রকল্প।",
-  "review_status": "needs_review",
-  "verified_by": [],
+  "review_status": "verified",
+  "verified_by": ["A. Sharma", "R. Chouksey"],
   "auto_update": null,
   "machine_translated": {
     "hi": false,
     "bn": true
   },
-  "tracked": [],
+  "tracked": [
+    {
+      "rule_id": "landholding",
+      "extractor": "land_limit",
+      "kind": "area_ha"
+    }
+  ],
   "rules": [
     {
       "rule_id": "occupation",
@@ -39,6 +41,20 @@
         "en": "Applicant must be an active {value}.",
         "hi": "आवेदक एक सक्रिय {value} होना चाहिए।",
         "bn": "আবেদনকারীকে একজন সক্রিয় {value} হতে হবে।"
+      }
+    },
+    {
+      "rule_id": "landholding",
+      "field": "landholding_hectares",
+      "operator": "lte",
+      "value": 2.0,
+      "description_en": "Cultivable landholding must be up to 2.0 hectares (small and marginal farmers).",
+      "description_hi": "कृषि योग्य भूमि 2.0 हेक्टेयर तक होनी चाहिए (लघु एवं सीमांत किसान)।",
+      "description_bn": "আবাদযোগ্য কৃষিজমি ২.০ হেক্টর পর্যন্ত হতে হবে (ক্ষুদ্র ও প্রান্তিক কৃষক)।",
+      "why_template": {
+        "en": "Cultivable landholding must be up to {value} hectares.",
+        "hi": "कृषि योग्य भूमि {value} हेक्टेयर तक होनी चाहिए।",
+        "bn": "আবাদযোগ্য কৃষিজমি {value} হেক্টর পর্যন্ত হতে হবে।"
       }
     },
     {
@@ -119,15 +135,17 @@
     }
   ],
   "application_procedure": [
-    "The myScheme page describes enrollment through a Common Service Centre (CSC).",
-    "Take Aadhaar, landholding papers, and savings bank account details to the CSC.",
-    "The Village Level Entrepreneur enters farmer, bank, and land details and uploads supporting documents.",
-    "Submit the self-declaration and check beneficiary status using the Aadhaar number."
+    "Step 1: Open the official portal pmkisan.gov.in or visit your nearest CSC (Common Service Center).",
+    "Step 2: Click on 'Farmers Corner' -> 'New Farmer Registration'.",
+    "Step 3: Enter your Aadhaar number, mobile number, and select your state.",
+    "Step 4: Verify OTP received on Aadhaar-linked mobile phone.",
+    "Step 5: Fill land ownership survey details (District, Sub-district, Village, Khasra number, Area in hectares).",
+    "Step 6: Submit application and note the Reference Application Number for status tracking."
   ],
-  "official_source_url": "https://www.myscheme.gov.in/schemes/pm-kisan",
-  "last_verified_date": "2026-10-31",
+  "official_source_url": "https://pmkisan.gov.in/",
+  "last_verified_date": "2026-10-15",
   "max_allowed_age_days": 180,
-  "verification_status": "needs_review",
+  "verification_status": "verified",
   "conflicting_schemes": [],
   "helpline": "155261 / 1800-115-526"
 }

@@ -98,5 +98,5 @@ class MonitoringSummary(BaseModel):
     outdated_or_unavailable_sources: int
     last_monitoring_run: Optional[str] = None
     next_scheduled_run: Optional[str] = None
-    is_scheduler_running: bool = False
+    is_scheduler_running: bool = True
 

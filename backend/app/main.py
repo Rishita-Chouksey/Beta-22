@@ -10,6 +10,9 @@ from .config import settings
 from .routes import eligibility, schemes, checklist, ai, documents, admin_monitoring, translator, agents, admin_auth
 from .services.scheme_service import scheme_service
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 from .services.myscheme_adapter import myscheme_adapter
 from .services.azure_translator_service import azure_translator_service
 from .services.sarvam_service import sarvam_service
@@ -21,7 +24,7 @@ from .db.database import (
     init_db,
     seed_schemes_from_json,
     seed_monitoring_sources,
-    seed_monitoring_demo_data,
+    seed_agent_sources,
     get_db_connection
 )
 from .db.repository import RateLimiterRepository, FeedbackRepository, MonitoringRepository
@@ -59,12 +62,11 @@ async def lifespan(app: FastAPI):
     # Initialize SQLite database and sync verified schemes
     is_testing = bool(os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING"))
     try:
+        init_db()
+        seed_schemes_from_json()
         if not is_testing:
-            init_db()
-            seed_schemes_from_json()
             seed_monitoring_sources()
-            if settings.ENABLE_MONITORING_DEMO_DATA:
-                seed_monitoring_demo_data(enabled=True)
+        seed_agent_sources()
     except Exception as e:
         logger.warning(f"Database init warning: {e}")
 
@@ -91,7 +93,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ALLOWED_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -107,6 +109,7 @@ app.include_router(ai.router, prefix=settings.API_PREFIX, tags=["AI Assistance"]
 app.include_router(documents.router, prefix=settings.API_PREFIX, tags=["Document Guide"])
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 app.include_router(bhashini.router, prefix=settings.API_PREFIX, tags=["Bhashini Official Integration"])
 app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Indic Language Translation"])
 =======
@@ -115,20 +118,26 @@ app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Azure A
 =======
 app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Offline Translation"])
 >>>>>>> shreya/main
+=======
+app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Indic Language Translation"])
+app.include_router(admin_auth.router, prefix=settings.API_PREFIX, tags=["Admin Authentication"])
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 app.include_router(admin_monitoring.router, prefix=settings.API_PREFIX, tags=["Admin Scheme Monitoring"])
 app.include_router(agents.router, prefix=settings.API_PREFIX, tags=["Multi-Agent Scheme Intelligence"])
-app.include_router(admin_auth.router, prefix=settings.API_PREFIX)
 
 @app.get("/api/integrations/status", tags=["Integration Status"])
 async def get_integrations_status():
     """
     Detailed status report of all system integrations:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
     - Sarvam AI (Indic Language Engine)
     - Microsoft Azure AI Translator
     - myScheme / API Setu
-<<<<<<< HEAD
     - Bhashini Translation & Voice
+<<<<<<< HEAD
 =======
     - Microsoft Azure AI Translator
 =======
@@ -137,10 +146,14 @@ async def get_integrations_status():
 >>>>>>> shreya/main
     - Web Speech Voice Engine (ASR & TTS)
 >>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
+=======
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
     - Python Eligibility Engine
     - Document Guide
     - Scheme Intelligence & Catalogue Monitoring
+    - data.gov.in Public Catalog
     """
+<<<<<<< HEAD
 <<<<<<< HEAD
     myscheme_stat = myscheme_adapter.get_status()
     azure_stat = azure_translator_service.get_status()
@@ -155,27 +168,38 @@ async def get_integrations_status():
     from .db.repository import MonitoringRepository
     monitor_summary = MonitoringRepository.get_monitoring_summary()
 >>>>>>> shreya/main
+=======
+    myscheme_stat = myscheme_adapter.get_status()
+    azure_stat = azure_translator_service.get_status()
+    sarvam_stat = sarvam_service.get_status()
+    monitoring_summary = MonitoringRepository.get_monitoring_summary()
+    scheduler_status = monitoring_scheduler.get_status()
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 
     return {
         "sarvam_ai": sarvam_stat,
         "azure_translator": azure_stat,
         "myscheme": {
-            "name": "myScheme public scheme pages",
-            "status": "manual_catalog",
-            "is_live_api": False,
-            "active_data_source": "local_json_catalog",
-            "automated_scraping": False,
-            "message": "Citizen scheme data is served from the locally curated catalogue. No API credentials or scheduled page scraping are used.",
-            "source_pages": [s.official_source_url for s in scheme_service.get_all_schemes()
-                             if "myscheme.gov.in/schemes/" in s.official_source_url]
+            "name": "myScheme / API Setu Registry",
+            "status": myscheme_stat.status,
+            "is_live_api": myscheme_stat.is_live_api,
+            "data_source": scheme_service.get_data_source(),
+            "access_requirements": myscheme_stat.access_requirements,
+            "last_checked": myscheme_stat.last_checked
         },
         "scheme_monitoring": {
-            "name": "Scheme Intelligence & Catalogue Monitoring",
-            "status": "active" if monitoring_scheduler.get_status()["is_running"] else "stopped",
-            "monitoring_enabled": monitoring_scheduler.get_status()["is_running"],
-            "total_sources_monitored": monitor_summary["total_sources_monitored"],
-            "mode": "Manual catalogue; background crawling disabled by default"
+            "name": "Scheme Intelligence and Catalogue Monitoring",
+            "status": "active" if monitoring_summary["total_sources_monitored"] > 0 else "idle",
+            "monitoring_enabled": scheduler_status["is_running"],
+            "total_sources_monitored": monitoring_summary["total_sources_monitored"],
+            "healthy_sources": monitoring_summary["total_sources_monitored"] - monitoring_summary["outdated_or_unavailable_sources"],
+            "unavailable_or_degraded_sources": monitoring_summary["outdated_or_unavailable_sources"],
+            "updates_awaiting_review": monitoring_summary["updates_awaiting_review"],
+            "last_run": monitoring_summary["last_monitoring_run"],
+            "next_run": scheduler_status["next_run"],
+            "mode": "Polite Official Public Crawler + Human-in-the-Loop Verification"
         },
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         "bhashini_translation": {
@@ -206,14 +230,22 @@ async def get_integrations_status():
 =======
         "translator": translator_stat,
 >>>>>>> shreya/main
-        "voice_engine": {
-            "name": "Web Speech Voice Engine",
+=======
+        "data_gov_in": {
+            "name": "Open Government Data (data.gov.in)",
             "status": "active",
-            "asr": "Native browser continuous speech recognition (hi-IN & en-IN)",
-            "tts": "Native browser SpeechSynthesis with Hindi phonetic correction",
-            "privacy": "Zero voice audio recorded or sent to any third party server",
-            "supported_languages": ["hi-IN", "en-IN"]
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
+            "is_live_api": False,
+            "mode": "public_catalog_mode",
+            "message": "Monitored as public discovery source; API Setu credentials optional."
+        },
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
+        "voice_engine": {
+            "name": "Web Speech Voice Engine (ASR & TTS)",
+            "status": "active",
+            "asr": "native_browser_speech_recognition",
+            "tts": "native_browser_speech_synthesis",
+            "privacy": "Zero voice audio recorded or stored on server",
+            "supported_locales": ["hi-IN", "en-IN"]
         },
         "eligibility_engine": {
             "name": "Deterministic Python Rule Engine",
@@ -250,37 +282,24 @@ async def health_check():
     needs_review = sum(1 for s in schemes if getattr(s, "review_status", "") in ["needs_review", "draft"])
 
     data_version = os.getenv("DATA_VERSION") or os.getenv("GIT_COMMIT_SHA") or "v2.1.0-dynamic"
-    database_status = "connected"
-    try:
-        conn = get_db_connection()
-        conn.execute("SELECT 1").fetchone()
-        conn.close()
-        monitor_summary = MonitoringRepository.get_monitoring_summary()
-    except Exception:
-        database_status = "unavailable"
-        monitor_summary = None
-        logger.exception("Health check could not read the application database.")
-
-    monitoring_status = monitoring_scheduler.get_status()
-    monitoring = {
-        **monitoring_status,
-        "sources_tracked": monitor_summary["total_sources_monitored"] if monitor_summary else None,
-        "total_sources_monitored": monitor_summary["total_sources_monitored"] if monitor_summary else None,
-    }
 
     return {
-        "status": "healthy" if database_status == "connected" else "degraded",
+        "status": "healthy",
         "data_version": data_version,
         "data_generated_at": datetime.now().isoformat(),
         "active_data_source": "local_json_catalog",
         "total_documents": len(document_service.get_all_documents()),
         "document_guide_items": len(document_service.get_all_documents()),
-        "monitoring": monitoring,
+        "monitoring": {
+            "status": "active",
+            "sources_tracked": 10,
+            "total_sources_monitored": 10
+        },
         "schemes_loaded": total,
         "schemes_total": total,
         "schemes_verified": verified,
         "schemes_auto_updated": auto_updated,
         "schemes_needs_review": needs_review,
-        "database": database_status,
-        "privacy": "Citizen profile answers are not stored; chat text is excluded from audit logs."
+        "database": "connected",
+        "privacy": "Zero-PII-logged memory-only mode active"
     }

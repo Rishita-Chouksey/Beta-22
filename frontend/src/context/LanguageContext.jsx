@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import enTranslations from '../translations/en.json';
 import hiTranslations from '../translations/hi.json';
 import bnTranslations from '../translations/bn.json';
+<<<<<<< HEAD
 import { translateBatch, fetchTranslatorStatus } from '../services/api';
 
 const LanguageContext = createContext();
@@ -13,10 +14,24 @@ const LanguageContext = createContext();
  * a new static file.
  */
 const curated = { en: enTranslations, hi: hiTranslations, bn: bnTranslations };
+=======
+import mrTranslations from '../translations/mr.json';
+import { translateWithAzure } from '../services/api';
+
+const LanguageContext = createContext();
+
+const translationsMap = {
+  hi: hiTranslations,
+  en: enTranslations,
+  bn: bnTranslations,
+  mr: mrTranslations,
+};
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'hi', label: 'हिन्दी', nativeName: 'हिन्दी' },
   { code: 'en', label: 'English', nativeName: 'English' },
+  { code: 'mr', label: 'मराठी', nativeName: 'मराठी' },
   { code: 'bn', label: 'বাংলা', nativeName: 'বাংলা' },
 ];
 
@@ -136,8 +151,17 @@ export function LanguageProvider({ children }) {
       if (Array.isArray(source)) return source.map((x) => tr(x));
       return isBlank(source) ? '' : tr(source);
     }
+<<<<<<< HEAD
     if (typeof arg1 === 'string' || typeof arg2 === 'string') {
       return lt(arg1 || '', arg2 || '');
+=======
+    // If called as getBilingualText(text_en, text_hi)
+    if (typeof arg1 === 'string' && typeof arg2 === 'string') {
+      if (language === 'hi' || language === 'mr') return arg2 || arg1;
+      if (language === 'en') return arg1;
+      // Bengali defaults to Hindi if available or English
+      return arg2 || arg1;
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
     }
     return String(arg1 || arg2 || '');
   };

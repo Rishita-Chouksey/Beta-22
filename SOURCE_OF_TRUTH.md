@@ -202,8 +202,8 @@ Located at `backend/data/yojnasarthi.db`. Auto-initialized on startup by `init_d
 
 Located in `backend/app/monitoring/`:
 
-1. **Manual Source Registry (`source_registry.py`)**:
-   - The citizen catalogue includes 15 scheme records sourced from myScheme detail pages. `data.gov.in` and MP e-Seva are retired as discovery roots. Scheduled crawling is disabled; scheme data is stored in local JSON files, and unreviewed rules remain unavailable to the eligibility engine.
+1. **Official Source Registry (`source_registry.py`)**:
+   - Central & MP government portals tracked independently (PM-KISAN, PM-JAY, PMAY-G, NSAP, NSP, Ladli Behna, MP Scholarship 2.0 MMVY, MP e-District, MP Farmer DBT, myScheme public reference, data.gov.in).
 2. **Polite Web Crawler (`crawler.py`)**:
    - Checks `robots.txt` before fetching (`urllib.robotparser`).
    - Identifies with respectful civic User-Agent: `YojnaSarthi-SchemeMonitor/1.0 (+https://yojnasarthi.in/civic-bot)`.

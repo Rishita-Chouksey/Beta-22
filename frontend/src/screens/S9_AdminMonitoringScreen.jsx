@@ -45,18 +45,15 @@ import {
   rejectAgentUpdate,
   fetchSchemeVersions,
   fetchMonitoringOverview,
-  fetchAllSchemes,
-  fetchAdminSession,
-  loginAdmin,
-  logoutAdmin
+  fetchAllSchemes
 } from '../services/api';
 
 const AGENT_METADATA = {
   source_discovery: {
     titleEn: '1. Source Discovery Agent',
     titleHi: '1. स्रोत खोज एजेंट (Source Discovery)',
-    descEn: 'References myScheme scheme pages for the locally curated catalogue.',
-    descHi: 'स्थानीय योजना सूची के लिए myScheme योजना पृष्ठों का संदर्भ लेता है।',
+    descEn: 'Discovers public government portals, seed links (data.gov.in, eseva.mp.gov.in), and circular PDFs.',
+    descHi: 'सरकारी पोर्टलों, डेटासेट और पीडीएफ सर्कुलर की स्वचालित खोज करता है।',
     icon: Globe,
   },
   crawling: {
@@ -120,12 +117,6 @@ const AGENT_METADATA = {
 export default function S9_AdminMonitoringScreen() {
   const { language, lt } = useLanguage();
   const { setCurrentScreen } = useSession();
-  const [authChecked, setAuthChecked] = useState(false);
-  const [adminUser, setAdminUser] = useState(null);
-  const [loginUsername, setLoginUsername] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [authError, setAuthError] = useState('');
-  const [authBusy, setAuthBusy] = useState(false);
 
   // Authentication states for Restricted Administrative Portal
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -176,6 +167,9 @@ export default function S9_AdminMonitoringScreen() {
 
   useEffect(() => {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
     if (isAuthenticated) {
       loadAllData();
     }
@@ -221,6 +215,7 @@ export default function S9_AdminMonitoringScreen() {
     setPassword('');
     setAuthError('');
   };
+<<<<<<< HEAD
 =======
     fetchAdminSession()
       .then((session) => {
@@ -269,6 +264,8 @@ export default function S9_AdminMonitoringScreen() {
       setCurrentScreen('S0');
     }
   };
+=======
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 
   const loadAllData = async () => {
     setIsLoading(true);
@@ -342,7 +339,7 @@ export default function S9_AdminMonitoringScreen() {
     try {
       const res = await triggerAgentDiscover();
       if (!res.success) {
-        throw new Error((res.source_errors || []).map((item) => `${item.url}: ${item.error}`).join('; ') || 'The myScheme source page could not be read.');
+        throw new Error((res.source_errors || []).map((item) => `${item.url}: ${item.error}`).join('; ') || 'All configured discovery portals failed.');
       }
       setActionNotification({
         type: 'success',
@@ -395,7 +392,7 @@ export default function S9_AdminMonitoringScreen() {
   // Section D: Change Review Actions
   const handleApproveUpdate = async (updateId) => {
     try {
-      await approveAgentUpdate(updateId, 'Approved following official government notification verification.');
+      await approveAgentUpdate(updateId, 'Admin Verification Officer', 'Approved following official government notification verification.');
       setActionNotification({
         type: 'success',
         message: lt(`Update approved! Changes successfully published to active scheme catalog with new version.`, `अपडेट स्वीकृत! योजना कैटलॉग अपडेट हो चुका है एवं नया संस्करण दर्ज हुआ।`)
@@ -412,7 +409,7 @@ export default function S9_AdminMonitoringScreen() {
   const handleRejectUpdate = async () => {
     if (!rejectingUpdateId || !rejectReason.trim()) return;
     try {
-      await rejectAgentUpdate(rejectingUpdateId, rejectReason.trim());
+      await rejectAgentUpdate(rejectingUpdateId, 'Admin Verification Officer', rejectReason.trim());
       setActionNotification({
         type: 'info',
         message: lt('Proposed update was rejected.', 'अपडेट अस्वीकृत कर दिया गया है।')
@@ -437,6 +434,9 @@ export default function S9_AdminMonitoringScreen() {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
   if (!isAuthenticated) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
@@ -555,6 +555,7 @@ export default function S9_AdminMonitoringScreen() {
       </div>
     );
   }
+<<<<<<< HEAD
 =======
   if (!authChecked) return <div className="p-8 text-center text-slate-600">{lt('Checking administrator session…', 'प्रशासक सत्र जाँचा जा रहा है…')}</div>;
   if (!adminUser) return (
@@ -575,6 +576,8 @@ export default function S9_AdminMonitoringScreen() {
     </section>
   );
 >>>>>>> shreya/main
+=======
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-16">
@@ -638,6 +641,9 @@ export default function S9_AdminMonitoringScreen() {
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
             </button>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 
             <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
               <span className="hidden xl:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
@@ -653,9 +659,12 @@ export default function S9_AdminMonitoringScreen() {
                 <span>{language === 'hi' ? 'लॉगआउट' : 'Lock Portal'}</span>
               </button>
             </div>
+<<<<<<< HEAD
 =======
             <button onClick={handleAdminLogout} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100">{lt(`Sign out (${adminUser})`, 'लॉग आउट')}</button>
 >>>>>>> shreya/main
+=======
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
           </div>
         </div>
       </header>
@@ -731,7 +740,7 @@ export default function S9_AdminMonitoringScreen() {
                 </span>
                 <div className="text-2xl font-bold text-slate-900 mt-1">{overview.total_discovered_sources}</div>
                 <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
-                  <Globe className="w-3 h-3 text-indigo-500" /> myScheme reference pages
+                  <Globe className="w-3 h-3 text-indigo-500" /> data.gov.in & MP e-Seva
                 </div>
               </div>
 
@@ -794,7 +803,13 @@ export default function S9_AdminMonitoringScreen() {
                     {lt('Autonomous Multi-Agent Intelligence Pipeline', 'स्वायत्त बहु-एजेंट पाइपलाइन कार्यप्रणाली')}
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
+<<<<<<< HEAD
                     {lt('The agent pipeline runs only when an administrator starts a manual action. Background page scraping is disabled; citizen scheme data comes from the local curated catalogue.', '9 विशिष्ट एजेंट क्रमिक रूप से सार्वजनिक स्रोतों से नियम निकालते हैं एवं साक्ष्य की पुष्टि के बाद ही मानव समीक्षा हेतु प्रस्तुत करते हैं।')}
+=======
+                    {language === 'hi'
+                      ? '9 विशिष्ट एजेंट क्रमिक रूप से सार्वजनिक स्रोतों से नियम निकालते हैं एवं साक्ष्य की पुष्टि के बाद ही मानव समीक्षा हेतु प्रस्तुत करते हैं।'
+                      : '9 specialized Python agents autonomously discover, crawl, hash, extract, classify, validate, and queue changes.'}
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
                   </p>
                 </div>
                 <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700">
@@ -805,7 +820,7 @@ export default function S9_AdminMonitoringScreen() {
               {/* Pipeline Flow Stepper */}
               <div className="grid grid-cols-1 md:grid-cols-5 gap-3 pt-2">
                 {[
-                  { step: '1', title: 'Curated Scheme Pages', desc: 'myScheme page details are stored in the local catalogue' },
+                  { step: '1', title: 'Discovery & Crawl', desc: 'Seeds (data.gov.in, MP e-Seva) & PDFs scanned' },
                   { step: '2', title: 'SHA-256 Hash Diff', desc: 'Detects semantic modifications vs previous snapshots' },
                   { step: '3', title: 'Extraction & Grounding', desc: 'Eligibility, benefits & exact evidence quotes extracted' },
                   { step: '4', title: 'Classification & Gate', desc: 'Changes routed to Human Policy Review Gate (PENDING)' },
@@ -974,7 +989,13 @@ export default function S9_AdminMonitoringScreen() {
                   {lt('Discovered Government Sources', 'खोजे गए एवं ट्रैक किए गए सरकारी स्रोत')}
                 </h2>
                 <p className="text-xs text-slate-500">
+<<<<<<< HEAD
                   {lt('Discovered official government web pages, datasets, and circulars with verified domain boundaries.', 'myScheme के योजना पृष्ठ स्थानीय कैटलॉग में संदर्भित हैं; पृष्ठों की स्वचालित स्क्रैपिंग बंद है।')}
+=======
+                  {language === 'hi'
+                    ? 'data.gov.in और MP e-Seva से शुरू होकर सरकारी डोमेन (.gov.in, .nic.in) के सभी अधिकृत पृष्ठ।'
+                    : 'Discovered official government web pages, datasets, and circulars with verified domain boundaries.'}
+>>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
                 </p>
               </div>
 

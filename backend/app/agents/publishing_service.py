@@ -129,8 +129,6 @@ class PublishingService:
                 benefit_en = ?,
                 official_source_url = ?,
                 last_verified_date = ?,
-                review_status = 'verified',
-                verified_by_json = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE scheme_id = ?
             """, (
@@ -140,7 +138,6 @@ class PublishingService:
                 benefit_en,
                 official_url,
                 now_date,
-                json.dumps([update.reviewed_by or "Administrator", "Evidence Validation Gate"], ensure_ascii=False),
                 scheme_id
             ))
             conn.commit()
@@ -182,7 +179,7 @@ class PublishingService:
             proc = extracted.get("application_process") or []
             benefit_en = extracted.get("benefits") or "Welfare assistance"
             desc_en = extracted.get("description") or f"Government initiative: {name_en}"
-            official_url = update.source_url or extracted.get("official_application_url") or "https://www.myscheme.gov.in/"
+            official_url = update.source_url or extracted.get("official_application_url") or "https://data.gov.in/"
 
             cursor.execute("""
             INSERT INTO schemes (
@@ -190,8 +187,7 @@ class PublishingService:
                 benefit_en, benefit_hi, description_en, description_hi,
                 rules_json, required_documents_json, application_procedure_json,
                 restrictions_json, official_source_url, helpline, last_verified_date
-                , review_status, verified_by_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'verified', ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 scheme_id,
                 name_en,
@@ -209,8 +205,7 @@ class PublishingService:
                 json.dumps([], ensure_ascii=False),
                 official_url,
                 "181",
-                now_date,
-                json.dumps([update.reviewed_by or "Administrator", "Evidence Validation Gate"], ensure_ascii=False)
+                now_date
             ))
             conn.commit()
 

@@ -55,7 +55,7 @@ class PolicyReviewGate:
         logger.info(f"ProposedUpdate {update_id} submitted for scheme {scheme_id} ({change_type.value})")
         return update
 
-    def approve_update(self, update_id: str, reviewer_name: str = "Admin Officer", reason: str = "") -> Dict[str, Any]:
+    def approve_update(self, update_id: str) -> Dict[str, Any]:
         """
         Marks update as APPROVED in the database.
         """
@@ -64,13 +64,11 @@ class PolicyReviewGate:
             return {"success": False, "error": f"Update ID {update_id} not found."}
 
         now = AgentRepository.now_iso()
-        AgentRepository.update_proposed_update_status(update_id, ReviewStatus.APPROVED, reviewed_at=now,
-                                                       reviewed_by=reviewer_name, review_reason=reason)
-        logger.info("Update %s approved by %s", update_id, reviewer_name)
-        return {"success": True, "update_id": update_id, "status": ReviewStatus.APPROVED.value,
-                "reviewed_by": reviewer_name, "reason": reason}
+        AgentRepository.update_proposed_update_status(update_id, ReviewStatus.APPROVED, reviewed_at=now)
+        logger.info(f"Update {update_id} approved.")
+        return {"success": True, "update_id": update_id, "status": ReviewStatus.APPROVED.value}
 
-    def reject_update(self, update_id: str, reason: str = "", reviewer_name: str = "Admin Officer") -> Dict[str, Any]:
+    def reject_update(self, update_id: str, reason: str = "") -> Dict[str, Any]:
         """
         Marks update as REJECTED in the database.
         """
@@ -79,8 +77,6 @@ class PolicyReviewGate:
             return {"success": False, "error": f"Update ID {update_id} not found."}
 
         now = AgentRepository.now_iso()
-        AgentRepository.update_proposed_update_status(update_id, ReviewStatus.REJECTED, reviewed_at=now,
-                                                       reviewed_by=reviewer_name, review_reason=reason)
-        logger.info("Update %s rejected by %s", update_id, reviewer_name)
-        return {"success": True, "update_id": update_id, "status": ReviewStatus.REJECTED.value,
-                "reviewed_by": reviewer_name, "reason": reason}
+        AgentRepository.update_proposed_update_status(update_id, ReviewStatus.REJECTED, reviewed_at=now)
+        logger.info(f"Update {update_id} rejected. Reason: {reason}")
+        return {"success": True, "update_id": update_id, "status": ReviewStatus.REJECTED.value, "reason": reason}

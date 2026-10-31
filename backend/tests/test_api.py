@@ -1,8 +1,8 @@
 import pytest
-from tests.test_client import ApiTestClient
+from fastapi.testclient import TestClient
 from app.main import app
 
-client = ApiTestClient(app)
+client = TestClient(app)
 
 def test_health_check_endpoint():
     response = client.get("/health")

@@ -1,9 +1,9 @@
 import pytest
-from tests.test_client import ApiTestClient
+from fastapi.testclient import TestClient
 from app.main import app
 from app.services.document_service import document_service
 
-client = ApiTestClient(app)
+client = TestClient(app)
 
 def test_list_all_documents():
     response = client.get("/api/documents")

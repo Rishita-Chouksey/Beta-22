@@ -168,7 +168,7 @@ Official Text:
         if "mp.gov.in" in source_url or "madhya pradesh" in text.lower() or "मध्य प्रदेश" in text:
             state = "Madhya Pradesh"
             classification = "state"
-        elif "myscheme.gov.in" in source_url:
+        elif "data.gov.in" in source_url:
             classification = "central"
 
         # Evidence excerpts container
