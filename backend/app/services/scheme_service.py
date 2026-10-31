@@ -46,6 +46,20 @@ class SchemeService:
             except Exception as e:
                 logger.error(f"Error loading scheme from {json_file.name}: {e}")
 
+        # Also load / sync from SQLite database (which stores newly published and agent-approved schemes)
+        try:
+            from ..db.repository import SchemeRepository
+            db_schemes = SchemeRepository.get_all_schemes()
+            if db_schemes:
+                for s_data in db_schemes:
+                    try:
+                        scheme = SchemeDefinition(**s_data)
+                        self._cache[scheme.id] = scheme
+                    except Exception as err:
+                        logger.debug(f"Error parsing DB scheme {s_data.get('id')}: {err}")
+        except Exception as e:
+            logger.debug(f"DB load fallback: {e}")
+
         logger.info(f"Loaded {len(self._cache)} verified scheme definitions from {self.schemes_dir}.")
 
     def get_all_schemes(self) -> List[SchemeDefinition]:
@@ -92,5 +106,8 @@ class SchemeService:
             "auto_updated_schemes": auto_updated,
             "schemes_summary": summary
         }
+
+    def get_data_source(self) -> str:
+        return self.active_data_source
 
 scheme_service = SchemeService()

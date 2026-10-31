@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from .config import settings
-from .routes import eligibility, schemes, checklist, ai, voice, documents, bhashini, admin_monitoring, translator, agents
+from .routes import eligibility, schemes, checklist, ai, documents, admin_monitoring, translator, agents
 from .services.scheme_service import scheme_service
 from .services.myscheme_adapter import myscheme_adapter
 from .services.azure_translator_service import azure_translator_service
@@ -49,12 +49,6 @@ class SecurityAndPrivacyMiddleware(BaseHTTPMiddleware):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-<<<<<<< HEAD
-    scheme_service.load_schemes()
-    logger.info(f"Loaded {len(scheme_service.get_all_schemes())} schemes into stateless catalog.")
-    yield
-
-=======
     # Initialize SQLite database and sync verified schemes
     is_testing = bool(os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING"))
     try:
@@ -79,7 +73,6 @@ async def lifespan(app: FastAPI):
     if not is_testing:
         monitoring_scheduler.stop()
 
->>>>>>> 55f100cd459214712b6b6fcf2c39f4aa659297d0
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
@@ -109,8 +102,6 @@ app.include_router(agents.router, prefix=settings.API_PREFIX, tags=["Multi-Agent
 
 @app.get("/api/integrations/status", tags=["Integration Status"])
 async def get_integrations_status():
-<<<<<<< HEAD
-=======
     """
     Detailed status report of all system integrations:
     - myScheme / API Setu
@@ -121,7 +112,6 @@ async def get_integrations_status():
     - Scheme Intelligence & Catalogue Monitoring
     - data.gov.in Public Catalog
     """
->>>>>>> 55f100cd459214712b6b6fcf2c39f4aa659297d0
     myscheme_stat = myscheme_adapter.get_status()
     azure_stat = azure_translator_service.get_status()
 
@@ -143,35 +133,12 @@ async def get_integrations_status():
             "mode": "External GitHub Actions Updater (Feature 7)"
         },
         "azure_translator": azure_stat,
-<<<<<<< HEAD
-        "bhashini_translation": {
-            "name": "Bhashini NMT Text Translation",
-            "status": bhashini_stat["translation"],
-            "is_live_api": bhashini_stat["is_live_api"],
-            "supported_pairs": ["English ↔ Hindi", "Indic Languages"],
-            "message": bhashini_stat["message"],
-            "last_checked": bhashini_stat["last_checked"]
-        },
-        "bhashini_asr": {
-            "name": "Bhashini ASR Speech Recognition",
-            "status": bhashini_stat.get("asr", "disabled"),
-            "is_live_api": bhashini_stat.get("is_live_api", False),
-            "message": bhashini_stat.get("message", "Ready"),
-            "last_checked": bhashini_stat.get("last_checked")
-        },
-        "bhashini_tts": {
-            "name": "Bhashini Text-To-Speech",
-            "status": bhashini_stat.get("tts", "disabled"),
-            "is_live_api": bhashini_stat.get("is_live_api", False),
-            "message": bhashini_stat.get("message", "Ready"),
-            "last_checked": bhashini_stat.get("last_checked")
-        },
         "data_gov_in": {
             "name": "data.gov.in Public Catalog",
             "status": "active",
             "mode": "public_catalog_mode",
             "message": "Monitored as public discovery source; API Setu credentials optional."
-=======
+        },
         "voice_engine": {
             "name": "Web Speech Voice Engine",
             "status": "active",
@@ -179,7 +146,6 @@ async def get_integrations_status():
             "tts": "Native browser SpeechSynthesis with Hindi phonetic correction",
             "privacy": "Zero voice audio recorded or sent to any third party server",
             "supported_languages": ["hi-IN", "en-IN"]
->>>>>>> 55f100cd459214712b6b6fcf2c39f4aa659297d0
         },
         "eligibility_engine": {
             "name": "Deterministic Python Rule Engine",
