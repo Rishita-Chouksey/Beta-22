@@ -108,10 +108,9 @@ export async function fetchDocumentDetails(docId) {
 }
 
 // ==============================================================================
+// Indic Language Translation API (Sarvam AI / Azure / Local Fallback)
 // ==============================================================================
-// Microsoft Azure AI Translator API
-// ==============================================================================
-export async function translateWithAzure(text, sourceLanguage = 'en', targetLanguage = 'hi') {
+export async function translateText(text, sourceLanguage = 'en', targetLanguage = 'hi') {
   const resp = await fetch(`${API_BASE_URL}/translate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -119,10 +118,13 @@ export async function translateWithAzure(text, sourceLanguage = 'en', targetLang
   });
   if (!resp.ok) {
     const errorData = await resp.json().catch(() => ({}));
-    throw new Error(errorData.detail || errorData.error || `Azure translation failed: ${resp.status}`);
+    throw new Error(errorData.detail || errorData.error || `Translation failed: ${resp.status}`);
   }
   return await resp.json();
 }
+
+export const translateWithSarvam = translateText;
+export const translateWithAzure = translateText;
 
 export async function fetchTranslatorStatus() {
   const resp = await fetch(`${API_BASE_URL}/translate/status`);
@@ -162,8 +164,6 @@ export async function fetchIntegrationsStatus() {
   if (!resp.ok) throw new Error(`Fetch integration status failed: ${resp.status}`);
   return await resp.json();
 }
-
-
 
 // ==============================================================================
 // Admin Scheme Intelligence & Monitoring API (Protected via X-Admin-Key)

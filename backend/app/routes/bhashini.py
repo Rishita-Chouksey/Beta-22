@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 from ..services.bhashini_adapter import bhashini_adapter
 from ..services.azure_translator_service import azure_translator_service
+from ..services.sarvam_service import sarvam_service
 
 router = APIRouter()
 
@@ -46,23 +47,41 @@ class TTSResponse(BaseModel):
 @router.post("/bhashini/translate", response_model=TranslationResponse)
 async def translate_text(req: TranslationRequest):
     """
-    Translates text between supported Indic and English languages using official Bhashini NMT.
-    Protects official terms, caches queries, and falls back gracefully.
+    Translates text between supported Indic and English languages.
+    Priority: Sarvam AI -> Microsoft Azure -> Bhashini ULCA -> Local Glossary
     """
+    if sarvam_service.is_configured():
+        res = await sarvam_service.translate(
+            text=req.text,
+            source_lang=req.sourceLanguage,
+            target_lang=req.targetLanguage
+        )
+        if res.get("success", False):
+            return TranslationResponse(
+                translatedText=res.get("translated_text", req.text),
+                sourceLanguage=res.get("source_language", req.sourceLanguage),
+                targetLanguage=res.get("target_language", req.targetLanguage),
+                cached=res.get("cached", False),
+                service=res.get("service", "sarvam_ai_translate"),
+                note="Routed via Sarvam AI Mayura Translation Engine"
+            )
+
     if azure_translator_service.is_configured():
         res = await azure_translator_service.translate(
             text=req.text,
             source_lang=req.sourceLanguage,
             target_lang=req.targetLanguage
         )
-        return TranslationResponse(
-            translatedText=res.get("translated_text", req.text),
-            sourceLanguage=res.get("source_language", req.sourceLanguage),
-            targetLanguage=res.get("target_language", req.targetLanguage),
-            cached=res.get("cached", False),
-            service=res.get("service", "azure_ai_translator"),
-            note="Routed via Microsoft Azure AI Translator"
-        )
+        if res.get("success", False):
+            return TranslationResponse(
+                translatedText=res.get("translated_text", req.text),
+                sourceLanguage=res.get("source_language", req.sourceLanguage),
+                targetLanguage=res.get("target_language", req.targetLanguage),
+                cached=res.get("cached", False),
+                service=res.get("service", "azure_ai_translator"),
+                note="Routed via Microsoft Azure AI Translator"
+            )
+
     res = await bhashini_adapter.translate(
         text=req.text,
         source_lang=req.sourceLanguage,

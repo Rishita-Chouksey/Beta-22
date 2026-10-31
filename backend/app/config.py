@@ -18,6 +18,13 @@ class Settings(BaseModel):
     VERSION: str = "2.1.0"
     API_PREFIX: str = "/api"
     
+    # Sarvam AI Indic Language Integration Configuration
+    SARVAM_API_KEY: str = os.getenv("SARVAM_API_KEY", "")
+    ENABLE_SARVAM_TRANSLATION: bool = os.getenv("ENABLE_SARVAM_TRANSLATION", "true").lower() == "true"
+    SARVAM_TRANSLATE_URL: str = os.getenv("SARVAM_TRANSLATE_URL", "https://api.sarvam.ai/translate")
+    SARVAM_TTS_URL: str = os.getenv("SARVAM_TTS_URL", "https://api.sarvam.ai/text-to-speech")
+    SARVAM_STT_URL: str = os.getenv("SARVAM_STT_URL", "https://api.sarvam.ai/speech-to-text")
+
     # Microsoft Azure AI Translator Configuration
     AZURE_TRANSLATOR_KEY: str = os.getenv("AZURE_TRANSLATOR_KEY", "")
     AZURE_TRANSLATOR_REGION: str = os.getenv("AZURE_TRANSLATOR_REGION", "")
