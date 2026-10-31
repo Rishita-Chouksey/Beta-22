@@ -18,10 +18,9 @@ class Settings(BaseModel):
     VERSION: str = "2.1.0"
     API_PREFIX: str = "/api"
     
-    # Microsoft Azure AI Translator Configuration
-    AZURE_TRANSLATOR_KEY: str = os.getenv("AZURE_TRANSLATOR_KEY", "")
-    AZURE_TRANSLATOR_REGION: str = os.getenv("AZURE_TRANSLATOR_REGION", "")
-    AZURE_TRANSLATOR_ENDPOINT: str = os.getenv("AZURE_TRANSLATOR_ENDPOINT", "https://api.cognitive.microsofttranslator.com")
+    # Translation is fully offline (Argos Translate) - no API keys required.
+    TRANSLATION_ENABLED: bool = os.getenv("TRANSLATION_ENABLED", "true").lower() == "true"
+
     
     # Administrative Security & Monitoring
     # Admin authentication is disabled until all three values are configured.
@@ -50,7 +49,6 @@ class Settings(BaseModel):
     ENABLE_MYSCHEME_INTEGRATION: bool = os.getenv("ENABLE_MYSCHEME_INTEGRATION", "false").lower() == "true"
     
     # Caching TTL
-    TRANSLATION_CACHE_TTL_SECONDS: int = int(os.getenv("TRANSLATION_CACHE_TTL_SECONDS", "86400"))
     SCHEME_CACHE_TTL_SECONDS: int = int(os.getenv("SCHEME_CACHE_TTL_SECONDS", "3600"))
     
     # Schemes data directory

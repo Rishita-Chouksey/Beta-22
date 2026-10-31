@@ -19,7 +19,7 @@ import {
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S5_SchemeDetailsModal() {
-  const { language, t } = useLanguage();
+  const { language, t, lt } = useLanguage();
   const { activeSchemeModal, setActiveSchemeModal, currentScreen, openDocumentGuide } = useSession();
 
   const [fullScheme, setFullScheme] = useState(null);
@@ -37,8 +37,8 @@ export default function S5_SchemeDetailsModal() {
 
   if (!activeSchemeModal || currentScreen === 'S8') return null;
 
-  const name = language === 'hi' ? activeSchemeModal.scheme_name_hi : activeSchemeModal.scheme_name_en;
-  const benefit = language === 'hi' ? activeSchemeModal.benefit_hi : activeSchemeModal.benefit_en;
+  const name = lt(activeSchemeModal.scheme_name_en, activeSchemeModal.scheme_name_hi);
+  const benefit = lt(activeSchemeModal.benefit_en, activeSchemeModal.benefit_hi);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
@@ -49,8 +49,8 @@ export default function S5_SchemeDetailsModal() {
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-800 text-blue-300 border border-slate-700">
                 {activeSchemeModal.level === 'central'
-                  ? (language === 'hi' ? 'केंद्रीय योजना (Central)' : 'Central Scheme')
-                  : (language === 'hi' ? 'राज्य योजना (State)' : 'State Scheme')}
+                  ? (lt('Central Scheme', 'केंद्रीय योजना (Central)'))
+                  : (lt('State Scheme', 'राज्य योजना (State)'))}
               </span>
               <span className="text-xs text-slate-400 font-semibold">
                 {activeSchemeModal.category}
@@ -92,7 +92,7 @@ export default function S5_SchemeDetailsModal() {
 
               <div className="space-y-2">
                 {activeSchemeModal.rule_results.map((r, idx) => {
-                  const ruleReason = language === 'hi' ? r.reason_hi : r.reason_en;
+                  const ruleReason = lt(r.reason_en, r.reason_hi);
                   return (
                     <div
                       key={idx}
@@ -122,7 +122,7 @@ export default function S5_SchemeDetailsModal() {
               <h4 className="font-bold text-amber-900 flex items-center gap-1.5">
                 <AlertTriangle className="w-4 h-4 text-amber-700" />
                 <span>
-                  {language === 'hi' ? 'महत्वपूर्ण अपवर्जन शर्तें (Exclusions)' : 'Important Exclusion Rules'}
+                  {lt('Important Exclusion Rules', 'महत्वपूर्ण अपवर्जन शर्तें (Exclusions)')}
                 </span>
               </h4>
               <ul className="list-disc list-inside space-y-1 text-amber-950">
@@ -143,8 +143,8 @@ export default function S5_SchemeDetailsModal() {
 
               <div className="space-y-2.5">
                 {fullScheme.required_documents.map((doc) => {
-                  const docName = language === 'hi' ? doc.name_hi : doc.name_en;
-                  const docProc = language === 'hi' ? doc.how_to_get_hi : doc.how_to_get_en;
+                  const docName = lt(doc.name_en, doc.name_hi);
+                  const docProc = lt(doc.how_to_get_en, doc.how_to_get_hi);
                   return (
                     <div key={doc.id} className="p-3.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm space-y-2 shadow-2xs">
                       <div className="font-bold text-slate-900">{docName}</div>

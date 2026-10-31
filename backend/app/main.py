@@ -9,7 +9,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from .config import settings
 from .routes import eligibility, schemes, checklist, ai, documents, admin_monitoring, translator, agents, admin_auth
 from .services.scheme_service import scheme_service
-from .services.azure_translator_service import azure_translator_service
+from .services.local_translator_service import local_translator
 from .services.document_service import document_service
 from .db.database import (
     init_db,
@@ -99,7 +99,7 @@ app.include_router(schemes.router, prefix=settings.API_PREFIX, tags=["Schemes"])
 app.include_router(checklist.router, prefix=settings.API_PREFIX, tags=["Checklist"])
 app.include_router(ai.router, prefix=settings.API_PREFIX, tags=["AI Assistance"])
 app.include_router(documents.router, prefix=settings.API_PREFIX, tags=["Document Guide"])
-app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Azure AI Translator"])
+app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Offline Translation"])
 app.include_router(admin_monitoring.router, prefix=settings.API_PREFIX, tags=["Admin Scheme Monitoring"])
 app.include_router(agents.router, prefix=settings.API_PREFIX, tags=["Multi-Agent Scheme Intelligence"])
 app.include_router(admin_auth.router, prefix=settings.API_PREFIX)
@@ -109,13 +109,13 @@ async def get_integrations_status():
     """
     Detailed status report of all system integrations:
     - Manually curated myScheme scheme pages
-    - Microsoft Azure AI Translator
+    - Offline translator (Argos, no external API)
     - Web Speech Voice Engine (ASR & TTS)
     - Python Eligibility Engine
     - Document Guide
     - Scheme Intelligence & Catalogue Monitoring
     """
-    azure_stat = azure_translator_service.get_status()
+    translator_stat = local_translator.get_status()
     from .db.repository import MonitoringRepository
     monitor_summary = MonitoringRepository.get_monitoring_summary()
 
@@ -137,7 +137,7 @@ async def get_integrations_status():
             "total_sources_monitored": monitor_summary["total_sources_monitored"],
             "mode": "Manual catalogue; background crawling disabled by default"
         },
-        "azure_translator": azure_stat,
+        "translator": translator_stat,
         "voice_engine": {
             "name": "Web Speech Voice Engine",
             "status": "active",

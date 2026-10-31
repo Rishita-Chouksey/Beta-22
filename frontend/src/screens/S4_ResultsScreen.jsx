@@ -19,7 +19,7 @@ import {
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S4_ResultsScreen() {
-  const { language, t } = useLanguage();
+  const { language, t, lt, getBilingualText } = useLanguage();
   const {
     evaluationResults,
     setCurrentScreen,
@@ -65,28 +65,28 @@ export default function S4_ResultsScreen() {
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
             <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{language === 'hi' ? 'संभावित पात्र (Likely Eligible)' : 'Likely Eligible'}</span>
+            <span>{lt('Likely Eligible', 'संभावित पात्र (Likely Eligible)')}</span>
           </span>
         );
       case 'NOT SURE':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300">
             <HelpCircle className="w-3.5 h-3.5 text-amber-600" />
-            <span>{language === 'hi' ? 'सत्यापन आवश्यक (Needs Verification)' : 'Needs Verification'}</span>
+            <span>{lt('Needs Verification', 'सत्यापन आवश्यक (Needs Verification)')}</span>
           </span>
         );
       case 'NOT ELIGIBLE':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-800 border border-rose-300">
             <XCircle className="w-3.5 h-3.5 text-rose-600" />
-            <span>{language === 'hi' ? 'अपात्र (Not Eligible)' : 'Not Eligible'}</span>
+            <span>{lt('Not Eligible', 'अपात्र (Not Eligible)')}</span>
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300">
             <AlertCircle className="w-3.5 h-3.5 text-slate-500" />
-            <span>{language === 'hi' ? 'वर्तमान नियम उपलब्ध नहीं' : 'No Current Rules'}</span>
+            <span>{lt('No Current Rules', 'वर्तमान नियम उपलब्ध नहीं')}</span>
           </span>
         );
     }
@@ -104,9 +104,7 @@ export default function S4_ResultsScreen() {
               </h1>
               <AudioSpeaker
                 text={
-                  language === 'hi'
-                    ? `आप ${eligibleSchemes.length} योजनाओं के लिए संभावित पात्र हैं, और ${notSureSchemes.length} योजनाओं में अतिरिक्त सत्यापन की आवश्यकता है।`
-                    : `You are likely eligible for ${eligibleSchemes.length} schemes, with ${notSureSchemes.length} requiring further verification.`
+                  lt(`You are likely eligible for ${eligibleSchemes.length} schemes, with ${notSureSchemes.length} requiring further verification.`, `आप ${eligibleSchemes.length} योजनाओं के लिए संभावित पात्र हैं, और ${notSureSchemes.length} योजनाओं में अतिरिक्त सत्यापन की आवश्यकता है।`)
                 }
               />
             </div>
@@ -134,18 +132,16 @@ export default function S4_ResultsScreen() {
             <div className="space-y-1.5 text-xs text-amber-950">
               {contradictions.map((c, idx) => (
                 <p key={idx} className="leading-relaxed">
-                  • {language === 'hi' ? c.warning_hi : c.warning_en}
+                  • {lt(c.warning_en, c.warning_hi)}
                 </p>
               ))}
             </div>
             <div className="flex flex-col gap-2 border-t border-amber-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs leading-relaxed text-amber-950">
-                {language === 'hi'
-                  ? 'इन उत्तरों को जाँचें। यदि सरकारी अभिलेख अलग हों, तो नतीजे पर भरोसा करने से पहले संबंधित योजना कार्यालय से पुष्टि करें।'
-                  : 'Review these answers. If official records differ, confirm with the relevant scheme office before relying on the result.'}
+                {lt('Review these answers. If official records differ, confirm with the relevant scheme office before relying on the result.', 'इन उत्तरों को जाँचें। यदि सरकारी अभिलेख अलग हों, तो नतीजे पर भरोसा करने से पहले संबंधित योजना कार्यालय से पुष्टि करें।')}
               </p>
               <button onClick={() => setCurrentScreen('S3')} className="shrink-0 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 hover:bg-amber-100">
-                {language === 'hi' ? 'उत्तर जाँचें' : 'Review answers'}
+                {lt('Review answers', 'उत्तर जाँचें')}
               </button>
             </div>
           </div>
@@ -247,9 +243,9 @@ export default function S4_ResultsScreen() {
             </div>
           ) : (
             activeList.map((scheme) => {
-              const name = language === 'hi' ? scheme.scheme_name_hi : scheme.scheme_name_en;
-              const reason = language === 'hi' ? scheme.deciding_reason_hi : scheme.deciding_reason_en;
-              const benefit = language === 'hi' ? scheme.benefit_hi : scheme.benefit_en;
+              const name = lt(scheme.scheme_name_en, scheme.scheme_name_hi);
+              const reason = lt(scheme.deciding_reason_en, scheme.deciding_reason_hi);
+              const benefit = lt(scheme.benefit_en, scheme.benefit_hi);
 
               return (
                 <div
@@ -264,7 +260,7 @@ export default function S4_ResultsScreen() {
                           {scheme.level === 'central' ? t('central_scheme') : t('state_scheme')}
                         </span>
                         <span className="text-xs font-semibold text-slate-500">
-                          {language === 'hi' ? (scheme.category_hi || scheme.category) : scheme.category}
+                          {lt(scheme.category, scheme.category_hi || scheme.category, scheme.category_bn)}
                         </span>
                       </div>
 
@@ -284,19 +280,19 @@ export default function S4_ResultsScreen() {
                     {/* Deciding Reason Box */}
                     <div className="space-y-1.5 text-xs text-slate-700 bg-slate-50 border border-slate-100 p-3 rounded-xl">
                       <p className="font-semibold text-slate-900">
-                        {scheme.status === 'ELIGIBLE' && '✓ ' + (language === 'hi' ? 'पात्रता कारण: ' : 'Why recommended: ')}
-                        {scheme.status === 'NOT ELIGIBLE' && '✗ ' + (language === 'hi' ? 'अपात्रता कारण: ' : 'Reason not eligible: ')}
-                        {scheme.status === 'NOT SURE' && '? ' + (language === 'hi' ? 'सत्यापन कारण: ' : 'Verification required: ')}
-                        {scheme.status === 'NO CURRENT RULES' && '! ' + (language === 'hi' ? 'असत्यापित: ' : 'Unverified: ')}
+                        {scheme.status === 'ELIGIBLE' && '✓ ' + (lt('Why recommended: ', 'पात्रता कारण: '))}
+                        {scheme.status === 'NOT ELIGIBLE' && '✗ ' + (lt('Reason not eligible: ', 'अपात्रता कारण: '))}
+                        {scheme.status === 'NOT SURE' && '? ' + (lt('Verification required: ', 'सत्यापन कारण: '))}
+                        {scheme.status === 'NO CURRENT RULES' && '! ' + (lt('Unverified: ', 'असत्यापित: '))}
                         <span className="font-normal text-slate-700">{reason}</span>
                       </p>
                     </div>
 
                     {/* Satisfied / Unknown / Failed Conditions Breakdown */}
                     {(() => {
-                      const satList = language === 'hi' ? (scheme.satisfied_conditions_hi || scheme.satisfied_conditions) : (scheme.satisfied_conditions_en || scheme.satisfied_conditions);
-                      const unkList = language === 'hi' ? (scheme.unknown_conditions_hi || scheme.unknown_conditions) : (scheme.unknown_conditions_en || scheme.unknown_conditions);
-                      const failList = language === 'hi' ? (scheme.failed_conditions_hi || scheme.failed_conditions) : (scheme.failed_conditions_en || scheme.failed_conditions);
+                      const satList = getBilingualText({ ...scheme, satisfied_conditions_en: scheme.satisfied_conditions_en?.length ? scheme.satisfied_conditions_en : scheme.satisfied_conditions }, 'satisfied_conditions');
+                      const unkList = getBilingualText({ ...scheme, unknown_conditions_en: scheme.unknown_conditions_en?.length ? scheme.unknown_conditions_en : scheme.unknown_conditions }, 'unknown_conditions');
+                      const failList = getBilingualText({ ...scheme, failed_conditions_en: scheme.failed_conditions_en?.length ? scheme.failed_conditions_en : scheme.failed_conditions }, 'failed_conditions');
 
                       return (
                         <div className="space-y-2 pt-1 border-t border-slate-100 text-xs">

@@ -71,6 +71,23 @@ You can test the entire end-to-end journey for each persona with **one-click sho
 
 ---
 
+## 🌐 Offline Dynamic Translation (no external API)
+
+All translation runs on our own backend with **Argos Translate** (open-source, offline MT): no API keys, no per-request cost, and citizen text never leaves the server.
+
+- **Dynamic, not static**: `en` is the source of truth. Any text without a hand-written Hindi/Bengali version (new schemes, restrictions, procedures, chat prompts, new UI strings) is translated on the fly and cached in memory. `hi.json` / `bn.json` are optional curated overrides.
+- **Safe for civic content**: scheme/document names come from `data/glossary.json`; URLs, ₹ amounts, numbers and acronyms are shielded from the model.
+- **Endpoints**: `POST /api/translate`, `POST /api/translate/batch`, `GET /api/translate/status`, and `?lang=hi|bn` on `/api/schemes[/{id}]`.
+- **Frontend**: `useLanguage()` exposes `t(key)`, `lt(en, hi?, bn?)`, `tr(text)`, `getBilingualText(obj, field)` and `<Tr>`.
+- **One-time setup** (internet only for the model download):
+  ```bash
+  cd backend && pip install -r requirements.txt
+  python -m scripts.install_translation_models   # en<->hi, en<->bn; hi<->bn pivots via English
+  ```
+  Until models are installed the app still works; untranslated text shows in its original language.
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology |

@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 export default function AudioSpeaker({ text, className = '' }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const { language, t } = useLanguage();
+  const { language, t, lt } = useLanguage();
 
   const handleToggle = (e) => {
     e?.stopPropagation();
@@ -29,8 +29,8 @@ export default function AudioSpeaker({ text, className = '' }) {
           ? 'bg-teal-700 text-white border-teal-800 shadow-sm animate-pulse'
           : 'bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-900 border-slate-200'
       } w-9 h-9 flex-shrink-0 touch-target ${className}`}
-      title={isPlaying ? (language === 'hi' ? 'बोलना बंद करें' : 'Stop speaking') : t('read_aloud')}
-      aria-label={isPlaying ? (language === 'hi' ? 'बोलना बंद करें' : 'Stop speaking') : t('read_aloud')}
+      title={isPlaying ? (lt('Stop speaking', 'बोलना बंद करें')) : t('read_aloud')}
+      aria-label={isPlaying ? (lt('Stop speaking', 'बोलना बंद करें')) : t('read_aloud')}
     >
       {isPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
     </button>

@@ -20,14 +20,14 @@ export async function evaluateCitizenProfile(profile) {
   return await resp.json();
 }
 
-export async function fetchAllSchemes() {
-  const resp = await fetch(`${API_BASE_URL}/schemes`);
+export async function fetchAllSchemes(lang = null) {
+  const resp = await fetch(`${API_BASE_URL}/schemes${lang ? `?lang=${lang}` : ''}`);
   if (!resp.ok) throw new Error(`Fetch schemes failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function fetchSchemeDetails(schemeId) {
-  const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}`);
+export async function fetchSchemeDetails(schemeId, lang = null) {
+  const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}${lang ? `?lang=${lang}` : ''}`);
   if (!resp.ok) throw new Error(`Fetch scheme details failed: ${resp.status}`);
   return await resp.json();
 }
@@ -108,9 +108,9 @@ export async function fetchDocumentDetails(docId) {
 }
 
 // ==============================================================================
-// Microsoft Azure AI Translator API
+// Offline Translation API (local engine on our own backend - no third-party API)
 // ==============================================================================
-export async function translateWithAzure(text, sourceLanguage = 'en', targetLanguage = 'hi') {
+export async function translateText(text, sourceLanguage = 'auto', targetLanguage = 'hi') {
   const resp = await fetch(`${API_BASE_URL}/translate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -118,9 +118,21 @@ export async function translateWithAzure(text, sourceLanguage = 'en', targetLang
   });
   if (!resp.ok) {
     const errorData = await resp.json().catch(() => ({}));
-    throw new Error(errorData.detail || errorData.error || `Azure translation failed: ${resp.status}`);
+    throw new Error(errorData.detail || errorData.error || `Translation failed: ${resp.status}`);
   }
   return await resp.json();
+}
+
+/** Translate many dynamic strings in one round trip. Resolves to an array aligned with `texts`. */
+export async function translateBatch(texts, targetLanguage = 'hi', sourceLanguage = 'auto') {
+  const resp = await fetch(`${API_BASE_URL}/translate/batch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texts, target_language: targetLanguage, source_language: sourceLanguage }),
+  });
+  if (!resp.ok) throw new Error(`Batch translation failed: ${resp.status}`);
+  const data = await resp.json();
+  return data.translations;
 }
 
 export async function fetchTranslatorStatus() {

@@ -11,7 +11,7 @@ def test_integration_status_endpoint():
     
     # Check all active systems are reported
     assert "myscheme" in data
-    assert "azure_translator" in data
+    assert "translator" in data
     assert "voice_engine" in data
     assert "eligibility_engine" in data
     assert "document_guide" in data
@@ -19,7 +19,8 @@ def test_integration_status_endpoint():
     # Check status values
     assert data["myscheme"]["status"] == "manual_catalog"
     assert data["myscheme"]["automated_scraping"] is False
-    assert data["azure_translator"]["status"] in ["active", "configured_awaiting_credentials"]
+    assert data["translator"]["is_external_api"] is False
+    assert data["translator"]["status"] in ["active", "models_not_installed"]
     assert data["voice_engine"]["status"] == "active"
     assert data["eligibility_engine"]["status"] == "active"
     assert data["document_guide"]["status"] == "active"
