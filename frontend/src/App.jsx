@@ -19,7 +19,7 @@ import { Shield } from 'lucide-react';
 
 function MainAppContent() {
   const { currentScreen, setCurrentScreen } = useSession();
-  const { language } = useLanguage();
+  const { language, lt } = useLanguage();
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-100 selection:text-blue-900">
@@ -46,20 +46,16 @@ function MainAppContent() {
             <span className="font-semibold text-slate-700">YojnaSarthi</span>
             <span>•</span>
             <span>
-              {language === 'hi'
-                ? 'नागरिक कल्याण एवं सार्वजनिक योजना सहायता'
-                : 'Citizen Welfare & Public Scheme Assistance'}
+              {lt('Citizen Welfare & Public Scheme Assistance', 'नागरिक कल्याण एवं सार्वजनिक योजना सहायता')}
             </span>
           </div>
           <div className="flex items-center gap-4 text-[11px] text-slate-400">
             <span>
-              {language === 'hi' ? 'सत्यापित सरकारी नियम' : 'Verified Official Rules'}
+              {lt('Verified Official Rules', 'सत्यापित सरकारी नियम')}
             </span>
             <span>•</span>
             <span>
-              {language === 'hi'
-                ? 'शून्य डेटा संचयन (Zero Retention)'
-                : 'Zero Data Retention'}
+              {lt('No profile storage', 'प्रोफ़ाइल सहेजी नहीं जाती')}
             </span>
             <span>•</span>
             <button
@@ -68,7 +64,7 @@ function MainAppContent() {
               title="Admin Scheme Intelligence Monitor"
             >
               <Shield className="w-3 h-3 text-teal-600" />
-              <span>{language === 'hi' ? 'प्रशासनिक निगरानी' : 'Admin Monitor'}</span>
+              <span>{lt('Admin Monitor', 'प्रशासनिक निगरानी')}</span>
             </button>
           </div>
         </div>

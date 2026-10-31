@@ -71,6 +71,24 @@ You can test the entire end-to-end journey for each persona with **one-click sho
 
 ---
 
+## 🌐 Offline Dynamic Translation (no external API)
+
+All translation runs on our own backend with **Argos Translate** (open-source, offline MT): no API keys, no per-request cost, and citizen text never leaves the server.
+
+- **Dynamic, not static**: `en` is the source of truth. Any text without a hand-written Hindi/Bengali version (new schemes, restrictions, procedures, chat prompts, new UI strings) is translated on the fly and cached in memory. `hi.json` / `bn.json` are optional curated overrides.
+- **Safe for civic content**: scheme/document names come from `data/glossary.json`; URLs, ₹ amounts, numbers and acronyms are shielded from the model.
+- **Endpoints**: `POST /api/translate`, `POST /api/translate/batch`, `GET /api/translate/status`, and `?lang=hi|bn` on `/api/schemes[/{id}]`.
+- **Frontend**: `useLanguage()` exposes `t(key)`, `lt(en, hi?, bn?)`, `tr(text)`, `getBilingualText(obj, field)` and `<Tr>`.
+- **One-time setup** (internet only for the model download):
+  ```bash
+  cd backend && pip install -r requirements.txt
+  python -m scripts.install_translation_models   # en<->hi, en<->bn; hi<->bn pivots via English
+  # blocked network? download the .argosmodel files elsewhere, then add: --dir <folder>
+  ```
+  Until models are installed the app still works; untranslated text shows in its original language.
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology |
@@ -160,6 +178,19 @@ python -m pytest -v
 
 ## 🚀 Deployment Instructions
 
+### Local admin setup (PowerShell)
+The Admin Monitor is disabled until a username, PBKDF2 password hash, and 32+ character session secret are configured. From `backend`:
+
+```powershell
+Copy-Item .env.example .env
+.\.venv\Scripts\python.exe -c "from getpass import getpass; from app.admin_auth import hash_admin_password; print(hash_admin_password(getpass('Admin password: ')))"
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Put the generated password hash and session secret in `backend/.env`, set `ADMIN_USERNAME`, and keep `ADMIN_COOKIE_SECURE=false` only for local HTTP development. Production must use HTTPS, `ADMIN_COOKIE_SECURE=true`, and set `CORS_ALLOWED_ORIGINS` to the deployed frontend origin. For a separate frontend/backend site (for example Vercel + Render), also set `ADMIN_COOKIE_SAMESITE=none`; keep the CSRF header protection enabled. A same-site custom domain can use `strict`. Login is rate-limited; sessions expire after 30 minutes and use HttpOnly cookies plus CSRF checks. Do not use `X-Admin-Key`; shared-key access has been removed. Citizen scheme details are served from the local JSON catalogue, with myScheme page links; no myScheme API credentials are required and scheduled scraping is disabled by default.
+
+`ENABLE_MONITORING_DEMO_DATA` defaults to `false`. Set it to `true` only for a demo database; synthetic rows are excluded from normal monitoring counts and lists.
+
 ### Frontend (Vercel)
 1. Push repository to GitHub.
 2. In Vercel, import the repository and set **Root Directory** to `frontend`.
@@ -171,7 +202,7 @@ python -m pytest -v
 2. Set **Root Directory** to `backend`.
 3. Build Command: `pip install -r requirements.txt`.
 4. Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
-5. Add Environment Variables from `.env.example`.
+5. Add backend environment variables from `backend/.env.example`; generate the admin password hash as shown above. Set `ADMIN_COOKIE_SECURE=true` and the deployed frontend origin in `CORS_ALLOWED_ORIGINS`.
 6. Deploy!
 
 ---

@@ -18,7 +18,7 @@ import {
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S0_StartScreen() {
-  const { language, t } = useLanguage();
+  const { language, t, lt } = useLanguage();
   const { setCurrentScreen, setProfile, openDocumentGuide } = useSession();
   const [rulesStatus, setRulesStatus] = useState(null);
 
@@ -93,24 +93,18 @@ export default function S0_StartScreen() {
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-700/60 text-blue-200 text-xs font-semibold backdrop-blur-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>
-                {language === 'hi'
-                  ? 'सत्यापित सरकारी कल्याण पोर्टल • 100% सटीक नियम'
-                  : 'Verified Government Scheme Guide • 100% Deterministic Rules'}
+                {lt('Verified Government Scheme Guide • 100% Deterministic Rules', 'सत्यापित सरकारी कल्याण पोर्टल • 100% सटीक नियम')}
               </span>
             </div>
 
             {/* Heading with Speaker */}
             <div className="flex items-start justify-between gap-4">
               <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                {language === 'hi'
-                  ? 'सरकारी योजनाओं में अपने अधिकार और पात्रता जानें'
-                  : 'Discover Government Schemes You May Be Eligible For'}
+                {lt('Discover Government Schemes You May Be Eligible For', 'सरकारी योजनाओं में अपने अधिकार और पात्रता जानें')}
               </h1>
               <AudioSpeaker
                 text={
-                  language === 'hi'
-                    ? 'सरकारी योजनाओं में अपने अधिकार और पात्रता जानें। 2 मिनट से भी कम समय में अपने अधिकार, आवश्यक दस्तावेज़ और आवेदन प्रक्रिया जानें।'
-                    : 'Discover Government Schemes You May Be Eligible For in less than 2 minutes.'
+                  lt('Discover Government Schemes You May Be Eligible For in less than 2 minutes.', 'सरकारी योजनाओं में अपने अधिकार और पात्रता जानें। 2 मिनट से भी कम समय में अपने अधिकार, आवश्यक दस्तावेज़ और आवेदन प्रक्रिया जानें।')
                 }
                 className="mt-1 flex-shrink-0 bg-blue-900/60 border-blue-700 text-white hover:bg-blue-800"
               />
@@ -118,9 +112,7 @@ export default function S0_StartScreen() {
 
             {/* Subtitle */}
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
-              {language === 'hi'
-                ? 'आधिकारिक सरकारी नियमों के आधार पर तुरंत अपनी पात्रता जांचें, आवश्यक दस्तावेज़ों का आधिकारिक नमूना देखें और सीधे अधिकृत पोर्टल पर आवेदन करें। कोई लॉगिन आवश्यक नहीं, न ही कोई डेटा सहेजा जाता है।'
-                : 'Find out your exact entitlement, required documents with illustrative sample previews, and application procedure in less than 2 minutes. Guidance is strictly based on verified official criteria.'}
+              {lt('Find out your exact entitlement, required documents with illustrative sample previews, and application procedure in less than 2 minutes. Guidance is strictly based on verified official criteria.', 'आधिकारिक सरकारी नियमों के आधार पर तुरंत अपनी पात्रता जांचें, आवश्यक दस्तावेज़ों का आधिकारिक नमूना देखें और सीधे अधिकृत पोर्टल पर आवेदन करें। कोई लॉगिन आवश्यक नहीं, न ही कोई डेटा सहेजा जाता है।')}
             </p>
 
             {/* Hero Quick Metrics */}
@@ -128,19 +120,19 @@ export default function S0_StartScreen() {
               <span className="flex items-center gap-1.5 bg-blue-950/60 px-3 py-1.5 rounded-lg border border-blue-800/40">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 <span>
-                  {language === 'hi' ? 'सत्यापित नियम' : 'Deterministic Rules'}
+                  {lt('Deterministic Rules', 'सत्यापित नियम')}
                 </span>
               </span>
               <span className="flex items-center gap-1.5 bg-blue-950/60 px-3 py-1.5 rounded-lg border border-blue-800/40">
                 <FileCheck2 className="w-4 h-4 text-amber-400 flex-shrink-0" />
                 <span>
-                  {language === 'hi' ? 'दस्तावेज़ गाइड व नमूने' : 'Document Guide & Samples'}
+                  {lt('Document Guide & Samples', 'दस्तावेज़ गाइड व नमूने')}
                 </span>
               </span>
               <span className="flex items-center gap-1.5 bg-blue-950/60 px-3 py-1.5 rounded-lg border border-blue-800/40">
                 <Lock className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                 <span>
-                  {language === 'hi' ? 'शून्य डेटा संचयन' : 'Zero Data Retention'}
+                  {lt('No profile storage', 'प्रोफ़ाइल सहेजी नहीं जाती')}
                 </span>
               </span>
             </div>
@@ -149,28 +141,28 @@ export default function S0_StartScreen() {
           {/* Citizen Representation Visual Pillar (Image 2 & 3 Aesthetic) */}
           <div className="lg:col-span-4 bg-gradient-to-b from-blue-950/50 to-slate-900/80 p-5 rounded-2xl border border-blue-800/40 backdrop-blur-xs space-y-3 text-center sm:text-left">
             <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300">
-              {language === 'hi' ? 'सभी नागरिकों के लिए कल्याणकारी सेवाएं' : 'Welfare Services for Every Citizen'}
+              {lt('Welfare Services for Every Citizen', 'सभी नागरिकों के लिए कल्याणकारी सेवाएं')}
             </p>
             <div className="grid grid-cols-2 gap-2.5">
               <div className="bg-[#12234a]/80 p-3 rounded-xl border border-blue-800/30 text-center space-y-1">
                 <span className="text-2xl">🌾</span>
-                <p className="text-xs font-bold text-white">{language === 'hi' ? 'किसान कल्याण' : 'Farmers'}</p>
-                <p className="text-[10px] text-slate-400">{language === 'hi' ? 'PM-Kisan, सिंचाई' : 'Direct Aid'}</p>
+                <p className="text-xs font-bold text-white">{lt('Farmers', 'किसान कल्याण')}</p>
+                <p className="text-[10px] text-slate-400">{lt('Direct Aid', 'PM-Kisan, सिंचाई')}</p>
               </div>
               <div className="bg-[#12234a]/80 p-3 rounded-xl border border-blue-800/30 text-center space-y-1">
                 <span className="text-2xl">👩‍💼</span>
-                <p className="text-xs font-bold text-white">{language === 'hi' ? 'महिला सशक्तिकरण' : 'Women'}</p>
-                <p className="text-[10px] text-slate-400">{language === 'hi' ? 'लाड़ली बहना, पेंशन' : 'Social Security'}</p>
+                <p className="text-xs font-bold text-white">{lt('Women', 'महिला सशक्तिकरण')}</p>
+                <p className="text-[10px] text-slate-400">{lt('Social Security', 'लाड़ली बहना, पेंशन')}</p>
               </div>
               <div className="bg-[#12234a]/80 p-3 rounded-xl border border-blue-800/30 text-center space-y-1">
                 <span className="text-2xl">🎓</span>
-                <p className="text-xs font-bold text-white">{language === 'hi' ? 'विद्यार्थी' : 'Students'}</p>
-                <p className="text-[10px] text-slate-400">{language === 'hi' ? 'MMVY छात्रवृत्ति' : 'Scholarships'}</p>
+                <p className="text-xs font-bold text-white">{lt('Students', 'विद्यार्थी')}</p>
+                <p className="text-[10px] text-slate-400">{lt('Scholarships', 'MMVY छात्रवृत्ति')}</p>
               </div>
               <div className="bg-[#12234a]/80 p-3 rounded-xl border border-blue-800/30 text-center space-y-1">
                 <span className="text-2xl">👨‍👩‍👧‍👦</span>
-                <p className="text-xs font-bold text-white">{language === 'hi' ? 'परिवार' : 'Families'}</p>
-                <p className="text-[10px] text-slate-400">{language === 'hi' ? 'आवास, राशन, स्वास्थ्य' : 'Housing & Health'}</p>
+                <p className="text-xs font-bold text-white">{lt('Families', 'परिवार')}</p>
+                <p className="text-[10px] text-slate-400">{lt('Housing & Health', 'आवास, राशन, स्वास्थ्य')}</p>
               </div>
             </div>
           </div>
@@ -182,10 +174,10 @@ export default function S0_StartScreen() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-              {language === 'hi' ? 'पात्रता जांच के दो आसान तरीके' : 'Two Easy Ways to Check Eligibility'}
+              {lt('Two Easy Ways to Check Eligibility', 'पात्रता जांच के दो आसान तरीके')}
             </h2>
             <p className="text-xs text-slate-500">
-              {language === 'hi' ? 'अपनी सुविधा के अनुसार कोई भी एक विकल्प चुनें:' : 'Choose either method to discover your entitlements:'}
+              {lt('Choose either method to discover your entitlements:', 'अपनी सुविधा के अनुसार कोई भी एक विकल्प चुनें:')}
             </p>
           </div>
         </div>
@@ -204,18 +196,16 @@ export default function S0_StartScreen() {
                   <ClipboardList className="w-7 h-7" />
                 </div>
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
-                  {language === 'hi' ? 'अनुशंसित (Recommended)' : 'Recommended'}
+                  {lt('Recommended', 'अनुशंसित (Recommended)')}
                 </span>
               </div>
 
               <div className="space-y-2">
                 <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-blue-700 transition-colors">
-                  {language === 'hi' ? '१. कुछ सरल प्रश्नों के उत्तर दें' : '1. Answer a Few Questions'}
+                  {lt('1. Answer a Few Questions', '१. कुछ सरल प्रश्नों के उत्तर दें')}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {language === 'hi'
-                    ? 'अपनी प्रोफ़ाइल के अनुसार 4 से 8 सीधे प्रश्नों के उत्तर दें। प्रत्येक प्रश्न के साथ कारण और उदाहरण समझाए गए हैं।'
-                    : 'Answer 4 to 8 simple, step-by-step questions tailored to your profile. Every question explains why it is asked.'}
+                  {lt('Answer 4 to 8 simple, step-by-step questions tailored to your profile. Every question explains why it is asked.', 'अपनी प्रोफ़ाइल के अनुसार 4 से 8 सीधे प्रश्नों के उत्तर दें। प्रत्येक प्रश्न के साथ कारण और उदाहरण समझाए गए हैं।')}
                 </p>
               </div>
 
@@ -227,7 +217,7 @@ export default function S0_StartScreen() {
 
             <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
               <span className="text-sm font-bold text-blue-700 group-hover:underline flex items-center gap-1.5">
-                <span>{language === 'hi' ? 'प्रश्नावली शुरू करें' : 'Start Questionnaire'}</span>
+                <span>{lt('Start Questionnaire', 'प्रश्नावली शुरू करें')}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
               <span className="text-xs text-slate-400 font-medium">
@@ -249,24 +239,22 @@ export default function S0_StartScreen() {
                   <Mic className="w-7 h-7" />
                 </div>
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
-                  {language === 'hi' ? 'आवाज़ या विवरण' : 'Voice or Text'}
+                  {lt('Voice or Text', 'आवाज़ या विवरण')}
                 </span>
               </div>
 
               <div className="space-y-2">
                 <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-teal-700 transition-colors">
-                  {language === 'hi' ? '२. अपने बारे में बोलकर या लिखकर बताएं' : '2. Tell Us About Yourself'}
+                  {lt('2. Tell Us About Yourself', '२. अपने बारे में बोलकर या लिखकर बताएं')}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {language === 'hi'
-                    ? 'अपनी भाषा में बोलें या लिखें (जैसे "मैं रीवा का किसान हूँ, 2 एकड़ जमीन है")। एआई जानकारी निकालेगा और पुष्टि के बाद ही नियम लागू होंगे।'
-                    : 'Speak in your mother tongue or type naturally. Our assistant extracts profile fields for your explicit review before applying verified rules.'}
+                  {lt('Speak in your mother tongue or type naturally. Our assistant extracts profile fields for your explicit review before applying verified rules.', 'अपनी भाषा में बोलें या लिखें (जैसे "मैं रीवा का किसान हूँ, 2 एकड़ जमीन है")। एआई जानकारी निकालेगा और पुष्टि के बाद ही नियम लागू होंगे।')}
                 </p>
               </div>
 
               <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-500">
                 <span className="bg-slate-100 px-2.5 py-1 rounded-md">
-                  {language === 'hi' ? '🎙️ आवाज़ सहायता' : '🎙️ Voice Support'}
+                  {lt('🎙️ Voice Support', '🎙️ आवाज़ सहायता')}
                 </span>
                 <span className="bg-slate-100 px-2.5 py-1 rounded-md">👁️ नागरिक समीक्षा अनिवार्य</span>
               </div>
@@ -274,7 +262,7 @@ export default function S0_StartScreen() {
 
             <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
               <span className="text-sm font-bold text-teal-700 group-hover:underline flex items-center gap-1.5">
-                <span>{language === 'hi' ? 'बोलें या लिखें' : 'Speak or Type'}</span>
+                <span>{lt('Speak or Type', 'बोलें या लिखें')}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
               <span className="text-xs text-slate-400 font-medium">
@@ -291,17 +279,13 @@ export default function S0_StartScreen() {
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold border border-amber-300">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>{language === 'hi' ? 'नया फीचर: आधिकारिक दस्तावेज़ मार्गदर्शिका' : 'New Feature: Official Document Guide'}</span>
+              <span>{lt('New Feature: Official Document Guide', 'नया फीचर: आधिकारिक दस्तावेज़ मार्गदर्शिका')}</span>
             </div>
             <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
-              {language === 'hi'
-                ? 'सरकारी प्रमाण पत्र कैसे बनवाएं? सांकेतिक नमूने एवं सीधे ऑनलाइन आवेदन लिंक'
-                : 'How to Obtain Scheme Documents? Sample Previews & Direct Portal Links'}
+              {lt('How to Obtain Scheme Documents? Sample Previews & Direct Portal Links', 'सरकारी प्रमाण पत्र कैसे बनवाएं? सांकेतिक नमूने एवं सीधे ऑनलाइन आवेदन लिंक')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              {language === 'hi'
-                ? 'आय प्रमाण पत्र, मूल निवास, जाति प्रमाण पत्र, समग्र आईडी, 12वीं अंकसूची आदि के जारीकर्ता, क्या जांचना है, सांकेतिक नमूने और सीधे आधिकारिक सरकारी आवेदन पोर्टल (जैसे MP e-District, UIDAI, crsorgi) की पूरी जानकारी।'
-                : 'Complete catalogue of required government proofs with issuing authorities, step-by-step procedures, watermarked synthetic sample previews, and verified application portal links.'}
+              {lt('Complete catalogue of required government proofs with issuing authorities, step-by-step procedures, watermarked synthetic sample previews, and verified application portal links.', 'आय प्रमाण पत्र, मूल निवास, जाति प्रमाण पत्र, समग्र आईडी, 12वीं अंकसूची आदि के जारीकर्ता, क्या जांचना है, सांकेतिक नमूने और सीधे आधिकारिक सरकारी आवेदन पोर्टल (जैसे MP e-District, UIDAI, crsorgi) की पूरी जानकारी।')}
             </p>
             <div className="flex flex-wrap gap-2 pt-1 text-[11px] font-semibold text-amber-900">
               <span className="bg-amber-100/70 px-2.5 py-0.5 rounded border border-amber-200">11+ सरकारी प्रमाण पत्र</span>
@@ -316,7 +300,7 @@ export default function S0_StartScreen() {
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-sm shadow-md transition-all min-h-[48px]"
             >
               <FileCheck2 className="w-4 h-4" />
-              <span>{language === 'hi' ? 'दस्तावेज़ मार्गदर्शिका खोलें' : 'Open Document Guide'}</span>
+              <span>{lt('Open Document Guide', 'दस्तावेज़ मार्गदर्शिका खोलें')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
@@ -324,7 +308,7 @@ export default function S0_StartScreen() {
               className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs border border-slate-300 transition-colors min-h-[48px]"
             >
               <FileText className="w-4 h-4 text-slate-500" />
-              <span>{language === 'hi' ? 'कठिन फॉर्म शब्द समझें' : 'Form Terms'}</span>
+              <span>{lt('Form Terms', 'कठिन फॉर्म शब्द समझें')}</span>
             </button>
           </div>
         </div>
@@ -336,21 +320,17 @@ export default function S0_StartScreen() {
           <div>
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>{language === 'hi' ? 'त्वरित डेमो परीक्षण (Demo Personas)' : 'Quick Demo Personas (Instant Evaluation)'}</span>
+              <span>{lt('Quick Demo Personas (Instant Evaluation)', 'त्वरित डेमो परीक्षण (Demo Personas)')}</span>
             </h3>
             <p className="text-xs text-slate-500">
-              {language === 'hi'
-                ? 'हैकथॉन मूल्यांकन हेतु एक क्लिक में तीनों प्रमुख प्रोफाइल का परीक्षण करें:'
-                : 'Click any profile below to instantly test the full end-to-end evaluation journey:'}
+              {lt('Click any profile below to instantly test the full end-to-end evaluation journey:', 'हैकथॉन मूल्यांकन हेतु एक क्लिक में तीनों प्रमुख प्रोफाइल का परीक्षण करें:')}
             </p>
           </div>
           {rulesStatus && (
             <div className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 self-start sm:self-auto">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               <span className="font-semibold">
-                {language === 'hi'
-                  ? `${rulesStatus.verified_schemes} सत्यापित सरकारी योजनाएं सक्रिय`
-                  : `${rulesStatus.verified_schemes} Verified Schemes Active`}
+                {lt(`${rulesStatus.verified_schemes} Verified Schemes Active`, `${rulesStatus.verified_schemes} सत्यापित सरकारी योजनाएं सक्रिय`)}
               </span>
             </div>
           )}
@@ -365,17 +345,17 @@ export default function S0_StartScreen() {
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-2xl">🌾</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                {language === 'hi' ? 'किसान' : 'Farmer'}
+                {lt('Farmer', 'किसान')}
               </span>
             </div>
             <h4 className="font-bold text-slate-900 text-sm group-hover:text-emerald-800 transition-colors">
-              {language === 'hi' ? 'ग्रामीण किसान' : 'Rural Farmer'}
+              {lt('Rural Farmer', 'ग्रामीण किसान')}
             </h4>
             <p className="text-xs text-slate-500 mt-0.5">
-              {language === 'hi' ? '48 वर्ष, 1.5 हेक्टेयर भूमि, मध्य प्रदेश' : '48y, 1.5 ha land, MP resident'}
+              {lt('48y, 1.5 ha land, MP resident', '48 वर्ष, 1.5 हेक्टेयर भूमि, मध्य प्रदेश')}
             </p>
             <div className="mt-2 text-[11px] font-semibold text-emerald-700 flex items-center gap-1">
-              <span>{language === 'hi' ? 'पात्र: PM-Kisan, PMAY-G' : 'Eligible: PM-Kisan, PMAY-G'}</span>
+              <span>{lt('Eligible: PM-Kisan, PMAY-G', 'पात्र: PM-Kisan, PMAY-G')}</span>
               <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
@@ -388,17 +368,17 @@ export default function S0_StartScreen() {
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-2xl">👩</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
-                {language === 'hi' ? 'विधवा' : 'Widow'}
+                {lt('Widow', 'विधवा')}
               </span>
             </div>
             <h4 className="font-bold text-slate-900 text-sm group-hover:text-rose-800 transition-colors">
-              {language === 'hi' ? 'विधवा महिला' : 'Widowed Woman'}
+              {lt('Widowed Woman', 'विधवा महिला')}
             </h4>
             <p className="text-xs text-slate-500 mt-0.5">
-              {language === 'hi' ? '52 वर्ष, BPL राशन कार्ड, मध्य प्रदेश' : '52y, BPL card, MP resident'}
+              {lt('52y, BPL card, MP resident', '52 वर्ष, BPL राशन कार्ड, मध्य प्रदेश')}
             </p>
             <div className="mt-2 text-[11px] font-semibold text-rose-700 flex items-center gap-1">
-              <span>{language === 'hi' ? 'पात्र: IGNWPS, लाड़ली बहना' : 'Eligible: IGNWPS, Ladli Behna'}</span>
+              <span>{lt('Eligible: IGNWPS, Ladli Behna', 'पात्र: IGNWPS, लाड़ली बहना')}</span>
               <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
@@ -411,17 +391,17 @@ export default function S0_StartScreen() {
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-2xl">🎓</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
-                {language === 'hi' ? 'विद्यार्थी' : 'Student'}
+                {lt('Student', 'विद्यार्थी')}
               </span>
             </div>
             <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-800 transition-colors">
-              {language === 'hi' ? 'कॉलेज छात्र' : 'College Student'}
+              {lt('College Student', 'कॉलेज छात्र')}
             </h4>
             <p className="text-xs text-slate-500 mt-0.5">
-              {language === 'hi' ? '19 वर्ष, 86% 12वीं बोर्ड, मध्य प्रदेश' : '19y, 86% marks, MP domicile'}
+              {lt('19y, 86% marks, MP domicile', '19 वर्ष, 86% 12वीं बोर्ड, मध्य प्रदेश')}
             </p>
             <div className="mt-2 text-[11px] font-semibold text-blue-700 flex items-center gap-1">
-              <span>{language === 'hi' ? 'पात्र: MMVY छात्रवृत्ति' : 'Eligible: MMVY Scholarship'}</span>
+              <span>{lt('Eligible: MMVY Scholarship', 'पात्र: MMVY छात्रवृत्ति')}</span>
               <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
@@ -433,40 +413,40 @@ export default function S0_StartScreen() {
         <div className="p-4 bg-white border border-slate-200/80 rounded-xl space-y-1 text-center">
           <Languages className="w-5 h-5 text-blue-600 mx-auto mb-1" />
           <h5 className="font-bold text-xs text-slate-900">
-            {language === 'hi' ? 'द्विभाषी सहायता' : 'Bilingual Support'}
+            {lt('Bilingual Support', 'द्विभाषी सहायता')}
           </h5>
           <p className="text-[11px] text-slate-500">
-            {language === 'hi' ? 'हिन्दी और अंग्रेजी' : 'Hindi & English'}
+            {lt('Hindi & English', 'हिन्दी और अंग्रेजी')}
           </p>
         </div>
 
         <div className="p-4 bg-white border border-slate-200/80 rounded-xl space-y-1 text-center">
           <BookOpenCheck className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
           <h5 className="font-bold text-xs text-slate-900">
-            {language === 'hi' ? 'आधिकारिक स्रोत' : 'Official Sources'}
+            {lt('Official Sources', 'आधिकारिक स्रोत')}
           </h5>
           <p className="text-[11px] text-slate-500">
-            {language === 'hi' ? 'सत्यापित नियम' : 'Verified Guidelines'}
+            {lt('Verified Guidelines', 'सत्यापित नियम')}
           </p>
         </div>
 
         <div className="p-4 bg-white border border-slate-200/80 rounded-xl space-y-1 text-center">
           <FileCheck2 className="w-5 h-5 text-indigo-600 mx-auto mb-1" />
           <h5 className="font-bold text-xs text-slate-900">
-            {language === 'hi' ? 'दस्तावेज़ चेकलिस्ट' : 'Document Checklist'}
+            {lt('Document Checklist', 'दस्तावेज़ चेकलिस्ट')}
           </h5>
           <p className="text-[11px] text-slate-500">
-            {language === 'hi' ? 'एकीकृत एवं प्रिंट' : 'De-duplicated & Print'}
+            {lt('De-duplicated & Print', 'एकीकृत एवं प्रिंट')}
           </p>
         </div>
 
         <div className="p-4 bg-white border border-slate-200/80 rounded-xl space-y-1 text-center">
           <Lock className="w-5 h-5 text-amber-600 mx-auto mb-1" />
           <h5 className="font-bold text-xs text-slate-900">
-            {language === 'hi' ? 'गोपनीयता की गारंटी' : 'Privacy Guarantee'}
+            {lt('Privacy Guarantee', 'गोपनीयता की गारंटी')}
           </h5>
           <p className="text-[11px] text-slate-500">
-            {language === 'hi' ? 'शून्य डेटा संचयन' : 'Zero Data Retention'}
+            {lt('No profile storage', 'प्रोफ़ाइल सहेजी नहीं जाती')}
           </p>
         </div>
       </section>

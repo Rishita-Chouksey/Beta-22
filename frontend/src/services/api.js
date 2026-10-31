@@ -20,14 +20,14 @@ export async function evaluateCitizenProfile(profile) {
   return await resp.json();
 }
 
-export async function fetchAllSchemes() {
-  const resp = await fetch(`${API_BASE_URL}/schemes`);
+export async function fetchAllSchemes(lang = null) {
+  const resp = await fetch(`${API_BASE_URL}/schemes${lang ? `?lang=${lang}` : ''}`);
   if (!resp.ok) throw new Error(`Fetch schemes failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function fetchSchemeDetails(schemeId) {
-  const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}`);
+export async function fetchSchemeDetails(schemeId, lang = null) {
+  const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}${lang ? `?lang=${lang}` : ''}`);
   if (!resp.ok) throw new Error(`Fetch scheme details failed: ${resp.status}`);
   return await resp.json();
 }
@@ -109,6 +109,7 @@ export async function fetchDocumentDetails(docId) {
 
 // ==============================================================================
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Indic Language Translation API (Sarvam AI / Azure / Local Fallback)
 // ==============================================================================
 export async function translateText(text, sourceLanguage = 'en', targetLanguage = 'hi') {
@@ -117,6 +118,11 @@ export async function translateText(text, sourceLanguage = 'en', targetLanguage 
 // ==============================================================================
 export async function translateWithAzure(text, sourceLanguage = 'en', targetLanguage = 'hi') {
 >>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
+=======
+// Offline Translation API (local engine on our own backend - no third-party API)
+// ==============================================================================
+export async function translateText(text, sourceLanguage = 'auto', targetLanguage = 'hi') {
+>>>>>>> shreya/main
   const resp = await fetch(`${API_BASE_URL}/translate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -129,8 +135,22 @@ export async function translateWithAzure(text, sourceLanguage = 'en', targetLang
   return await resp.json();
 }
 
+<<<<<<< HEAD
 export const translateWithSarvam = translateText;
 export const translateWithAzure = translateText;
+=======
+/** Translate many dynamic strings in one round trip. Resolves to an array aligned with `texts`. */
+export async function translateBatch(texts, targetLanguage = 'hi', sourceLanguage = 'auto') {
+  const resp = await fetch(`${API_BASE_URL}/translate/batch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texts, target_language: targetLanguage, source_language: sourceLanguage }),
+  });
+  if (!resp.ok) throw new Error(`Batch translation failed: ${resp.status}`);
+  const data = await resp.json();
+  return data.translations;
+}
+>>>>>>> shreya/main
 
 export async function fetchTranslatorStatus() {
   const resp = await fetch(`${API_BASE_URL}/translate/status`);
@@ -145,90 +165,136 @@ export async function fetchIntegrationsStatus() {
 }
 
 // ==============================================================================
-// Admin Scheme Intelligence & Monitoring API (Protected via X-Admin-Key)
+// Admin APIs use signed HttpOnly sessions and CSRF-protected mutations.
 // ==============================================================================
-function getAdminHeaders(adminKey) {
+let adminCsrfToken = '';
+function getCsrfToken() { return adminCsrfToken; }
+
+function adminRequest(url, options = {}) {
+  const headers = new Headers(options.headers || {});
+  const method = (options.method || 'GET').toUpperCase();
+  if (method !== 'GET' && method !== 'HEAD') headers.set('X-CSRF-Token', getCsrfToken());
+  return fetch(url, { ...options, headers, credentials: 'include' }).then((resp) => {
+    if (resp.status === 401) {
+      adminCsrfToken = '';
+      window.dispatchEvent(new Event('admin-session-expired'));
+    }
+    return resp;
+  });
+}
+
+export async function fetchAdminSession() {
+  const resp = await fetch(`${API_BASE_URL}/admin/auth/session`, { credentials: 'include' });
+  if (!resp.ok) throw new Error(`Admin session check failed: ${resp.status}`);
+  const data = await resp.json();
+  adminCsrfToken = data.csrf_token || '';
+  return data;
+}
+
+export async function loginAdmin(username, password) {
+  const resp = await fetch(`${API_BASE_URL}/admin/auth/login`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+    body: JSON.stringify({ username, password }),
+  });
+  if (!resp.ok) {
+    const data = await resp.json().catch(() => ({}));
+    throw new Error(data.detail || `Admin login failed: ${resp.status}`);
+  }
+  const data = await resp.json();
+  adminCsrfToken = data.csrf_token || '';
+  return data;
+}
+
+export async function logoutAdmin() {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/auth/logout`, { method: 'POST' });
+  if (!resp.ok) throw new Error(`Admin logout failed: ${resp.status}`);
+  const data = await resp.json();
+  adminCsrfToken = '';
+  return data;
+}
+
+function getAdminHeaders() {
   return {
     'Content-Type': 'application/json',
-    'X-Admin-Key': adminKey || '',
+    'X-CSRF-Token': getCsrfToken(),
   };
 }
 
-export async function fetchMonitoringSummary(adminKey) {
-  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/summary`, {
-    headers: getAdminHeaders(adminKey),
+export async function fetchMonitoringSummary() {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/monitoring/summary`, {
+    headers: getAdminHeaders(),
   });
   if (!resp.ok) throw new Error(`Monitoring summary failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function fetchMonitoringSources(adminKey) {
-  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/sources`, {
-    headers: getAdminHeaders(adminKey),
+export async function fetchMonitoringSources() {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/monitoring/sources`, {
+    headers: getAdminHeaders(),
   });
   if (!resp.ok) throw new Error(`Monitoring sources failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function fetchMonitoringChanges(adminKey, limit = 50) {
-  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/changes?limit=${limit}`, {
-    headers: getAdminHeaders(adminKey),
+export async function fetchMonitoringChanges(limit = 50) {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/monitoring/changes?limit=${limit}`, {
+    headers: getAdminHeaders(),
   });
   if (!resp.ok) throw new Error(`Monitoring changes failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function fetchPendingUpdates(adminKey, includeDemo = true) {
-  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/pending-updates?include_demo=${includeDemo}`, {
-    headers: getAdminHeaders(adminKey),
+export async function fetchPendingUpdates(includeDemo = false) {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/monitoring/pending-updates?include_demo=${includeDemo}`, {
+    headers: getAdminHeaders(),
   });
   if (!resp.ok) throw new Error(`Pending updates failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function fetchSchemeVersionHistory(adminKey, schemeId) {
-  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/schemes/${schemeId}/history`, {
-    headers: getAdminHeaders(adminKey),
+export async function fetchSchemeVersionHistory(schemeId) {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/monitoring/schemes/${schemeId}/history`, {
+    headers: getAdminHeaders(),
   });
   if (!resp.ok) throw new Error(`Scheme history failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function triggerMonitoringRun(adminKey, sourceId = null) {
-  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/run`, {
+export async function triggerMonitoringRun(sourceId = null) {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/monitoring/run`, {
     method: 'POST',
-    headers: getAdminHeaders(adminKey),
+    headers: getAdminHeaders(),
     body: JSON.stringify({ source_id: sourceId }),
   });
   if (!resp.ok) throw new Error(`Run monitoring failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function approveSchemeUpdate(adminKey, updateId, reviewerName, reason) {
-  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/updates/${updateId}/approve`, {
+export async function approveSchemeUpdate(updateId, reason) {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/monitoring/updates/${updateId}/approve`, {
     method: 'POST',
-    headers: getAdminHeaders(adminKey),
-    body: JSON.stringify({ reviewer_name: reviewerName, reason }),
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ reason }),
   });
   if (!resp.ok) throw new Error(`Approve update failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function rejectSchemeUpdate(adminKey, updateId, reviewerName, reason) {
-  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/updates/${updateId}/reject`, {
+export async function rejectSchemeUpdate(updateId, reason) {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/monitoring/updates/${updateId}/reject`, {
     method: 'POST',
-    headers: getAdminHeaders(adminKey),
-    body: JSON.stringify({ reviewer_name: reviewerName, reason }),
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ reason }),
   });
   if (!resp.ok) throw new Error(`Reject update failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function rollbackSchemeVersion(adminKey, schemeId, targetVersionId, reviewerName) {
-  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/schemes/${schemeId}/rollback`, {
+export async function rollbackSchemeVersion(schemeId, targetVersionId) {
+  const resp = await adminRequest(`${API_BASE_URL}/admin/monitoring/schemes/${schemeId}/rollback`, {
     method: 'POST',
-    headers: getAdminHeaders(adminKey),
-    body: JSON.stringify({ target_version_id: targetVersionId, reviewer_name: reviewerName }),
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ target_version_id: targetVersionId }),
   });
   if (!resp.ok) throw new Error(`Rollback version failed: ${resp.status}`);
   return await resp.json();
@@ -238,19 +304,19 @@ export async function rollbackSchemeVersion(adminKey, schemeId, targetVersionId,
 // Multi-Agent Discovery & Scheme Intelligence API
 // ==============================================================================
 export async function fetchAgentsStatus() {
-  const resp = await fetch(`${API_BASE_URL}/agents/status`);
+  const resp = await adminRequest(`${API_BASE_URL}/agents/status`);
   if (!resp.ok) throw new Error(`Fetch agents status failed: ${resp.status}`);
   return await resp.json();
 }
 
 export async function fetchAgentRuns(limit = 50) {
-  const resp = await fetch(`${API_BASE_URL}/agents/runs?limit=${limit}`);
+  const resp = await adminRequest(`${API_BASE_URL}/agents/runs?limit=${limit}`);
   if (!resp.ok) throw new Error(`Fetch agent runs failed: ${resp.status}`);
   return await resp.json();
 }
 
 export async function triggerAgentDiscover(seeds = null, maxLinks = 15) {
-  const resp = await fetch(`${API_BASE_URL}/agents/discover`, {
+  const resp = await adminRequest(`${API_BASE_URL}/agents/discover`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ seeds, max_links_per_seed: maxLinks }),
@@ -260,7 +326,7 @@ export async function triggerAgentDiscover(seeds = null, maxLinks = 15) {
 }
 
 export async function triggerAgentCrawl(sourceIds = null, maxSources = 10) {
-  const resp = await fetch(`${API_BASE_URL}/agents/crawl`, {
+  const resp = await adminRequest(`${API_BASE_URL}/agents/crawl`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ source_ids: sourceIds, max_sources: maxSources }),
@@ -270,7 +336,7 @@ export async function triggerAgentCrawl(sourceIds = null, maxSources = 10) {
 }
 
 export async function triggerAgentMonitor(sourceIds = null, maxSources = 10) {
-  const resp = await fetch(`${API_BASE_URL}/agents/monitor`, {
+  const resp = await adminRequest(`${API_BASE_URL}/agents/monitor`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ source_ids: sourceIds, max_sources: maxSources }),
@@ -284,7 +350,7 @@ export async function fetchDiscoveredSources(status = null, limit = 100) {
   if (status) params.append('status', status);
   if (limit) params.append('limit', limit);
   const url = `${API_BASE_URL}/sources${params.toString() ? `?${params.toString()}` : ''}`;
-  const resp = await fetch(url);
+  const resp = await adminRequest(url);
   if (!resp.ok) throw new Error(`Fetch sources failed: ${resp.status}`);
   return await resp.json();
 }
@@ -299,45 +365,45 @@ export async function fetchAgentUpdates(status = null) {
   const params = new URLSearchParams();
   if (status) params.append('status', status);
   const url = `${API_BASE_URL}/updates${params.toString() ? `?${params.toString()}` : ''}`;
-  const resp = await fetch(url);
+  const resp = await adminRequest(url);
   if (!resp.ok) throw new Error(`Fetch updates failed: ${resp.status}`);
   return await resp.json();
 }
 
 export async function fetchAgentUpdateDetail(updateId) {
-  const resp = await fetch(`${API_BASE_URL}/updates/${updateId}`);
+  const resp = await adminRequest(`${API_BASE_URL}/updates/${updateId}`);
   if (!resp.ok) throw new Error(`Fetch update detail failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function approveAgentUpdate(updateId, reviewerName = 'Admin Officer', reason = 'Verified against official notification') {
-  const resp = await fetch(`${API_BASE_URL}/updates/${updateId}/approve`, {
+export async function approveAgentUpdate(updateId, reason = 'Verified against official notification') {
+  const resp = await adminRequest(`${API_BASE_URL}/updates/${updateId}/approve`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reviewer_name: reviewerName, reason }),
+    body: JSON.stringify({ reason }),
   });
   if (!resp.ok) throw new Error(`Approve update failed: ${resp.status}`);
   return await resp.json();
 }
 
-export async function rejectAgentUpdate(updateId, reviewerName = 'Admin Officer', reason = 'Discrepancy with official circular') {
-  const resp = await fetch(`${API_BASE_URL}/updates/${updateId}/reject`, {
+export async function rejectAgentUpdate(updateId, reason = 'Discrepancy with official circular') {
+  const resp = await adminRequest(`${API_BASE_URL}/updates/${updateId}/reject`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reviewer_name: reviewerName, reason }),
+    body: JSON.stringify({ reason }),
   });
   if (!resp.ok) throw new Error(`Reject update failed: ${resp.status}`);
   return await resp.json();
 }
 
 export async function fetchSchemeVersions(schemeId) {
-  const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}/versions`);
+  const resp = await adminRequest(`${API_BASE_URL}/schemes/${schemeId}/versions`);
   if (!resp.ok) throw new Error(`Fetch scheme versions failed: ${resp.status}`);
   return await resp.json();
 }
 
 export async function fetchMonitoringOverview() {
-  const resp = await fetch(`${API_BASE_URL}/monitoring/status`);
+  const resp = await adminRequest(`${API_BASE_URL}/monitoring/status`);
   if (!resp.ok) throw new Error(`Fetch monitoring overview failed: ${resp.status}`);
   return await resp.json();
 }

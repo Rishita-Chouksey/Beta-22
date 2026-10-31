@@ -88,7 +88,7 @@ class AgentOrchestrator:
         """
         return self.monitoring.run_monitoring_cycle(source_ids=source_ids, max_sources=max_sources)
 
-    def approve_update(self, update_id: str) -> Dict[str, Any]:
+    def approve_update(self, update_id: str, reviewer_name: str = "Admin Officer", reason: str = "") -> Dict[str, Any]:
         """
         Policy Review Gate -> Publishing Service:
         Human approval causes the update to be published to the live catalog and versioned.
@@ -98,7 +98,7 @@ class AgentOrchestrator:
             return {"success": False, "error": f"Update ID {update_id} not found."}
         if update.review_status != ReviewStatus.PENDING:
             return {"success": False, "error": f"Update is already {update.review_status.value}."}
-        review_result = self.policy_review_gate.approve_update(update_id)
+        review_result = self.policy_review_gate.approve_update(update_id, reviewer_name=reviewer_name, reason=reason)
         if not review_result.get("success"):
             return review_result
 
@@ -110,11 +110,11 @@ class AgentOrchestrator:
             "publishing": publish_result
         }
 
-    def reject_update(self, update_id: str, reason: str = "") -> Dict[str, Any]:
+    def reject_update(self, update_id: str, reason: str = "", reviewer_name: str = "Admin Officer") -> Dict[str, Any]:
         """
         Policy Review Gate: Human rejects the proposed update.
         """
-        return self.policy_review_gate.reject_update(update_id, reason=reason)
+        return self.policy_review_gate.reject_update(update_id, reason=reason, reviewer_name=reviewer_name)
 
     def get_agent_statuses(self) -> Dict[str, Any]:
         """

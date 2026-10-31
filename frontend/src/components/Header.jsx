@@ -4,7 +4,7 @@ import { useSession } from '../context/SessionContext';
 import { RotateCcw, Shield, ExternalLink, Globe, BookOpen, FileCheck2, Home, HelpCircle, Activity } from 'lucide-react';
 
 export default function Header() {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, lt } = useLanguage();
   const { currentScreen, setCurrentScreen, setShowClearConfirmModal, openDocumentGuide } = useSession();
 
   const isHomeActive = ['S0', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6'].includes(currentScreen);
@@ -36,11 +36,7 @@ export default function Header() {
               </span>
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 font-normal leading-tight hidden xs:block">
-              {language === 'hi'
-                ? 'सरकारी योजना पात्रता मार्गदर्शक'
-                : language === 'bn'
-                ? 'সরকারি যোজনা যোগ্যতা নির্দেশিকা'
-                : 'Government Scheme Eligibility Guide'}
+              {lt('Government Scheme Eligibility Guide', 'सरकारी योजना पात्रता मार्गदर्शक', 'সরকারি যোজনা যোগ্যতা নির্দেশিকা')}
             </p>
           </div>
         </div>
@@ -94,11 +90,7 @@ export default function Header() {
           >
             <Shield className="w-3.5 h-3.5 text-teal-400" />
             <span>
-              {language === 'hi'
-                ? 'योजना निगरानी'
-                : language === 'bn'
-                ? 'যোজনা পর্যবেক্ষণ'
-                : 'Monitor'}
+              {lt('Monitor', 'योजना निगरानी', 'যোজনা পর্যবেক্ষণ')}
             </span>
           </button>
         </nav>
@@ -114,7 +106,7 @@ export default function Header() {
           >
             <FileCheck2 className="w-3.5 h-3.5 text-amber-400" />
             <span className="hidden xs:inline">
-              {language === 'hi' ? 'दस्तावेज़' : language === 'bn' ? 'নথিপত্র' : 'Docs'}
+              {lt('Docs', 'दस्तावेज़', 'নথিপত্র')}
             </span>
           </button>
 
@@ -133,9 +125,7 @@ export default function Header() {
             <button
               onClick={() => setLanguage('hi')}
               className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
-                language === 'hi'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-300 hover:text-white'
+                lt('text-slate-300 hover:text-white', 'bg-blue-600 text-white shadow-sm')
               }`}
               aria-label="हिंदी भाषा चुनें"
             >
@@ -144,9 +134,7 @@ export default function Header() {
             <button
               onClick={() => setLanguage('en')}
               className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
-                language === 'en'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-300 hover:text-white'
+                lt('bg-blue-600 text-white shadow-sm', 'text-slate-300 hover:text-white')
               }`}
               aria-label="Select English language"
             >
@@ -175,7 +163,7 @@ export default function Header() {
             <RotateCcw className="w-3.5 h-3.5" />
             <span className="hidden md:inline">{t('clear_and_exit')}</span>
             <span className="md:hidden">
-              {language === 'hi' ? 'मिटाएं' : language === 'bn' ? 'মুছুন' : 'Exit'}
+              {lt('Exit', 'मिटाएं', 'মুছুন')}
             </span>
           </button>
         </div>

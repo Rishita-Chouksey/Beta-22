@@ -17,7 +17,7 @@ import {
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S7_FormHelpScreen() {
-  const { language, t } = useLanguage();
+  const { language, t, lt } = useLanguage();
   const { setCurrentScreen } = useSession();
 
   const [inputField, setInputField] = useState('');
@@ -81,9 +81,7 @@ export default function S7_FormHelpScreen() {
             </div>
             <AudioSpeaker
               text={
-                language === 'hi'
-                  ? 'सरकारी आवेदन फॉर्म के कठिन शब्दों को समझने के लिए शब्द लिखें या फोटो अपलोड करें।'
-                  : 'Enter complex terms or upload a photo of your application form for simple explanations.'
+                lt('Enter complex terms or upload a photo of your application form for simple explanations.', 'सरकारी आवेदन फॉर्म के कठिन शब्दों को समझने के लिए शब्द लिखें या फोटो अपलोड करें।')
               }
               className="mt-1 flex-shrink-0"
             />
@@ -94,7 +92,7 @@ export default function S7_FormHelpScreen() {
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-3 text-xs sm:text-sm text-amber-900">
           <Info className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            {t('ai_disclaimer')} {language === 'hi' ? 'अपलोड की गई फोटो सर्वर पर कभी स्थायी रूप से सहेजी नहीं जाती।' : 'Uploaded photos are processed in-memory only and never saved.'}
+            {t('ai_disclaimer')} {lt('Uploaded photos are processed in-memory only and never saved.', 'अपलोड की गई फोटो सर्वर पर कभी स्थायी रूप से सहेजी नहीं जाती।')}
           </p>
         </div>
 
@@ -102,7 +100,7 @@ export default function S7_FormHelpScreen() {
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-700 block uppercase tracking-wider">
-              {language === 'hi' ? 'फॉर्म का शब्द या कॉलम का नाम खोजें:' : 'Search Form Term / Field:'}
+              {lt('Search Form Term / Field:', 'फॉर्म का शब्द या कॉलम का नाम खोजें:')}
             </label>
             <div className="flex flex-col sm:flex-row gap-2.5">
               <div className="relative flex-1">
@@ -130,7 +128,7 @@ export default function S7_FormHelpScreen() {
           {/* Quick suggestions */}
           <div className="space-y-1.5 pt-1">
             <span className="text-xs font-semibold text-slate-500 block">
-              {language === 'hi' ? 'लोकप्रिय सरकारी शब्दावली:' : 'Common Terms:'}
+              {lt('Common Terms:', 'लोकप्रिय सरकारी शब्दावली:')}
             </span>
             <div className="flex flex-wrap gap-2">
               {quickCommonFields.map((q, idx) => (
@@ -143,7 +141,7 @@ export default function S7_FormHelpScreen() {
                   }}
                   className="text-xs font-semibold bg-slate-100 hover:bg-blue-50 hover:text-blue-900 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 transition-colors"
                 >
-                  {language === 'hi' ? q.label_hi : q.label_en}
+                  {lt(q.label_en, q.label_hi)}
                 </button>
               ))}
             </div>
@@ -153,7 +151,7 @@ export default function S7_FormHelpScreen() {
           <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs px-4 py-2.5 rounded-xl border border-slate-300 inline-flex items-center gap-2 min-h-[40px] transition-colors">
               <Camera className="w-4 h-4 text-blue-700" />
-              <span>{language === 'hi' ? 'फॉर्म की फोटो चुनें (Upload Photo)' : 'Upload Form Photo'}</span>
+              <span>{lt('Upload Form Photo', 'फॉर्म की फोटो चुनें (Upload Photo)')}</span>
               <input
                 type="file"
                 accept="image/*"
@@ -174,7 +172,7 @@ export default function S7_FormHelpScreen() {
                   onClick={() => setPhotoPreview(null)}
                   className="text-xs text-rose-600 font-bold underline"
                 >
-                  {language === 'hi' ? 'फोटो हटाएं' : 'Remove Photo'}
+                  {lt('Remove Photo', 'फोटो हटाएं')}
                 </button>
               </div>
             )}
@@ -186,7 +184,7 @@ export default function S7_FormHelpScreen() {
           <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl">
             <div className="w-8 h-8 border-3 border-blue-700 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm font-semibold text-slate-600">
-              {language === 'hi' ? 'सरकारी शब्दावली का सरल विश्लेषण हो रहा है...' : 'Analyzing terminology with AI assistant...'}
+              {lt('Analyzing terminology with AI assistant...', 'सरकारी शब्दावली का सरल विश्लेषण हो रहा है...')}
             </p>
           </div>
         ) : explanations && (
@@ -194,7 +192,7 @@ export default function S7_FormHelpScreen() {
             {generalAdvice && (
               <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-xs sm:text-sm text-emerald-950 leading-relaxed font-medium">
                 <strong className="text-emerald-900 block mb-0.5">
-                  {language === 'hi' ? '💡 महत्वपूर्ण आधिकारिक सलाह: ' : '💡 Administrative Tip: '}
+                  {lt('💡 Administrative Tip: ', '💡 महत्वपूर्ण आधिकारिक सलाह: ')}
                 </strong>
                 {generalAdvice}
               </div>
@@ -205,7 +203,7 @@ export default function S7_FormHelpScreen() {
                 <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2 shadow-xs">
                   <div className="flex items-center justify-between gap-2">
                     <h4 className="font-bold text-base text-blue-950">
-                      {language === 'hi' ? item.field_name_hi || item.field_name : item.field_name}
+                      {lt(item.field_name, item.field_name_hi || item.field_name)}
                     </h4>
                     <AudioSpeaker text={`${item.field_name}। ${item.explanation}`} className="w-7 h-7" />
                   </div>
@@ -214,7 +212,7 @@ export default function S7_FormHelpScreen() {
                   </p>
                   <div className="text-xs text-slate-600 bg-slate-50 border border-slate-100 p-3 rounded-xl">
                     <strong className="text-slate-900 block mb-0.5">
-                      {language === 'hi' ? 'फॉर्म में क्या भरें (उदाहरण): ' : 'Example Value: '}
+                      {lt('Example Value: ', 'फॉर्म में क्या भरें (उदाहरण): ')}
                     </strong>
                     {item.example}
                   </div>

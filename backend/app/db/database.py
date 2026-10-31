@@ -35,10 +35,17 @@ def init_db_schema(conn: sqlite3.Connection):
         official_source_url TEXT NOT NULL,
         helpline TEXT,
         last_verified_date TEXT NOT NULL,
+        review_status TEXT NOT NULL DEFAULT 'verified',
+        verified_by_json TEXT NOT NULL DEFAULT '[]',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
+    scheme_cols = {col[1] for col in cursor.execute("PRAGMA table_info(schemes)").fetchall()}
+    if "review_status" not in scheme_cols:
+        cursor.execute("ALTER TABLE schemes ADD COLUMN review_status TEXT NOT NULL DEFAULT 'verified'")
+    if "verified_by_json" not in scheme_cols:
+        cursor.execute("ALTER TABLE schemes ADD COLUMN verified_by_json TEXT NOT NULL DEFAULT '[]'")
 
     # 2. Chat Audit Logs table - tracks helpdesk interactions (ZERO Citizen PII)
     cursor.execute("""
@@ -53,6 +60,9 @@ def init_db_schema(conn: sqlite3.Connection):
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
+    # Older versions stored free-text citizen queries; scrub them on startup.
+    cursor.execute("UPDATE chat_audit_logs SET session_id = NULL, user_query = '', bot_response_preview = NULL")
+    cursor.execute("DELETE FROM chat_audit_logs WHERE created_at < datetime('now', '-30 days')")
 
     # 3. Citizen Feedback table - anonymous scheme feedback
     cursor.execute("""
@@ -76,6 +86,20 @@ def init_db_schema(conn: sqlite3.Connection):
         timestamp REAL NOT NULL
     )
     """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS admin_sessions (
+        session_id TEXT PRIMARY KEY,
+        username TEXT NOT NULL,
+        expires_at INTEGER NOT NULL,
+        revoked_at INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+    cursor.execute("DELETE FROM rate_limit_records WHERE timestamp < CAST(strftime('%s', 'now') AS REAL) - 60")
+    cursor.execute("""DELETE FROM admin_sessions
+        WHERE expires_at < CAST(strftime('%s', 'now') AS INTEGER) - 86400
+           OR (revoked_at IS NOT NULL AND revoked_at < CAST(strftime('%s', 'now') AS INTEGER) - 86400)""")
 
     # 5. Monitoring Sources Registry table
     cursor.execute("""
@@ -213,6 +237,11 @@ def init_db_schema(conn: sqlite3.Connection):
         reviewed_at TIMESTAMP
     )
     """)
+    proposed_cols = {col[1] for col in cursor.execute("PRAGMA table_info(proposed_updates)").fetchall()}
+    if "reviewed_by" not in proposed_cols:
+        cursor.execute("ALTER TABLE proposed_updates ADD COLUMN reviewed_by TEXT")
+    if "review_reason" not in proposed_cols:
+        cursor.execute("ALTER TABLE proposed_updates ADD COLUMN review_reason TEXT")
 
     # 13. Multi-Agent Discovery: agent_runs table
     cursor.execute("""
@@ -237,6 +266,12 @@ def init_db_schema(conn: sqlite3.Connection):
         cursor.execute("ALTER TABLE scheme_versions ADD COLUMN scheme_data TEXT")
     if "approval_status" not in existing_cols:
         cursor.execute("ALTER TABLE scheme_versions ADD COLUMN approval_status TEXT DEFAULT 'APPROVED'")
+    if "is_demo" not in existing_cols:
+        cursor.execute("ALTER TABLE scheme_versions ADD COLUMN is_demo BOOLEAN DEFAULT 0")
+    cursor.execute("""UPDATE scheme_versions SET is_demo = 1
+        WHERE scheme_id = 'ladli_behna_mp'
+          AND approved_by = 'Senior Verification Officer (Govt of MP)'
+          AND change_summary = 'Initial audited baseline rules verified.'""")
 
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_rate_limit ON rate_limit_records (client_ip, endpoint, timestamp)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_schemes_category ON schemes (category)")
@@ -310,7 +345,8 @@ def seed_schemes_from_json():
                 benefit_en, benefit_hi, description_en, description_hi,
                 rules_json, required_documents_json, application_procedure_json,
                 restrictions_json, official_source_url, helpline, last_verified_date, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                , review_status, verified_by_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
             ON CONFLICT(scheme_id) DO UPDATE SET
                 name_en=excluded.name_en,
                 name_hi=excluded.name_hi,
@@ -328,6 +364,8 @@ def seed_schemes_from_json():
                 official_source_url=excluded.official_source_url,
                 helpline=excluded.helpline,
                 last_verified_date=excluded.last_verified_date,
+                review_status=excluded.review_status,
+                verified_by_json=excluded.verified_by_json,
                 updated_at=CURRENT_TIMESTAMP
             """, (
                 scheme_id,
@@ -346,7 +384,9 @@ def seed_schemes_from_json():
                 json.dumps(data.get("restrictions", [])),
                 data.get("official_source_url", ""),
                 data.get("helpline", ""),
-                data.get("last_verified_date", "")
+                data.get("last_verified_date", ""),
+                data.get("review_status", "verified"),
+                json.dumps(data.get("verified_by", []), ensure_ascii=False)
             ))
             seeded_count += 1
         except Exception as e:
@@ -364,6 +404,17 @@ def seed_monitoring_sources(conn: Optional[sqlite3.Connection] = None):
         conn = get_db_connection()
         should_close = True
     cursor = conn.cursor()
+
+    # Keep historical monitoring rows, but retire previous sources; the current
+    # catalogue is manually curated from myScheme pages, not crawled in the background.
+    active_reference_urls = [src.official_url for src in OFFICIAL_SOURCE_CATALOG]
+    placeholders = ", ".join("?" for _ in active_reference_urls)
+    cursor.execute(f"""
+        UPDATE monitoring_sources
+        SET automated_monitoring_permitted = 0,
+            error_details = 'RETIRED: replaced by the manually curated myScheme scheme pages.'
+        WHERE official_url NOT IN ({placeholders})
+    """, active_reference_urls)
 
     for src in OFFICIAL_SOURCE_CATALOG:
         cursor.execute("""
@@ -395,7 +446,7 @@ def seed_monitoring_sources(conn: Optional[sqlite3.Connection] = None):
     if should_close:
         conn.close()
 
-def seed_monitoring_demo_data(conn: Optional[sqlite3.Connection] = None):
+def seed_monitoring_demo_data(conn: Optional[sqlite3.Connection] = None, *, enabled: bool = False):
     """
     Seeds clearly labelled demonstration monitoring data per Requirement 12:
     - 1 unchanged scheme (pm_kisan - VERIFIED)
@@ -405,6 +456,9 @@ def seed_monitoring_demo_data(conn: Optional[sqlite3.Connection] = None):
     - 1 pending approval (demo_upd_01 - PENDING)
     All records explicitly labelled with is_demo = 1.
     """
+    if not enabled:
+        logger.info("Monitoring demo data disabled; no synthetic records seeded.")
+        return
     should_close = False
     if conn is None:
         conn = get_db_connection()
@@ -438,8 +492,8 @@ def seed_monitoring_demo_data(conn: Optional[sqlite3.Connection] = None):
     if not cursor.fetchone():
         cursor.execute("""
         INSERT INTO scheme_versions (
-            scheme_id, version_number, review_status, scheme_data_json, approved_by, approved_at, change_summary
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            scheme_id, version_number, review_status, scheme_data_json, approved_by, approved_at, change_summary, is_demo
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)
         """, (
             "ladli_behna_mp",
             1,
@@ -528,15 +582,19 @@ def seed_monitoring_demo_data(conn: Optional[sqlite3.Connection] = None):
     logger.info("Seeded monitoring sources and synthetic demonstration dataset.")
 
 def seed_agent_sources(conn: Optional[sqlite3.Connection] = None):
-    """Initializes official seed portals into sources table."""
+    """Registers myScheme as the discovery root and retires the former portal roots."""
     should_close = False
     if conn is None:
         conn = get_db_connection()
         should_close = True
     cursor = conn.cursor()
+    # Retain historical records, but keep the old roots out of active discovery/monitoring.
+    cursor.execute("""
+        UPDATE sources SET status = 'disabled'
+        WHERE lower(domain) LIKE '%data.gov.in' OR lower(domain) LIKE '%eseva.mp.gov.in'
+    """)
     seeds = [
-        ("src_seed_datagov", "https://data.gov.in/", "data.gov.in", "PORTAL", "initial_seed", "discovered"),
-        ("src_seed_eseva", "https://eseva.mp.gov.in/", "eseva.mp.gov.in", "PORTAL", "initial_seed", "discovered")
+        ("src_seed_myscheme", "https://www.myscheme.gov.in/", "www.myscheme.gov.in", "PORTAL", "manual_catalog_source", "discovered")
     ]
     for s_id, s_url, s_dom, s_type, s_from, s_stat in seeds:
         cursor.execute("""
@@ -547,4 +605,4 @@ def seed_agent_sources(conn: Optional[sqlite3.Connection] = None):
     conn.commit()
     if should_close:
         conn.close()
-    logger.info("Seeded official seed portals into sources table.")
+    logger.info("Registered myScheme and retired the former discovery roots.")

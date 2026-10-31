@@ -1,153 +1,55 @@
-from typing import List, Dict, Optional
+from typing import List, Optional
+
 from .models import SourceDefinition, SourceCategory, SourceType, MonitoringFrequency, AccessibilityStatus
 
-# Central source registry of verified public government portals.
-# Sources can be monitored independently via HTTP/RSS/HTML parsing.
-# All sources adhere to polite civic scraping policies and robots.txt.
 
-OFFICIAL_SOURCE_CATALOG: List[SourceDefinition] = [
-    # --- CENTRAL GOVERNMENT SOURCES ---
-    SourceDefinition(
-        source_id="src_central_pmkisan",
-        name="PM-KISAN Samman Nidhi Official Portal",
-        category=SourceCategory.CENTRAL,
-        official_url="https://pmkisan.gov.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.DAILY,
-        target_scheme_ids=["pm_kisan"],
-        automated_monitoring_permitted=True,
-    ),
-    SourceDefinition(
-        source_id="src_central_pmjay",
-        name="Ayushman Bharat PM-JAY Portal (National Health Authority)",
-        category=SourceCategory.CENTRAL,
-        official_url="https://pmjay.gov.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.DAILY,
-        target_scheme_ids=["pm_jay_ayushman"],
-        automated_monitoring_permitted=True,
-    ),
-    SourceDefinition(
-        source_id="src_central_pmayg",
-        name="Pradhan Mantri Awaas Yojana - Gramin (MoRD)",
-        category=SourceCategory.CENTRAL,
-        official_url="https://pmayg.nic.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.WEEKLY,
-        target_scheme_ids=["pm_awas_yojana_gramin"],
-        automated_monitoring_permitted=True,
-    ),
-    SourceDefinition(
-        source_id="src_central_nsap_ignwps",
-        name="National Social Assistance Programme (NSAP) Portal",
-        category=SourceCategory.CENTRAL,
-        official_url="https://nsap.nic.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.WEEKLY,
-        target_scheme_ids=["ignwps_widow_pension"],
-        automated_monitoring_permitted=True,
-    ),
-    SourceDefinition(
-        source_id="src_central_nsp",
-        name="National Scholarship Portal (Central Scholarships)",
-        category=SourceCategory.CENTRAL,
-        official_url="https://scholarships.gov.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.DAILY,
-        target_scheme_ids=["nsp_central_sector"],
-        automated_monitoring_permitted=True,
-    ),
-    SourceDefinition(
-        source_id="src_central_myscheme_public",
-        name="myScheme Public Discovery Portal (Reference)",
-        category=SourceCategory.CENTRAL,
-        official_url="https://www.myscheme.gov.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.DAILY,
-        target_scheme_ids=["pm_kisan", "pm_jay_ayushman", "pm_awas_yojana_gramin"],
-        automated_monitoring_permitted=True,
-    ),
-    SourceDefinition(
-        source_id="src_central_datagov_schemes",
-        name="Open Government Data Platform (data.gov.in Public Catalog)",
-        category=SourceCategory.CENTRAL,
-        official_url="https://data.gov.in/",
-        source_type=SourceType.API,
-        monitoring_frequency=MonitoringFrequency.WEEKLY,
-        target_scheme_ids=["central_welfare_catalog"],
-        automated_monitoring_permitted=True,
-    ),
-
-    # --- MADHYA PRADESH GOVERNMENT SOURCES ---
-    SourceDefinition(
-        source_id="src_mp_ladlibehna",
-        name="Mukhyamantri Ladli Behna Yojana Portal (Govt of MP)",
-        category=SourceCategory.MADHYA_PRADESH,
-        official_url="https://cmladlibahna.mp.gov.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.DAILY,
-        target_scheme_ids=["ladli_behna_mp"],
-        automated_monitoring_permitted=True,
-    ),
-    SourceDefinition(
-        source_id="src_mp_scholarship_mmvy",
-        name="MP State Scholarship Portal 2.0 (MMVY Scheme)",
-        category=SourceCategory.MADHYA_PRADESH,
-        official_url="http://scholarshipportal.mp.nic.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.DAILY,
-        target_scheme_ids=["mmvy_scholarship"],
-        automated_monitoring_permitted=True,
-    ),
-    SourceDefinition(
-        source_id="src_mp_edistrict",
-        name="MP e-District Lok Seva Kendra Citizen Services",
-        category=SourceCategory.MADHYA_PRADESH,
-        official_url="http://mpedistrict.gov.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.WEEKLY,
-        target_scheme_ids=["ladli_behna_mp", "mmvy_scholarship"],
-        automated_monitoring_permitted=True,
-    ),
-    SourceDefinition(
-        source_id="src_mp_farmer_dbt",
-        name="Madhya Pradesh Kisan Kalyan & Agriculture DBT Portal",
-        category=SourceCategory.MADHYA_PRADESH,
-        official_url="https://dbt.mp.gov.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.WEEKLY,
-        target_scheme_ids=["mp_kisan_kalyan"],
-        automated_monitoring_permitted=True,
-    ),
-
-    # --- OTHER AUTHENTIC SOURCES ---
-    SourceDefinition(
-        source_id="src_mh_sjsa_niradhar",
-        name="Maharashtra Social Justice Dept - Sanjay Gandhi Niradhar",
-        category=SourceCategory.OTHER,
-        official_url="https://sjsa.maharashtra.gov.in/",
-        source_type=SourceType.HTML,
-        monitoring_frequency=MonitoringFrequency.WEEKLY,
-        target_scheme_ids=["sanjay_gandhi_niradhar_mh"],
-        automated_monitoring_permitted=True,
-    ),
+# These scheme pages were reviewed manually and are the source links shown in
+# the citizen catalogue. Automated fetches are intentionally disabled.
+MYSCHEME_MANUAL_PAGES = [
+    ("pm_kisan", "PM Kisan Samman Nidhi", SourceCategory.CENTRAL, "https://www.myscheme.gov.in/schemes/pm-kisan"),
+    ("pm_jay_ayushman", "Ayushman Bharat PM-JAY", SourceCategory.CENTRAL, "https://www.myscheme.gov.in/schemes/ab-pmjay"),
+    ("ladli_behna_mp", "Chief Minister Ladli Behna Yojana", SourceCategory.MADHYA_PRADESH, "https://www.myscheme.gov.in/schemes/cmlby"),
+    ("pm_kisan_maandhan", "Pradhan Mantri Kisan Maandhan Yojana", SourceCategory.CENTRAL, "https://www.myscheme.gov.in/schemes/pmkmdy"),
+    ("pm_vishwakarma", "PM Vishwakarma", SourceCategory.CENTRAL, "https://www.myscheme.gov.in/schemes/pmv"),
+    ("pmay_urban", "Pradhan Mantri Awas Yojana - Urban 2.0", SourceCategory.CENTRAL, "https://www.myscheme.gov.in/schemes/pmay-u"),
+    ("pm_surya_ghar", "PM - Surya Ghar: Muft Bijli Yojana", SourceCategory.CENTRAL, "https://www.myscheme.gov.in/schemes/pmsgmb"),
+    ("pmsby", "Pradhan Mantri Suraksha Bima Yojana", SourceCategory.CENTRAL, "https://www.myscheme.gov.in/hi/schemes/pmsby"),
+    ("mp_student_welfare", "Student Welfare Scheme (Madhya Pradesh)", SourceCategory.MADHYA_PRADESH, "https://www.myscheme.gov.in/schemes/sws"),
+    ("gaon_ki_beti", "Gaon Ki Beti", SourceCategory.MADHYA_PRADESH, "https://www.myscheme.gov.in/schemes/gkb"),
+    ("pragati_scholarship_degree", "Pragati Scholarship for Girl Students", SourceCategory.CENTRAL, "https://www.myscheme.gov.in/schemes/psgs-deg"),
+    ("post_metric_mp", "Post Metric Scholarship - Madhya Pradesh", SourceCategory.MADHYA_PRADESH, "https://www.myscheme.gov.in/schemes/pmsm"),
+    ("mp_swarojgar", "Mukhya Mantri Swarojgar Yojana", SourceCategory.MADHYA_PRADESH, "https://www.myscheme.gov.in/schemes/msy"),
+    ("ignoaps_punjab", "Indira Gandhi National Old Age Pension Scheme (Punjab)", SourceCategory.OTHER, "https://www.myscheme.gov.in/hi/schemes/ignoapsp"),
+    ("ignwps_sikkim", "Indira Gandhi National Widow Pension Scheme (Sikkim)", SourceCategory.OTHER, "https://www.myscheme.gov.in/hi/schemes/ignwps-sikkim"),
 ]
 
+OFFICIAL_SOURCE_CATALOG: List[SourceDefinition] = [
+    SourceDefinition(
+        source_id=f"src_myscheme_{scheme_id}",
+        name=f"{name} (myScheme manual reference)",
+        category=category,
+        official_url=url,
+        source_type=SourceType.HTML,
+        monitoring_frequency=MonitoringFrequency.WEEKLY,
+        target_scheme_ids=[scheme_id],
+        automated_monitoring_permitted=False,
+        accessibility_status=AccessibilityStatus.PENDING,
+    )
+    for scheme_id, name, category, url in MYSCHEME_MANUAL_PAGES
+]
+
+
 class SourceRegistry:
-    """In-memory and persistent source registry manager."""
-    
+    """Registry for manually curated source references."""
+
     @staticmethod
     def get_all_sources() -> List[SourceDefinition]:
         return list(OFFICIAL_SOURCE_CATALOG)
 
     @staticmethod
     def get_source_by_id(source_id: str) -> Optional[SourceDefinition]:
-        for src in OFFICIAL_SOURCE_CATALOG:
-            if src.source_id == source_id:
-                return src
-        return None
+        return next((src for src in OFFICIAL_SOURCE_CATALOG if src.source_id == source_id), None)
 
     @staticmethod
     def get_sources_for_scheme(scheme_id: str) -> List[SourceDefinition]:
         return [src for src in OFFICIAL_SOURCE_CATALOG if scheme_id in src.target_scheme_ids]
-

@@ -29,8 +29,8 @@ class OfficialSchemeCrawler:
     @staticmethod
     async def check_robots_permission(url: str) -> bool:
         """
-        Parses and verifies robots.txt for the given official domain.
-        Defaults to permitted if robots.txt is missing or unreachable.
+        Parses robots.txt. A missing file allows crawling; access denial or an
+        unreachable policy endpoint fails closed.
         """
         try:
             parsed = urlparse(url)
@@ -43,18 +43,18 @@ class OfficialSchemeCrawler:
             rp = urllib.robotparser.RobotFileParser()
             rp.set_url(robots_url)
 
-            async with httpx.AsyncClient(timeout=6.0, verify=False) as client:
+            async with httpx.AsyncClient(timeout=6.0) as client:
                 resp = await client.get(robots_url, headers={"User-Agent": CIVIC_USER_AGENT})
                 if resp.status_code == 200:
                     rp.parse(resp.text.splitlines())
                     _robots_cache[domain] = rp
                     return rp.can_fetch(CIVIC_USER_AGENT, url)
-                else:
-                    # No robots.txt or returned 404 -> generally permitted
+                elif resp.status_code == 404:
                     return True
+                return False
         except Exception as e:
-            logger.debug(f"robots.txt check skipped for {url}: {e}")
-            return True
+            logger.warning("Could not verify robots.txt for %s: %s", url, e)
+            return False
 
     @staticmethod
     async def fetch_source_content(source: SourceDefinition) -> Tuple[Optional[str], Optional[str], AccessibilityStatus, Optional[str]]:
@@ -87,8 +87,7 @@ class OfficialSchemeCrawler:
         max_retries = 2
         for attempt in range(max_retries + 1):
             try:
-                # verify=False is used specifically for some Indian state portals with self-signed departmental certificates
-                async with httpx.AsyncClient(timeout=12.0, verify=False, follow_redirects=True) as client:
+                async with httpx.AsyncClient(timeout=12.0, follow_redirects=True) as client:
                     resp = await client.get(source.official_url, headers=headers)
                     
                     if resp.status_code == 200:

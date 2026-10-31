@@ -7,46 +7,47 @@ from .rules import evaluate_single_rule
 
 def detect_profile_contradictions(profile: CitizenProfile) -> List[Dict[str, Any]]:
     """
-    Detects logically conflicting or legally contradictory profile answers.
-    Ensures contradictory citizen profiles are transparently flagged.
+    Flags profile combinations that should be checked with the citizen.
+    These prompts never override scheme rules or make eligibility decisions.
     """
     contradictions = []
 
-    # 1. Underage claiming widow / married / divorced
+    # 1. Age and marital-status answers should be confirmed together.
     if profile.age is not None and profile.age < 18:
         if profile.marital_status in ["married", "widow", "divorced"]:
             contradictions.append({
                 "fields": ["age", "marital_status"],
-                "warning_en": f"Citizen age is recorded as {profile.age} years (minor), but marital status is recorded as '{profile.marital_status}'. Legal marriage age in India is 18 (female) / 21 (male).",
-                "warning_hi": f"नागरिक की आयु {profile.age} वर्ष (नाबालिग) दर्ज है, लेकिन वैवाहिक स्थिति '{profile.marital_status}' है। भारत में विवाह की न्यूनतम कानूनी आयु 18/21 वर्ष है।",
-                "warning_bn": f"নাগরিকের বয়স {profile.age} বছর (নাবালক), কিন্তু বৈবাহিক অবস্থা '{profile.marital_status}'। ভারতে বিয়ের ন্যূনতম আইনি বয়স ১৮/২১ বছর।"
+                "warning_en": f"Age is recorded as {profile.age} and marital status as '{profile.marital_status}'. Check both answers. This app cannot verify civil records or decide legal status.",
+                "warning_hi": f"आयु {profile.age} वर्ष और वैवाहिक स्थिति '{profile.marital_status}' दर्ज है। दोनों उत्तर जाँचें। ऐप नागरिक अभिलेखों या कानूनी स्थिति का सत्यापन नहीं कर सकता।",
+                "warning_bn": f"বয়স {profile.age} এবং বৈবাহিক অবস্থা '{profile.marital_status}' দেওয়া হয়েছে। দুটি উত্তর যাচাই করুন। অ্যাপ নাগরিক নথি বা আইনি অবস্থা যাচাই করতে পারে না।"
             })
 
-    # 2. High annual income alongside Below Poverty Line (BPL) card
+    # 2. High income and BPL status can use different household definitions;
+    # prompt a record check without claiming a universal poverty threshold.
     if profile.annual_income is not None and profile.annual_income > 600000 and profile.bpl_card_holder is True:
         contradictions.append({
             "fields": ["annual_income", "bpl_card_holder"],
-            "warning_en": f"Family income of ₹{profile.annual_income:,.0f} exceeds standard poverty thresholds, but BPL ration card is claimed. Official revenue re-verification required.",
-            "warning_hi": f"परिवार की आय ₹{profile.annual_income:,.0f} गरीबी रेखा से काफी अधिक है, परंतु बीपीएल कार्ड धारक स्थिति दर्ज है। राजस्व पुनर्सत्यापन आवश्यक है।",
-            "warning_bn": f"পারিবারিক আয় ₹{profile.annual_income:,.0f} দারিদ্র্যসীমার উল্লেখযোগ্য ঊর্ধ্বে, কিন্তু বিপিএল রেশন কার্ড দাবি করা হয়েছে। রাজস্ব পুনঃযাচাই প্রয়োজন।"
+            "warning_en": f"Income is recorded as ₹{profile.annual_income:,.0f} and a BPL card is reported. Confirm the income period and household against current state records; this app cannot verify BPL status.",
+            "warning_hi": f"आय ₹{profile.annual_income:,.0f} दर्ज है और बीपीएल कार्ड बताया गया है। वर्तमान राज्य अभिलेखों में आय की अवधि और परिवार की जानकारी जाँचें; ऐप बीपीएल स्थिति सत्यापित नहीं कर सकता।",
+            "warning_bn": f"আয় ₹{profile.annual_income:,.0f} এবং বিপিএল কার্ড দেওয়া হয়েছে। রাজ্য রেকর্ডে আয়ের সময়কাল ও পরিবার যাচাই করুন; অ্যাপ বিপিএল অবস্থা যাচাই করতে পারে না।"
         })
 
     # 3. Cultivator farmer with zero agricultural land
     if profile.occupation == "farmer" and profile.landholding_hectares is not None and profile.landholding_hectares == 0.0:
         contradictions.append({
             "fields": ["occupation", "landholding_hectares"],
-            "warning_en": "Primary occupation is marked as Farmer/Cultivator, but agricultural landholding is 0 hectares. If you work on others' land, please select 'Agricultural Laborer'.",
-            "warning_hi": "मुख्य व्यवसाय किसान/काश्तकार चुना गया है, लेकिन कृषि भूमि 0 हेक्टेयर है। यदि आप दूसरों के खेत में मजदूरी करते हैं, तो 'खेतिहर मजदूर' चुनें।",
-            "warning_bn": "প্রধান পেশা কৃষক/চাষী নির্বাচিত, কিন্তু কৃষিজমি ০ হেক্টর। অন্যের জমিতে কাজ করলে 'কৃষি শ্রমিক' নির্বাচন করুন।"
+            "warning_en": "Occupation is marked as farmer while owned land is 0 hectares. Tenant or sharecropper farming may still apply; confirm the land answer and the scheme's own definition.",
+            "warning_hi": "व्यवसाय किसान और अपनी कृषि भूमि 0 हेक्टेयर दर्ज है। बटाई या किराये पर खेती संभव है; भूमि का उत्तर और योजना की परिभाषा जाँचें।",
+            "warning_bn": "পেশা কৃষক, কিন্তু নিজের জমি ০ হেক্টর। ভাগচাষ বা ইজারা চাষ হতে পারে; জমির উত্তর ও প্রকল্পের সংজ্ঞা যাচাই করুন।"
         })
 
     # 4. Senior citizen marked as active student
     if profile.age is not None and profile.age >= 60 and profile.occupation == "student":
         contradictions.append({
             "fields": ["age", "occupation"],
-            "warning_en": f"Age {profile.age} is categorized as a senior citizen, but occupation is entered as active student. Youth education scholarships require fresh enrollment verification.",
-            "warning_hi": f"आयु {profile.age} वर्ष वरिष्ठ नागरिक श्रेणी में है, लेकिन व्यवसाय 'छात्र' दर्ज है। युवा छात्रवृत्ति योजनाओं के लिए नवीन नामांकन सत्यापन आवश्यक है।",
-            "warning_bn": f"বয়স {profile.age} বছর প্রবীণ নাগরিক শ্রেণির অন্তর্গত, কিন্তু পেশা 'শিক্ষার্থী' দেওয়া হয়েছে। ছাত্রবৃত্তি প্রকল্পের জন্য নতুন ভর্তির যাচাইকরণ প্রয়োজন।"
+            "warning_en": f"Age {profile.age} and student status are both recorded. Check current enrollment and each scheme's stated age rules; older students are not automatically excluded.",
+            "warning_hi": f"आयु {profile.age} वर्ष और छात्र स्थिति दोनों दर्ज हैं। वर्तमान नामांकन और हर योजना की आयु शर्त जाँचें; अधिक आयु होने से छात्र अपने-आप अपात्र नहीं होता।",
+            "warning_bn": f"বয়স {profile.age} এবং শিক্ষার্থী অবস্থা দেওয়া হয়েছে। বর্তমান ভর্তি ও প্রতিটি প্রকল্পের বয়সের নিয়ম যাচাই করুন; বেশি বয়স হলেই শিক্ষার্থী অযোগ্য হয় না।"
         })
 
     return contradictions
