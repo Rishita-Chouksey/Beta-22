@@ -283,7 +283,10 @@ def seed_schemes_from_json():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    schemes_dir = os.path.join(DB_DIR, "schemes")
+    root_schemes_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "data", "schemes"))
+    backend_schemes_dir = os.path.join(DB_DIR, "schemes")
+    schemes_dir = root_schemes_dir if os.path.exists(root_schemes_dir) else backend_schemes_dir
+
     if not os.path.exists(schemes_dir):
         conn.close()
         return

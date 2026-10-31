@@ -20,6 +20,7 @@ from .db.database import (
 )
 from .db.repository import RateLimiterRepository, FeedbackRepository, MonitoringRepository
 from .models.api import FeedbackRequest, FeedbackResponse
+from .monitoring.scheduler import monitoring_scheduler
 
 # Privacy Protection: Configure logging to exclude personal citizen data
 logging.basicConfig(
