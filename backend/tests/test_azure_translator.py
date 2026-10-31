@@ -200,3 +200,4 @@ def test_integrations_status_includes_azure_translator():
     assert "azure_translator" in data
     assert data["azure_translator"]["name"] == "Microsoft Azure AI Translator"
     assert "supported_languages" in data["azure_translator"]
+

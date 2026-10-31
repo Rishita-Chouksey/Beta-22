@@ -258,3 +258,4 @@ class AzureTranslatorService:
             }
 
 azure_translator_service = AzureTranslatorService()
+

@@ -69,3 +69,4 @@ async def get_translator_status():
     Never exposes API keys or secrets in the response.
     """
     return azure_translator_service.get_status()
+
