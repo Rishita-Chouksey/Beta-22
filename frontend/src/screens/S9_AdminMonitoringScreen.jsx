@@ -22,7 +22,14 @@ import {
   Cpu,
   FileCheck,
   Clock,
-  Database
+  Database,
+  Lock,
+  Eye,
+  EyeOff,
+  UserCheck,
+  KeyRound,
+  LogOut,
+  BadgeCheck
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useSession } from '../context/SessionContext';
@@ -111,6 +118,16 @@ export default function S9_AdminMonitoringScreen() {
   const { language } = useLanguage();
   const { setCurrentScreen } = useSession();
 
+  // Authentication states for Restricted Administrative Portal
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem('yojnasarthi_admin_auth') === 'true';
+  });
+  const [officerId, setOfficerId] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
   // Navigation tab
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'agents', 'sources', 'updates', 'history'
 
@@ -149,8 +166,51 @@ export default function S9_AdminMonitoringScreen() {
   const [rejectReason, setRejectReason] = useState('');
 
   useEffect(() => {
-    loadAllData();
-  }, []);
+    if (isAuthenticated) {
+      loadAllData();
+    }
+  }, [isAuthenticated]);
+
+  const handleLogin = (e) => {
+    e?.preventDefault();
+    setAuthError('');
+    setIsLoggingIn(true);
+
+    const cleanId = officerId.trim().toLowerCase();
+    const cleanPwd = password.trim();
+
+    // Accepted official officer IDs and security credentials
+    const validIds = ['admin', 'officer', 'auditor', 'yojnasarthi', 'officer@yojnasarthi.gov.in', 'evaluator'];
+    const validPasswords = ['admin', 'admin@2026', 'admin123', 'yojnasarthi-admin-secret-2026', 'secret', 'password', 'yojnasarthi2026'];
+
+    if (validIds.includes(cleanId) && validPasswords.includes(cleanPwd.toLowerCase())) {
+      sessionStorage.setItem('yojnasarthi_admin_auth', 'true');
+      setIsAuthenticated(true);
+      setIsLoggingIn(false);
+    } else {
+      setIsLoggingIn(false);
+      setAuthError(
+        language === 'hi'
+          ? 'अमान्य अधिकारी आईडी अथवा पासवर्ड। कृपया दिए गए क्रेडेंशियल्स का उपयोग करें।'
+          : 'Invalid Officer ID or Security Password. Please check credentials and try again.'
+      );
+    }
+  };
+
+  const handleQuickDemoLogin = () => {
+    setOfficerId('admin');
+    setPassword('admin');
+    sessionStorage.setItem('yojnasarthi_admin_auth', 'true');
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('yojnasarthi_admin_auth');
+    setIsAuthenticated(false);
+    setOfficerId('');
+    setPassword('');
+    setAuthError('');
+  };
 
   const loadAllData = async () => {
     setIsLoading(true);
@@ -324,6 +384,125 @@ export default function S9_AdminMonitoringScreen() {
     return u.review_status === updateFilter;
   });
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+        <div className="bg-white rounded-3xl max-w-md w-full border border-slate-200/90 shadow-2xl p-6 sm:p-8 space-y-6">
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 rounded-2xl bg-slate-900 text-teal-400 border border-teal-500/30 flex items-center justify-center mx-auto shadow-md">
+              <Lock className="w-8 h-8" />
+            </div>
+
+            <div>
+              <span className="inline-block text-[10px] font-extrabold uppercase tracking-widest bg-rose-50 text-rose-800 border border-rose-200 px-3 py-0.5 rounded-full mb-1.5">
+                Restricted Administrative Portal
+              </span>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                YojnaSarthi Intelligence Monitor
+              </h2>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                {language === 'hi'
+                  ? 'बहु-एजेंट निगरानी एवं नीति समीक्षा द्वार हेतु प्रशासनिक अधिकारी प्रमाणीकरण आवश्यक है।'
+                  : 'Authorized Public Policy Officers, System Evaluators & Nodal Administrators Only.'}
+              </p>
+            </div>
+          </div>
+
+          {authError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+              <span>{authError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 block">
+                {language === 'hi' ? 'अधिकारी आईडी / यूज़रनेम' : 'Officer ID / Username'}
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={officerId}
+                  onChange={(e) => setOfficerId(e.target.value)}
+                  placeholder="admin"
+                  className="w-full text-xs sm:text-sm pl-10 pr-3 py-3 rounded-xl border border-slate-300 focus:border-teal-600 focus:outline-hidden bg-slate-50/60 font-medium"
+                />
+                <UserCheck className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 block">
+                {language === 'hi' ? 'सुरक्षा पासवर्ड' : 'Security Password'}
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full text-xs sm:text-sm pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:border-teal-600 focus:outline-hidden bg-slate-50/60 font-medium"
+                />
+                <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Mentor / Reviewer Fast Credentials Box */}
+            <div className="p-3 bg-teal-50/80 border border-teal-200 rounded-xl space-y-1.5 text-xs text-teal-950">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[11px] uppercase tracking-wider text-teal-900">
+                  Mentor Review Credentials
+                </span>
+                <span className="text-[10px] bg-teal-200/80 px-1.5 py-0.5 rounded font-mono font-bold">
+                  Demo
+                </span>
+              </div>
+              <p className="text-[11px] text-teal-800">
+                Officer ID: <strong className="font-mono">admin</strong> &nbsp;|&nbsp; Password: <strong className="font-mono">admin</strong>
+              </p>
+              <button
+                type="button"
+                onClick={handleQuickDemoLogin}
+                className="w-full text-center py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold text-[11px] shadow-2xs transition-colors cursor-pointer"
+              >
+                ⚡ One-Click Unlock Dashboard as Demo Officer
+              </button>
+            </div>
+
+            <div className="pt-2 flex flex-col gap-2">
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+              >
+                <Lock className="w-4 h-4 text-teal-400" />
+                <span>{language === 'hi' ? 'डैशबोर्ड अनलॉक करें' : 'Unlock Dashboard'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentScreen('S0')}
+                className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-xs transition-colors cursor-pointer text-center"
+              >
+                {language === 'hi' ? 'नागरिक पोर्टल पर लौटें' : 'Return to Citizen Portal'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-16">
       {/* Top Header */}
@@ -385,6 +564,21 @@ export default function S9_AdminMonitoringScreen() {
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
             </button>
+
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+              <span className="hidden xl:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Admin Officer</span>
+              </span>
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 hover:border-rose-300 transition-colors cursor-pointer"
+                title="Lock & Logout"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>{language === 'hi' ? 'लॉगआउट' : 'Lock Portal'}</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>

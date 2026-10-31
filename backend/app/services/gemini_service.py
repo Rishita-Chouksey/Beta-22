@@ -351,6 +351,8 @@ Citizen Text: "{text}"
         all_schemes = scheme_service.get_all_schemes()
         msg_clean = message.strip()
         msg_lower = msg_clean.lower()
+        parsed_from_msg = self._fallback_parse_text(message, language).get("extracted_profile", {})
+        merged_profile = {**(profile or {}), **parsed_from_msg}
 
         # 1. Check if greeting only
         greetings = ["hi", "hello", "hey", "namaste", "नमस्ते", "प्रणाम", "ram ram", "start"]
@@ -410,6 +412,20 @@ Citizen Text: "{text}"
                     break
 
         current_scheme = scheme_service.get_scheme_by_id(detected_scheme_id) if detected_scheme_id else None
+
+        # Fast-path for verified scheme queries: return immediately (<5ms) with audited official rule data
+        if current_scheme and any(k in msg_lower for k in [
+            "what is", "kya hai", "क्या है", "kya he", "tell me", "batao", "बताओ", "details",
+            "benefit", "labh", "लाभ", "faayda", "faida", "entitlement",
+            "eligible", "eligibility", "patrata", "पात्रता", "shart", "criteria", "who can",
+            "apply", "aavedan", "आवेदन", "procedure", "process", "how to", "kahan", "kaise",
+            "document", "dastavez", "दस्तावेज", "kaagaz", "paper", "proof", "certificate",
+            "overview", "information", "jaankari", "जानकारी", "about", "karein", "kare",
+            "mmvy", "ladli", "kisan", "ayushman", "awas", "niradhar", "widow"
+        ]):
+            res = self._deterministic_chat_response(message, current_scheme, all_schemes, merged_profile, language)
+            AuditRepository.log_chat_interaction(msg_clean, detected_scheme_id, "INSTANT_SCHEME_GUIDANCE", res["reply"], language)
+            return res
 
         # 3. Check Dual Scholarship Restriction Query
         if any(k in msg_lower for k in ["two scholarship", "2 scholarship", "do scholarship", "दो छात्रवृत्ति", "simultaneously", "एक साथ", "both scholarship"]):
@@ -611,8 +627,7 @@ Citizen Text: "{text}"
             "which scheme", "what scheme", "eligible", "apply for", "पात्र", "योजना", "मिल सकती", "आवेदन कर", "meri umar", "my age", "widow", "विधवा", "kisan", "किसान"
         ])
         
-        parsed_from_msg = self._fallback_parse_text(message, language).get("extracted_profile", {})
-        merged_profile = {**(profile or {}), **parsed_from_msg}
+# merged_profile already prepared
 
         if is_eligibility_query and (parsed_from_msg or profile) and not current_scheme:
             citizen_prof = CitizenProfile(**{k: v for k, v in merged_profile.items() if hasattr(CitizenProfile, k) or k in CitizenProfile.model_fields})
@@ -674,10 +689,17 @@ Conversation History:
 
 Citizen Query: "{message}"
 """
-                response = self.client.models.generate_content(
-                    model="gemini-3.8-flash",
-                    contents=system_instruction + "\n" + prompt
-                )
+                import concurrent.futures
+
+                def _call_gemini():
+                    return self.client.models.generate_content(
+                        model="gemini-3.8-flash",
+                        contents=system_instruction + "\n" + prompt
+                    )
+
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(_call_gemini)
+                    response = future.result(timeout=2.5)
                 
                 reply_text = response.text.strip()
                 sources = [current_scheme.official_source_url] if current_scheme else ["https://india.gov.in/"]
@@ -688,7 +710,7 @@ Citizen Query: "{message}"
                     "disclaimer": "AI assistant guidance is grounded in verified official rules. Official sanction is subject to department verification."
                 }
             except Exception as e:
-                logger.warning(f"Gemini chat call failed: {e}. Falling back to deterministic assistant.")
+                logger.warning(f"Gemini chat call timed out or failed: {e}. Falling back instantly to deterministic assistant.")
 
         # 9. Deterministic Grounded Assistant (Full Fallback)
         res = self._deterministic_chat_response(message, current_scheme, all_schemes, merged_profile, language)
@@ -811,6 +833,14 @@ Citizen Query: "{message}"
                 current_aliases += ["pm kisan", "pmkisan", "किसान सम्मान"]
             elif current_scheme.id == "ladli_behna_mp":
                 current_aliases += ["ladli", "laadli", "लाड़ली", "लाडली"]
+            elif current_scheme.id == "pm_jay_ayushman":
+                current_aliases += ["ayushman", "pm-jay", "pmjay", "आयुष्मान", "golden card", "health"]
+            elif current_scheme.id == "pm_awas_yojana_gramin":
+                current_aliases += ["awas", "awaas", "pmay", "आवास", "house"]
+            elif current_scheme.id == "ignwps_widow_pension":
+                current_aliases += ["ignwps", "widow", "विधवा", "इंदिरा", "pension"]
+            elif current_scheme.id == "sanjay_gandhi_niradhar_mh":
+                current_aliases += ["sanjay", "niradhar", "निराधार", "संजय गांधी"]
 
             # If user message mentions another specific scheme or scholarship not matching this scheme, clear current_scheme
             if any(k in m_lower for k in ["scholarship", "yojana", "pension", "awas", "kisan", "ayushman"]) and not any(alias in m_lower for alias in current_aliases):

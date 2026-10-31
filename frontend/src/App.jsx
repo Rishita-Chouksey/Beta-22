@@ -10,7 +10,7 @@ import S1_QuestionnaireScreen from './screens/S1_QuestionnaireScreen';
 import S2_FreeTextInputScreen from './screens/S2_FreeTextInputScreen';
 import S3_ConfirmProfileScreen from './screens/S3_ConfirmProfileScreen';
 import S4_ResultsScreen from './screens/S4_ResultsScreen';
-import S5_SchemeDetailsModal from './screens/S5_SchemeDetailsModal';
+import S5_SchemeDetailsScreen from './screens/S5_SchemeDetailsScreen';
 import S6_DocumentChecklistScreen from './screens/S6_DocumentChecklistScreen';
 import S7_FormHelpScreen from './screens/S7_FormHelpScreen';
 import S8_DocumentGuideScreen from './screens/S8_DocumentGuideScreen';
@@ -32,6 +32,7 @@ function MainAppContent() {
         {currentScreen === 'S2' && <S2_FreeTextInputScreen />}
         {currentScreen === 'S3' && <S3_ConfirmProfileScreen />}
         {currentScreen === 'S4' && <S4_ResultsScreen />}
+        {currentScreen === 'S5' && <S5_SchemeDetailsScreen />}
         {currentScreen === 'S6' && <S6_DocumentChecklistScreen />}
         {currentScreen === 'S7' && <S7_FormHelpScreen />}
         {currentScreen === 'S8' && <S8_DocumentGuideScreen />}
@@ -74,7 +75,6 @@ function MainAppContent() {
       </footer>
 
       {/* Global Modals & Floating Drawers */}
-      <S5_SchemeDetailsModal />
       <ChatbotDrawer />
       <ClearExitModal />
       <IdleWarningModal />

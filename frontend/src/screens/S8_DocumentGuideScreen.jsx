@@ -78,8 +78,7 @@ export default function S8_DocumentGuideScreen() {
 
   const handleReturn = () => {
     if (docGuideReturnScreen === 'S5' && activeSchemeModal) {
-      // Re-open scheme details modal
-      setCurrentScreen('S4');
+      setCurrentScreen('S5');
     } else if (docGuideReturnScreen) {
       setCurrentScreen(docGuideReturnScreen);
     } else {
