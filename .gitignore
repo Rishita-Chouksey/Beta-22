@@ -49,8 +49,3 @@ desktop.ini
 .idea/
 *.swp
 *.swo
-
-__pycache__/
-*.pyc
-__pycache__/
-*.pyc

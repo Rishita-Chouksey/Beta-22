@@ -1,3 +1,4 @@
+import os
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException
@@ -61,26 +62,29 @@ class SecurityAndPrivacyMiddleware(BaseHTTPMiddleware):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize SQLite database and sync verified schemes
+    is_testing = bool(os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING"))
     try:
-        init_db()
-        seed_schemes_from_json()
-        seed_monitoring_sources()
-        seed_monitoring_demo_data()
+        if not is_testing:
+            init_db()
+            seed_schemes_from_json()
+            seed_monitoring_sources()
+            seed_monitoring_demo_data()
     except Exception as e:
         logger.warning(f"Database init warning: {e}")
 
     scheme_service.load_schemes()
     logger.info(f"Loaded {len(scheme_service.get_all_schemes())} schemes into catalog (data source: {scheme_service.get_data_source()}).")
 
-    # Start background scheduler if enabled
-    if getattr(settings, "ENABLE_AUTOMATIC_MONITORING", True):
+    # Start background scheduler if enabled and not in testing
+    if getattr(settings, "ENABLE_AUTOMATIC_MONITORING", True) and not is_testing:
         monitoring_scheduler.interval_seconds = getattr(settings, "MONITORING_INTERVAL_SECONDS", 86400)
         monitoring_scheduler.start()
 
     yield
 
     # Clean shutdown
-    monitoring_scheduler.stop()
+    if not is_testing:
+        monitoring_scheduler.stop()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

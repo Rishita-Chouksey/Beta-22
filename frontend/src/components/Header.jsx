@@ -36,7 +36,11 @@ export default function Header() {
               </span>
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 font-normal leading-tight hidden xs:block">
-              {language === 'hi' ? 'सरकारी योजना पात्रता मार्गदर्शक' : 'Government Scheme Eligibility Guide'}
+              {language === 'hi'
+                ? 'सरकारी योजना पात्रता मार्गदर्शक'
+                : language === 'bn'
+                ? 'সরকারি যোজনা যোগ্যতা নির্দেশিকা'
+                : 'Government Scheme Eligibility Guide'}
             </p>
           </div>
         </div>
@@ -89,7 +93,13 @@ export default function Header() {
             title="Administrative Scheme Intelligence Monitor"
           >
             <Shield className="w-3.5 h-3.5 text-teal-400" />
-            <span>{language === 'hi' ? 'योजना निगरानी' : 'Monitor'}</span>
+            <span>
+              {language === 'hi'
+                ? 'योजना निगरानी'
+                : language === 'bn'
+                ? 'যোজনা পর্যবেক্ষণ'
+                : 'Monitor'}
+            </span>
           </button>
         </nav>
 
@@ -103,7 +113,9 @@ export default function Header() {
             aria-label={t('nav_doc_guide')}
           >
             <FileCheck2 className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden xs:inline">{language === 'hi' ? 'दस्तावेज़' : 'Docs'}</span>
+            <span className="hidden xs:inline">
+              {language === 'hi' ? 'दस्तावेज़' : language === 'bn' ? 'নথিপত্র' : 'Docs'}
+            </span>
           </button>
 
           {/* Quick Monitor Button for Mobile */}
@@ -116,11 +128,11 @@ export default function Header() {
             <Shield className="w-3.5 h-3.5 text-teal-400" />
           </button>
 
-          {/* Language Toggle */}
+          {/* Language Toggle: Hindi, English, Bengali */}
           <div className="flex items-center bg-[#102042] p-0.5 rounded-lg border border-blue-900/60 shadow-inner">
             <button
               onClick={() => setLanguage('hi')}
-              className={`px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
                 language === 'hi'
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-300 hover:text-white'
@@ -131,7 +143,7 @@ export default function Header() {
             </button>
             <button
               onClick={() => setLanguage('en')}
-              className={`px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
                 language === 'en'
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-300 hover:text-white'
@@ -139,6 +151,17 @@ export default function Header() {
               aria-label="Select English language"
             >
               English
+            </button>
+            <button
+              onClick={() => setLanguage('bn')}
+              className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                language === 'bn'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+              aria-label="বাংলা ভাষা নির্বাচন করুন"
+            >
+              বাংলা
             </button>
           </div>
 
@@ -151,7 +174,9 @@ export default function Header() {
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span className="hidden md:inline">{t('clear_and_exit')}</span>
-            <span className="md:hidden">{language === 'hi' ? 'मिटाएं' : 'Exit'}</span>
+            <span className="md:hidden">
+              {language === 'hi' ? 'मिटाएं' : language === 'bn' ? 'মুছুন' : 'Exit'}
+            </span>
           </button>
         </div>
       </div>
