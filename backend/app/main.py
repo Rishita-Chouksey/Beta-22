@@ -119,7 +119,7 @@ async def get_integrations_status():
     """
     Detailed status report of all system integrations:
     - myScheme / API Setu
-    - Bhashini Translation
+    - Microsoft Azure AI Translator
     - Bhashini ASR
     - Bhashini TTS
     - Python Eligibility Engine
@@ -163,15 +163,6 @@ async def get_integrations_status():
             "message": "Monitored as public discovery source; API Setu credentials optional."
         },
         "azure_translator": azure_stat,
-        "bhashini_translation": {
-            "name": "Bhashini NMT Text Translation",
-            "status": bhashini_stat["translation"],
-            "is_live_api": bhashini_stat["is_live_api"],
-            "supported_pairs": ["English ↔ Hindi", "Indic Languages"],
-            "caching": "Deterministic SHA-256 (24h TTL)",
-            "message": bhashini_stat["message"],
-            "last_checked": bhashini_stat["last_checked"]
-        },
         "bhashini_asr": {
             "name": "Bhashini Automatic Speech Recognition",
             "status": bhashini_stat["asr"],

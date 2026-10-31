@@ -2,22 +2,8 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 from ..services.bhashini_adapter import bhashini_adapter
-from ..services.azure_translator_service import azure_translator_service
 
 router = APIRouter()
-
-class TranslationRequest(BaseModel):
-    text: str
-    sourceLanguage: str = Field("en", description="Source ISO code: 'en', 'hi', etc.")
-    targetLanguage: str = Field("hi", description="Target ISO code: 'hi', 'en', etc.")
-
-class TranslationResponse(BaseModel):
-    translatedText: str
-    sourceLanguage: str
-    targetLanguage: str
-    cached: bool
-    service: str
-    note: Optional[str] = None
 
 class ASRRequest(BaseModel):
     audio_base64: str = Field(..., description="Base64 encoded audio stream/file")
@@ -42,40 +28,6 @@ class TTSResponse(BaseModel):
     text: Optional[str] = None
     language: str
     success: bool
-
-@router.post("/bhashini/translate", response_model=TranslationResponse)
-async def translate_text(req: TranslationRequest):
-    """
-    Translates text between supported Indic and English languages using official Bhashini NMT.
-    Protects official terms, caches queries, and falls back gracefully.
-    """
-    if azure_translator_service.is_configured():
-        res = await azure_translator_service.translate(
-            text=req.text,
-            source_lang=req.sourceLanguage,
-            target_lang=req.targetLanguage
-        )
-        return TranslationResponse(
-            translatedText=res.get("translated_text", req.text),
-            sourceLanguage=res.get("source_language", req.sourceLanguage),
-            targetLanguage=res.get("target_language", req.targetLanguage),
-            cached=res.get("cached", False),
-            service=res.get("service", "azure_ai_translator"),
-            note="Routed via Microsoft Azure AI Translator"
-        )
-    res = await bhashini_adapter.translate(
-        text=req.text,
-        source_lang=req.sourceLanguage,
-        target_lang=req.targetLanguage
-    )
-    return TranslationResponse(
-        translatedText=res.get("translated_text", req.text),
-        sourceLanguage=req.sourceLanguage,
-        targetLanguage=req.targetLanguage,
-        cached=res.get("cached", False),
-        service=res.get("service", "unknown"),
-        note=res.get("note")
-    )
 
 @router.post("/bhashini/speech-to-text", response_model=ASRResponse)
 async def speech_to_text(req: ASRRequest):
@@ -112,5 +64,5 @@ async def text_to_speech(req: TTSRequest):
 
 @router.get("/bhashini/status")
 async def get_bhashini_status():
-    """Returns current status of Bhashini integration and available capabilities."""
+    """Returns current status of Bhashini voice assistance capabilities (ASR & TTS)."""
     return bhashini_adapter.get_status()

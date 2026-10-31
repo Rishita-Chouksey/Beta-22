@@ -108,7 +108,6 @@ export async function fetchDocumentDetails(docId) {
 }
 
 // ==============================================================================
-// ==============================================================================
 // Microsoft Azure AI Translator API
 // ==============================================================================
 export async function translateWithAzure(text, sourceLanguage = 'en', targetLanguage = 'hi') {
@@ -131,11 +130,8 @@ export async function fetchTranslatorStatus() {
 }
 
 // ==============================================================================
-// Bhashini Integration API (Speech & Legacy Translation Fallback)
+// Bhashini Integration API (Voice ASR & TTS)
 // ==============================================================================
-export async function translateWithBhashini(text, sourceLanguage = 'en', targetLanguage = 'hi') {
-  return await translateWithAzure(text, sourceLanguage, targetLanguage);
-}
 
 export async function speechToTextBhashini(audioBase64, language = 'hi') {
   const resp = await fetch(`${API_BASE_URL}/bhashini/speech-to-text`, {

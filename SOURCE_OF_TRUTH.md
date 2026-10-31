@@ -284,7 +284,6 @@ All backend endpoints are prefixed with `/api` (except `/health` and `/`):
 | `GET` | `/api/documents/{doc_id}` | Public | Detailed document procurement instructions and synthetic sample |
 | `POST` | `/api/translate` | Public | Official Microsoft Azure Cognitive Services Translator REST API v3.0 (en, hi, bn) |
 | `GET` | `/api/translate/status` | Public | Live integration status of Azure AI Translator with secret protection |
-| `POST` | `/api/bhashini/translate` | Public | Legacy translation endpoint (delegates to Azure Translator when configured) |
 | `POST` | `/api/bhashini/speech-to-text` | Public | Bhashini voice transcription endpoint (with browser fallback advice) |
 | `POST` | `/api/bhashini/text-to-speech` | Public | Bhashini speech synthesis endpoint |
 | `POST` | `/api/feedback` | Public | Anonymous scheme rating and feedback submission |
@@ -362,7 +361,7 @@ YojnaSarthi/
 │   │   │   ├── ai.py                   # /chat, /parse-text, /form-help
 │   │   │   ├── documents.py            # /documents catalog
 │   │   │   ├── translator.py           # /translate & /translate/status (Microsoft Azure AI Translator)
-│   │   │   ├── bhashini.py             # /bhashini integration endpoints (Speech & legacy translation)
+│   │   │   ├── bhashini.py             # /bhashini voice endpoints (Speech-to-Text & Text-to-Speech)
 │   │   │   ├── voice.py                # Legacy voice endpoints
 │   │   │   └── admin_monitoring.py     # /admin/monitoring/* (protected by X-Admin-Key)
 │   │   └── services/
@@ -371,7 +370,7 @@ YojnaSarthi/
 │   │       ├── document_service.py     # Document guide procurement data
 │   │       ├── checklist_service.py    # Document requirements & issuing authority service
 │   │       ├── gemini_service.py       # Gemini AI client + 5 deterministic intent handlers
-│   │       ├── bhashini_adapter.py     # Bhashini NMT, ASR, and TTS adapter
+│   │       ├── bhashini_adapter.py     # Bhashini voice ASR and TTS adapter
 │   │       ├── bhashini_service.py     # Bhashini API client
 │   │       └── myscheme_adapter.py     # myScheme / API Setu adapter with local fallback
 │   ├── data/
@@ -382,7 +381,7 @@ YojnaSarthi/
 │       ├── test_api.py                 # 21 API tests (Chat, Feedback, Security, DB)
 │       ├── test_azure_translator.py    # 14 Azure AI Translator REST API & 6 language pair tests
 │       ├── test_monitoring.py          # 13 Scheme monitoring, crawler, approve/reject tests
-│       ├── test_bhashini_adapter.py    # 5 Bhashini NMT, ASR, TTS tests
+│       ├── test_bhashini_adapter.py    # 3 Bhashini voice ASR & TTS tests
 │       ├── test_document_guide.py      # 5 Document guide search & sample tests
 │       ├── test_eligibility_accuracy.py# 9 Deterministic accuracy & persona tests
 │       ├── test_evaluator.py           # 5 Evaluator unit tests
@@ -390,7 +389,7 @@ YojnaSarthi/
 │       ├── test_myscheme_adapter.py    # 3 myScheme adapter & normalization tests
 │       ├── test_personas.py            # 3 Real-world golden persona journey tests
 │       ├── test_question_selector.py   # 2 Information-gain selection tests
-│       └── test_rules.py               # 10 Rule operator unit tests (92 tests total)
+│       └── test_rules.py               # 10 Rule operator unit tests (90 tests total)
 │
 └── frontend/
     ├── package.json                    # React 19, Vite 8, Tailwind CSS v4, Lucide React
@@ -434,11 +433,11 @@ YojnaSarthi/
 
 ## 14. Test Suite & Quality Verification
 
-All 92 automated backend tests pass with 100% success rate:
+All 90 automated backend tests pass with 100% success rate:
 
 ```bash
 .\backend_venv\Scripts\python.exe -m pytest backend/tests/ -v
-# Output: 92 passed, 1 warning in ~19s
+# Output: 90 passed, 1 warning in ~18s
 ```
 
 Frontend production build compiles cleanly with zero errors:
