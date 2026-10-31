@@ -83,6 +83,7 @@ All translation runs on our own backend with **Argos Translate** (open-source, o
   ```bash
   cd backend && pip install -r requirements.txt
   python -m scripts.install_translation_models   # en<->hi, en<->bn; hi<->bn pivots via English
+  # blocked network? download the .argosmodel files elsewhere, then add: --dir <folder>
   ```
   Until models are installed the app still works; untranslated text shows in its original language.
 
