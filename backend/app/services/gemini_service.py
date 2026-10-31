@@ -73,6 +73,78 @@ DOCUMENT_KNOWLEDGE_BASE = {
     }
 }
 
+
+UNCATALOGED_SCHEMES = [
+    {
+        "patterns": [
+            "post matric", "post-matric", "postmatric",
+            "पोस्ट मैट्रिक", "पोस्ट-मैट्रिक", "पोस्ट मटिक", "उत्तर मैट्रिक", "उत्तर-मैट्रिक",
+            "পোস্ট ম্যাট্রিক", "পোস্ট-ম্যাট্রিক"
+        ],
+        "name_en": "Post Matric Scholarship",
+        "name_hi": "पोस्ट मैट्रिक छात्रवृत्ति (Post Matric Scholarship)",
+        "name_bn": "পোস্ট ম্যাট্রিক স্কলারশিপ (Post Matric Scholarship)",
+        "official_url": "https://scholarships.gov.in/",
+        "portal_name": "National Scholarship Portal (NSP)"
+    },
+    {
+        "patterns": ["nsp", "national scholarship portal", "राष्ट्रीय छात्रवृत्ति पोर्टल"],
+        "name_en": "National Scholarship Portal (NSP Schemes)",
+        "name_hi": "राष्ट्रीय छात्रवृत्ति पोर्टल (NSP)",
+        "name_bn": "ন্যাশনাল স্কলারশিপ পোর্টাল (NSP)",
+        "official_url": "https://scholarships.gov.in/",
+        "portal_name": "National Scholarship Portal"
+    },
+    {
+        "patterns": ["sukanya", "सुकन्या"],
+        "name_en": "Sukanya Samriddhi Yojana",
+        "name_hi": "सुकन्या समृद्धि योजना",
+        "name_bn": "সুকন্যা সমৃদ্ধি যোজনা",
+        "official_url": "https://www.indiapost.gov.in/",
+        "portal_name": "India Post / National Savings"
+    },
+    {
+        "patterns": ["kisan credit card", "kcc", "किसान क्रेडिट कार्ड"],
+        "name_en": "Kisan Credit Card (KCC)",
+        "name_hi": "किसान क्रेडिट कार्ड (KCC)",
+        "name_bn": "কিষাণ ক্রেডিট কার্ড (KCC)",
+        "official_url": "https://agricoop.nic.in/",
+        "portal_name": "Ministry of Agriculture"
+    },
+    {
+        "patterns": ["atal pension", "apy", "अटल पेंशन"],
+        "name_en": "Atal Pension Yojana (APY)",
+        "name_hi": "अटल पेंशन योजना (APY)",
+        "name_bn": "অটল পেনশন যোজনা (APY)",
+        "official_url": "https://www.npscra.nsdl.co.in/",
+        "portal_name": "PFRDA Official Portal"
+    },
+    {
+        "patterns": ["mudra", "मुद्रा योजना", "mudra loan"],
+        "name_en": "Pradhan Mantri MUDRA Yojana",
+        "name_hi": "प्रधानमंत्री मुद्रा योजना (MUDRA)",
+        "name_bn": "প্রধানমন্ত্রী মুদ্রা যোজনা",
+        "official_url": "https://www.mudra.org.in/",
+        "portal_name": "MUDRA Official Portal"
+    },
+    {
+        "patterns": ["vishwakarma", "विश्वकर्मा"],
+        "name_en": "PM Vishwakarma Yojana",
+        "name_hi": "पीएम विश्वकर्मा योजना",
+        "name_bn": "পিএম বিশ্বকর্মা যোজনা",
+        "official_url": "https://pmvishwakarma.gov.in/",
+        "portal_name": "PM Vishwakarma Portal"
+    },
+    {
+        "patterns": ["ladli laxmi", "लाड़ली लक्ष्मी", "लाडली लक्ष्मी"],
+        "name_en": "Ladli Laxmi Yojana (MP)",
+        "name_hi": "लाड़ली लक्ष्मी योजना (मध्य प्रदेश)",
+        "name_bn": "লাডলি লক্ষ্মী যোজনা",
+        "official_url": "https://ladlilaxmi.mp.gov.in/",
+        "portal_name": "MP Ladli Laxmi Portal"
+    }
+]
+
 class GeminiService:
     def __init__(self):
         self.api_key = settings.GEMINI_API_KEY
@@ -110,7 +182,7 @@ Return ONLY a valid JSON object with key "profile" containing the extracted fiel
 Citizen Text: "{text}"
 """
                 response = self.client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.8-flash",
                     contents=prompt
                 )
                 
@@ -236,7 +308,7 @@ Citizen Text: "{text}"
     def _detect_scheme_from_text(self, text: str) -> Optional[str]:
         """Maps user question text or history to verified scheme IDs."""
         t = text.lower()
-        if any(k in t for k in ["mmvy", "medhavi", "मेधावी", "विद्यार्थी योजना"]):
+        if any(k in t for k in ["mmvy", "medhavi", "मेधावी", "मुख्यमंत्री मेधावी"]):
             return "mmvy_scholarship"
         if any(k in t for k in ["ladli behna", "laadli behna", "ladli", "लाड़ली बहना", "लाडली बहना"]):
             return "ladli_behna_mp"
@@ -279,6 +351,8 @@ Citizen Text: "{text}"
         all_schemes = scheme_service.get_all_schemes()
         msg_clean = message.strip()
         msg_lower = msg_clean.lower()
+        parsed_from_msg = self._fallback_parse_text(message, language).get("extracted_profile", {})
+        merged_profile = {**(profile or {}), **parsed_from_msg}
 
         # 1. Check if greeting only
         greetings = ["hi", "hello", "hey", "namaste", "नमस्ते", "प्रणाम", "ram ram", "start"]
@@ -293,6 +367,40 @@ Citizen Text: "{text}"
                 "disclaimer": "AI guidance is grounded in official government guidelines."
             }
 
+        # 1.5 Check if query is about a specific scheme NOT currently in our verified catalog
+        for uncat in UNCATALOGED_SCHEMES:
+            if any(p in msg_lower for p in uncat["patterns"]):
+                url = uncat["official_url"]
+                portal = uncat["portal_name"]
+
+                if language == "hi":
+                    reply = (
+                        f"क्षमा करें, योजनासारथी में वर्तमान में **{uncat['name_hi']}** के नियम उपलब्ध नहीं हैं।\n\n"
+                        f"योजनासारथी वर्तमान में केवल 8 आधिकारिक रूप से सत्यापित सरकारी योजनाओं (जैसे मुख्यमंत्री मेधावी विद्यार्थी योजना - MMVY, लाड़ली बहना, पीएम किसान, आयुष्मान भारत PM-JAY, पीएम आवास ग्रामीण, संजय गांधी निराधार और इंदिरा गांधी राष्ट्रीय विधवा पेंशन) के नियम प्रदान करता है।\n\n"
+                        f"**{uncat['name_hi']}** की आधिकारिक जानकारी व ऑनलाइन आवेदन हेतु कृपया {portal} पर जाएं:\n"
+                        f"🔗 आधिकारिक पोर्टल: {url}"
+                    )
+                elif language == "bn":
+                    reply = (
+                        f"দুঃখিত, যোজনাসারথিতে বর্তমানে **{uncat['name_bn']}**-এর নিয়মাবলী অন্তর্ভুক্ত নেই।\n\n"
+                        f"যোজনাসারথি বর্তমানে ৮টি যাচাইকৃত সরকারি প্রকল্পের (MMVY মেধা বৃত্তি, লাডলি বহনা, পিএম কিষাণ, আয়ুষ্মান ভারত, পিএম আবাস গ্রামীণ ইত্যাদি) তথ্য প্রদান করে।\n\n"
+                        f"**{uncat['name_bn']}**-এর তথ্যের জন্য অনুগ্রহ করে অফিসিয়াল পোর্টালে যান:\n"
+                        f"🔗 অফিসিয়াল পোর্টাল: {url}"
+                    )
+                else:
+                    reply = (
+                        f"I apologize, but YojnaSarthi does not currently have verified rules for **{uncat['name_en']}** in our database.\n\n"
+                        f"Currently, YojnaSarthi provides audited rules for 8 verified schemes: Mukhyamantri Medhavi Vidyarthi Yojana (MMVY), Mukhyamantri Ladli Behna, PM-KISAN, Ayushman Bharat PM-JAY, PMAY-G Rural Housing, Sanjay Gandhi Niradhar, and Indira Gandhi Widow Pension.\n\n"
+                        f"For official information and applying to **{uncat['name_en']}**, please visit the {portal}:\n"
+                        f"🔗 Official Portal: {url}"
+                    )
+                AuditRepository.log_chat_interaction(msg_clean, None, "UNCATALOGED_SCHEME_QUERY", reply, language)
+                return {
+                    "reply": reply,
+                    "grounded_sources": [url],
+                    "disclaimer": "Scheme not yet in verified catalog; directed to official government portal."
+                }
+
         # 2. Scheme Identification & Follow-up Context Resolution
         detected_scheme_id = current_scheme_id or self._detect_scheme_from_text(message)
         if not detected_scheme_id and history:
@@ -304,6 +412,20 @@ Citizen Text: "{text}"
                     break
 
         current_scheme = scheme_service.get_scheme_by_id(detected_scheme_id) if detected_scheme_id else None
+
+        # Fast-path for verified scheme queries: return immediately (<5ms) with audited official rule data
+        if current_scheme and any(k in msg_lower for k in [
+            "what is", "kya hai", "क्या है", "kya he", "tell me", "batao", "बताओ", "details",
+            "benefit", "labh", "लाभ", "faayda", "faida", "entitlement",
+            "eligible", "eligibility", "patrata", "पात्रता", "shart", "criteria", "who can",
+            "apply", "aavedan", "आवेदन", "procedure", "process", "how to", "kahan", "kaise",
+            "document", "dastavez", "दस्तावेज", "kaagaz", "paper", "proof", "certificate",
+            "overview", "information", "jaankari", "जानकारी", "about", "karein", "kare",
+            "mmvy", "ladli", "kisan", "ayushman", "awas", "niradhar", "widow"
+        ]):
+            res = self._deterministic_chat_response(message, current_scheme, all_schemes, merged_profile, language)
+            AuditRepository.log_chat_interaction(msg_clean, detected_scheme_id, "INSTANT_SCHEME_GUIDANCE", res["reply"], language)
+            return res
 
         # 3. Check Dual Scholarship Restriction Query
         if any(k in msg_lower for k in ["two scholarship", "2 scholarship", "do scholarship", "दो छात्रवृत्ति", "simultaneously", "एक साथ", "both scholarship"]):
@@ -505,8 +627,7 @@ Citizen Text: "{text}"
             "which scheme", "what scheme", "eligible", "apply for", "पात्र", "योजना", "मिल सकती", "आवेदन कर", "meri umar", "my age", "widow", "विधवा", "kisan", "किसान"
         ])
         
-        parsed_from_msg = self._fallback_parse_text(message, language).get("extracted_profile", {})
-        merged_profile = {**(profile or {}), **parsed_from_msg}
+# merged_profile already prepared
 
         if is_eligibility_query and (parsed_from_msg or profile) and not current_scheme:
             citizen_prof = CitizenProfile(**{k: v for k, v in merged_profile.items() if hasattr(CitizenProfile, k) or k in CitizenProfile.model_fields})
@@ -568,10 +689,17 @@ Conversation History:
 
 Citizen Query: "{message}"
 """
-                response = self.client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=system_instruction + "\n" + prompt
-                )
+                import concurrent.futures
+
+                def _call_gemini():
+                    return self.client.models.generate_content(
+                        model="gemini-3.8-flash",
+                        contents=system_instruction + "\n" + prompt
+                    )
+
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(_call_gemini)
+                    response = future.result(timeout=2.5)
                 
                 reply_text = response.text.strip()
                 sources = [current_scheme.official_source_url] if current_scheme else ["https://india.gov.in/"]
@@ -582,7 +710,7 @@ Citizen Query: "{message}"
                     "disclaimer": "AI assistant guidance is grounded in verified official rules. Official sanction is subject to department verification."
                 }
             except Exception as e:
-                logger.warning(f"Gemini chat call failed: {e}. Falling back to deterministic assistant.")
+                logger.warning(f"Gemini chat call timed out or failed: {e}. Falling back instantly to deterministic assistant.")
 
         # 9. Deterministic Grounded Assistant (Full Fallback)
         res = self._deterministic_chat_response(message, current_scheme, all_schemes, merged_profile, language)
@@ -695,6 +823,28 @@ Citizen Query: "{message}"
         """Provides verified direct answers for specific scheme inquiries."""
         m_lower = message.lower()
         sources = []
+
+        if current_scheme:
+            # Check if user switched topic to an unrelated query or scheme
+            current_aliases = [current_scheme.id.lower(), current_scheme.name_en.lower(), current_scheme.name_hi.lower()]
+            if current_scheme.id == "mmvy_scholarship":
+                current_aliases += ["mmvy", "medhavi", "मेधावी", "विद्यार्थी"]
+            elif current_scheme.id == "pm_kisan":
+                current_aliases += ["pm kisan", "pmkisan", "किसान सम्मान"]
+            elif current_scheme.id == "ladli_behna_mp":
+                current_aliases += ["ladli", "laadli", "लाड़ली", "लाडली"]
+            elif current_scheme.id == "pm_jay_ayushman":
+                current_aliases += ["ayushman", "pm-jay", "pmjay", "आयुष्मान", "golden card", "health"]
+            elif current_scheme.id == "pm_awas_yojana_gramin":
+                current_aliases += ["awas", "awaas", "pmay", "आवास", "house"]
+            elif current_scheme.id == "ignwps_widow_pension":
+                current_aliases += ["ignwps", "widow", "विधवा", "इंदिरा", "pension"]
+            elif current_scheme.id == "sanjay_gandhi_niradhar_mh":
+                current_aliases += ["sanjay", "niradhar", "निराधार", "संजय गांधी"]
+
+            # If user message mentions another specific scheme or scholarship not matching this scheme, clear current_scheme
+            if any(k in m_lower for k in ["scholarship", "yojana", "pension", "awas", "kisan", "ayushman"]) and not any(alias in m_lower for alias in current_aliases):
+                current_scheme = None
 
         if current_scheme:
             sources.append(current_scheme.official_source_url)

@@ -2,48 +2,102 @@
   "id": "ladli_behna_mp",
   "name_en": "Mukhyamantri Ladli Behna Yojana",
   "name_hi": "मुख्यमंत्री लाड़ली बहना योजना",
+  "name_bn": "মুখ্যমন্ত্রী লাডলি বহনা যোজনা",
   "level": "state",
-  "applicable_states": ["Madhya Pradesh"],
-  "category": "Women Empowerment",
+  "state": "MP",
+  "applicable_states": ["MP"],
+  "category": "Women Welfare",
+  "personas": ["widow"],
   "benefit_en": "Direct monthly financial assistance of ₹1,250 transferred every month directly into beneficiary's DBT-enabled bank account.",
   "benefit_hi": "प्रत्येक माह ₹1,250 की प्रत्यक्ष वित्तीय सहायता सीधे लाभार्थी के आधार-लिंक्ड बैंक खाते में।",
+  "benefit_bn": "আধার সংযুক্ত ডিবিটি ব্যাঙ্ক অ্যাকাউন্টে প্রতি মাসে ₹১,২৫০ সরাসরি আর্থিক সহায়তা।",
   "description_en": "Madhya Pradesh state initiative for women's financial independence, nutrition and healthcare empowerment.",
   "description_hi": "महिलाओं के आर्थिक स्वावलंबन, स्वास्थ्य और पोषण में निरंतर सुधार के लिए मध्य प्रदेश शासन की प्रमुख योजना।",
+  "description_bn": "মধ্যপ্রদেশে নারীদের ও বিধবাদের অর্থনৈতিকভাবে ক্ষমতায়নের প্রধান উদ্যোগ।",
+  "review_status": "verified",
+  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "auto_update": null,
+  "machine_translated": {
+    "hi": false,
+    "bn": true
+  },
+  "tracked": [
+    {
+      "rule_id": "income_limit",
+      "extractor": "income_limit",
+      "kind": "amount_inr"
+    }
+  ],
   "rules": [
     {
+      "rule_id": "gender_female",
       "field": "gender",
       "operator": "eq",
       "value": "female",
       "description_en": "Applicant must be a woman.",
-      "description_hi": "आवेदिका महिला होनी चाहिए।"
+      "description_hi": "आवेदिका महिला होनी चाहिए।",
+      "description_bn": "আবেদনকারীকে মহিলা হতে হবে।",
+      "why_template": {
+        "en": "Applicant gender must be {value}.",
+        "hi": "आवेदक का लिंग {value} होना चाहिए।",
+        "bn": "আবেদনকারীর লিঙ্গ {value} হতে হবে।"
+      }
     },
     {
+      "rule_id": "marital_status_eligible",
       "field": "marital_status",
       "operator": "in",
       "value": ["married", "widow", "divorced"],
       "description_en": "Applicant must be a married woman, widow, or divorced/deserted woman (unmarried women are excluded).",
-      "description_hi": "आवेदिका विवाहित, विधवा या तलाकशुदा/परित्यक्ता महिला होनी चाहिए (अविवाहित युवतियां योजना के अंतर्गत शामिल नहीं हैं)।"
+      "description_hi": "आवेदिका विवाहित, विधवा या तलाकशुदा/परित्यक्ता महिला होनी चाहिए।",
+      "description_bn": "আবেদনকারীকে বিবাহিত, বিধবা বা পরিত্যক্তা মহিলা হতে হবে।",
+      "why_template": {
+        "en": "Applicant marital status must be one of {value}.",
+        "hi": "आवेदक की वैवाहिक स्थिति {value} में से एक होनी चाहिए।",
+        "bn": "আবেদনকারীর বৈবাহিক অবস্থা {value} এর মধ্যে হতে হবে।"
+      }
     },
     {
+      "rule_id": "age_between",
       "field": "age",
       "operator": "between",
       "value": [21, 60],
       "description_en": "Age must be between 21 and 60 years.",
-      "description_hi": "आयु 21 से 60 वर्ष के बीच होनी चाहिए।"
+      "description_hi": "आयु 21 से 60 वर्ष के बीच होनी चाहिए।",
+      "description_bn": "বয়স ২১ থেকে ৬০ বছরের মধ্যে হতে হবে।",
+      "why_template": {
+        "en": "Age must be between {value} years.",
+        "hi": "आयु {value} वर्ष के बीच होनी चाहिए।",
+        "bn": "বয়স {value} বছরের মধ্যে হতে হবে।"
+      }
     },
     {
+      "rule_id": "income_limit",
       "field": "annual_income",
       "operator": "lte",
       "value": 250000.0,
-      "description_en": "Family combined annual income must be less than or equal to ₹2,50,000.",
-      "description_hi": "परिवार की सम्मिलित वार्षिक आय ₹2,50,000 से कम या बराबर होनी चाहिए।"
+      "description_en": "Combined family annual income must not exceed ₹2,50,000 (₹2.5 Lakh).",
+      "description_hi": "परिवार की सम्मिलित वार्षिक आय ₹2,50,000 से कम या बराबर होनी चाहिए।",
+      "description_bn": "পারিবারিক যৌথ বার্ষিক আয় ₹২,৫০,০০০ (₹২.৫ লক্ষ) এর বেশি হওয়া চলবে না।",
+      "why_template": {
+        "en": "Combined family annual income must not exceed ₹{value}.",
+        "hi": "परिवार की सम्मिलित वार्षिक आय ₹{value} से अधिक नहीं होनी चाहिए।",
+        "bn": "পারিবারিক যৌথ বার্ষিক আয় ₹{value} এর বেশি হওয়া চলবে না।"
+      }
     },
     {
+      "rule_id": "land_limit",
       "field": "landholding_hectares",
       "operator": "lte",
       "value": 2.02,
       "description_en": "Family agricultural land must not exceed 5 acres (approx 2.02 hectares).",
-      "description_hi": "परिवार के पास 5 एकड़ (लगभग 2.02 हेक्टेयर) से अधिक कृषि भूमि नहीं होनी चाहिए।"
+      "description_hi": "परिवार के पास 5 एकड़ (लगभग 2.02 हेक्टेयर) से अधिक कृषि भूमि नहीं होनी चाहिए।",
+      "description_bn": "পরিবারের কাছে ৫ একরের (প্রায় ২.০২ হেক্টর) বেশি জমি থাকা চলবে না।",
+      "why_template": {
+        "en": "Family agricultural land must not exceed {value} hectares.",
+        "hi": "परिवार के पास {value} हेक्टेयर से अधिक कृषि भूमि नहीं होनी चाहिए।",
+        "bn": "পরিবারের কাছে {value} হেক্টরের বেশি কৃষিজমি থাকা চলবে না।"
+      }
     }
   ],
   "restrictions": [
@@ -56,10 +110,13 @@
       "id": "aadhaar",
       "name_en": "Aadhaar Card",
       "name_hi": "आधार कार्ड",
+      "name_bn": "আধার কার্ড",
       "purpose_en": "Identity and age verification.",
       "purpose_hi": "पहचान और आयु सत्यापन।",
+      "purpose_bn": "পরিচয় ও বয়স যাচাই।",
       "how_to_get_en": "Issued by UIDAI.",
       "how_to_get_hi": "UIDAI द्वारा जारी।",
+      "how_to_get_bn": "UIDAI দ্বারা জারি করা।",
       "online_url": "https://myaadhaar.uidai.gov.in/",
       "offline_office": "Aadhaar Center"
     },
@@ -67,10 +124,13 @@
       "id": "samagra_id",
       "name_en": "Samagra Member ID & Family ID",
       "name_hi": "समग्र सदस्य आईडी एवं परिवार आईडी",
+      "name_bn": "সমগ্র আইডি",
       "purpose_en": "Mandatory Madhya Pradesh citizen identity with completed e-KYC.",
       "purpose_hi": "मध्य प्रदेश नागरिक पहचान जिसमें ई-केवाईसी पूर्ण हो।",
+      "purpose_bn": "মধ্যপ্রদেশ নাগরিক পরিচয়পত্র।",
       "how_to_get_en": "Check and complete e-KYC on samagra.gov.in.",
       "how_to_get_hi": "samagra.gov.in पर समग्र ई-केवाईसी करें।",
+      "how_to_get_bn": "samagra.gov.in থেকে সংগ্রহ করুন।",
       "online_url": "https://samagra.gov.in/",
       "offline_office": "Gram Panchayat / Ward Office"
     },
@@ -78,10 +138,13 @@
       "id": "bank_passbook",
       "name_en": "Individual DBT-Active Bank Account",
       "name_hi": "डीबीटी सक्रिय व्यक्तिगत बैंक खाता",
+      "name_bn": "ডিবিটি ব্যাঙ্ক অ্যাকাউন্ট পাসবুক",
       "purpose_en": "Direct receipt of monthly installment on 10th of every month.",
       "purpose_hi": "प्रत्येक माह की 10 तारीख को मासिक राशि प्राप्त करने के लिए।",
+      "purpose_bn": "মাসিক অনুদান প্রাপ্তির জন্য।",
       "how_to_get_en": "Account in applicant's own name (not joint) with Aadhaar linkage.",
       "how_to_get_hi": "आवेदिका के स्वयं के नाम पर आधार लिंक खाता।",
+      "how_to_get_bn": "আবেদনকারীর নিজের নামে আধার সংযুক্ত ব্যাঙ্ক অ্যাকাউন্ট।",
       "online_url": null,
       "offline_office": "Bank Branch"
     }

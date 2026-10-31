@@ -1,0 +1,15 @@
+{
+  "allow_suffixes": [
+    "gov.in",
+    "nic.in",
+    "india.gov.in",
+    "scholarships.gov.in",
+    "uidai.gov.in"
+  ],
+  "deny_hosts": [
+    "myscheme.gov.in",
+    "www.myscheme.gov.in"
+  ],
+  "require_https": true,
+  "reject_private_ips": true
+}

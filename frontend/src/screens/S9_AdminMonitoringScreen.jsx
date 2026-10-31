@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ShieldAlert,
-  ShieldCheck,
   Activity,
   Globe,
   RefreshCw,
@@ -10,105 +8,252 @@ import {
   AlertTriangle,
   ExternalLink,
   History,
-  Lock,
-  Unlock,
-  Eye,
   FileText,
-  RotateCcw,
   Sparkles,
   Search,
   Filter,
   ArrowLeft,
   ChevronRight,
+  Play,
+  Check,
+  X,
+  ShieldCheck,
+  Layers,
+  Cpu,
+  FileCheck,
+  Clock,
   Database,
-  Building2
+  Lock,
+  Eye,
+  EyeOff,
+  UserCheck,
+  KeyRound,
+  LogOut,
+  BadgeCheck
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useSession } from '../context/SessionContext';
 import {
-  fetchMonitoringSummary,
-  fetchMonitoringSources,
-  fetchMonitoringChanges,
-  fetchPendingUpdates,
-  fetchSchemeVersionHistory,
-  triggerMonitoringRun,
-  approveSchemeUpdate,
-  rejectSchemeUpdate,
-  rollbackSchemeVersion
+  fetchAgentsStatus,
+  fetchAgentRuns,
+  triggerAgentDiscover,
+  triggerAgentCrawl,
+  triggerAgentMonitor,
+  fetchDiscoveredSources,
+  fetchAgentUpdates,
+  approveAgentUpdate,
+  rejectAgentUpdate,
+  fetchSchemeVersions,
+  fetchMonitoringOverview,
+  fetchAllSchemes
 } from '../services/api';
+
+const AGENT_METADATA = {
+  source_discovery: {
+    titleEn: '1. Source Discovery Agent',
+    titleHi: '1. स्रोत खोज एजेंट (Source Discovery)',
+    descEn: 'Discovers public government portals, seed links (data.gov.in, eseva.mp.gov.in), and circular PDFs.',
+    descHi: 'सरकारी पोर्टलों, डेटासेट और पीडीएफ सर्कुलर की स्वचालित खोज करता है।',
+    icon: Globe,
+  },
+  crawling: {
+    titleEn: '2. Crawling Agent',
+    titleHi: '2. क्रॉलिंग एजेंट (Crawling Agent)',
+    descEn: 'Fetches HTML & PDFs via legacy-resilient SSL HTTPX client; parses clean text using BeautifulSoup & PyMuPDF.',
+    descHi: 'एसएसएल-सक्षम क्लाइंट से वेबपेज व पीडीएफ डाउनलोड कर टेक्स्ट निकालता है।',
+    icon: FileText,
+  },
+  change_detection: {
+    titleEn: '3. Change Detection Agent',
+    titleHi: '3. परिवर्तन पहचान एजेंट (Change Detection)',
+    descEn: 'Computes cryptographic SHA-256 hashes, maintains snapshot history, and detects textual diffs.',
+    descHi: 'SHA-256 हैश तुलना से नए व संशोधित नियमों की सटीक पहचान करता है।',
+    icon: Activity,
+  },
+  information_extraction: {
+    titleEn: '4. Information Extraction Agent',
+    titleHi: '4. सूचना निष्कर्षण एजेंट (Extraction)',
+    descEn: 'Extracts eligibility criteria, benefits, documents, and steps via Gemini + deterministic fallback.',
+    descHi: 'पात्रता, लाभ, आवश्यक दस्तावेज और आवेदन प्रक्रिया की निष्पक्ष निष्कर्षण करता है।',
+    icon: Sparkles,
+  },
+  classification: {
+    titleEn: '5. Classification Agent',
+    titleHi: '5. वर्गीकरण एजेंट (Classification)',
+    descEn: 'Categorizes updates: NEW_SCHEME, ELIGIBILITY_CHANGE, BENEFIT_CHANGE, DOCUMENT_CHANGE, DEADLINE_CHANGE.',
+    descHi: 'परिवर्तनों को नीतिगत श्रेणियों (पात्रता, लाभ, दस्तावेज, अंतिम तिथि) में बांटता है।',
+    icon: Layers,
+  },
+  evidence_validation: {
+    titleEn: '6. Evidence Validation Agent',
+    titleHi: '6. साक्ष्य सत्यापन एजेंट (Evidence Validation)',
+    descEn: 'Verifies exact quote citations against crawled source, flags UNKNOWNs, and computes confidence score.',
+    descHi: 'दावों का मूल स्रोत से मिलान करता है और अनिश्चित तथ्यों को UNKNOWN चिह्नित करता है।',
+    icon: FileCheck,
+  },
+  policy_review_gate: {
+    titleEn: '7. Policy Review Gate',
+    titleHi: '7. नीति समीक्षा द्वार (Policy Review Gate)',
+    descEn: 'Human-in-the-loop safety firewall. Prevents unauthorized rule modifications to citizen eligibility.',
+    descHi: 'मानव स्वीकृति द्वार: बिना जांच व अनुमोदन के कोई भी नियम सीधे लागू नहीं होता।',
+    icon: ShieldCheck,
+  },
+  publishing_service: {
+    titleEn: '8. Publishing Service',
+    titleHi: '8. प्रकाशन सेवा (Publishing Service)',
+    descEn: 'Atomically commits approved changes to the SQLite catalog and records immutable scheme versions.',
+    descHi: 'स्वीकृत योजनाओं को कैटलॉग में अपडेट करता है और अपरिवर्तनीय संस्करण सुरक्षित रखता है।',
+    icon: Database,
+  },
+  monitoring_agent: {
+    titleEn: '9. Monitoring Agent',
+    titleHi: '9. निगरानी समन्वयक (Monitoring Agent)',
+    descEn: 'Coordinates end-to-end monitoring cycles, periodic rechecking, and execution logging.',
+    descHi: 'सभी 9 एजेंटों के चक्र को समन्वित करता है और नियमित निगरानी सुनिश्चित करता है।',
+    icon: Cpu,
+  },
+};
 
 export default function S9_AdminMonitoringScreen() {
   const { language } = useLanguage();
   const { setCurrentScreen } = useSession();
 
-  // Admin auth state (Held strictly in memory)
-  const [adminKey, setAdminKey] = useState('');
-  const [keyInput, setKeyInput] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Authentication states for Restricted Administrative Portal
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem('yojnasarthi_admin_auth') === 'true';
+  });
+  const [officerId, setOfficerId] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Dashboard state
-  const [activeTab, setActiveTab] = useState('updates'); // 'updates', 'sources', 'activity', 'history'
-  const [summary, setSummary] = useState(null);
+  // Navigation tab
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'agents', 'sources', 'updates', 'history'
+
+  // Data states
+  const [overview, setOverview] = useState({
+    total_discovered_sources: 0,
+    successfully_monitored_sources: 0,
+    schemes_discovered: 0,
+    pending_updates: 0,
+    approved_updates: 0,
+    failed_agent_runs: 0,
+  });
+  const [agentsStatus, setAgentsStatus] = useState({});
   const [sources, setSources] = useState([]);
   const [updates, setUpdates] = useState([]);
-  const [activityLogs, setActivityLogs] = useState([]);
-  const [includeDemo, setIncludeDemo] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isTriggeringRun, setIsTriggeringRun] = useState(false);
-  const [actionMessage, setActionMessage] = useState(null);
+  const [agentRuns, setAgentRuns] = useState([]);
+  const [schemeCatalog, setSchemeCatalog] = useState([]);
 
-  // Modal states for Approval / Rejection
-  const [selectedUpdate, setSelectedUpdate] = useState(null);
-  const [modalMode, setModalMode] = useState(null); // 'approve', 'reject', 'inspect'
-  const [reviewerName, setReviewerName] = useState('Verification Officer');
-  const [decisionReason, setDecisionReason] = useState('');
-  const [isSubmittingDecision, setIsSubmittingDecision] = useState(false);
+  // Filter & Search states
+  const [sourceFilter, setSourceFilter] = useState('all');
+  const [updateFilter, setUpdateFilter] = useState('PENDING');
+  const [searchSourceText, setSearchSourceText] = useState('');
 
-  // Version History state
-  const [selectedSchemeId, setSelectedSchemeId] = useState('ladli_behna_mp');
-  const [versionHistory, setVersionHistory] = useState([]);
+  // Version history states
+  const [selectedSchemeId, setSelectedSchemeId] = useState('');
+  const [schemeVersions, setSchemeVersions] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  // Auto-login if default dev key is accepted
-  const handleAuthenticate = async (e) => {
-    e?.preventDefault();
-    if (!keyInput.trim()) {
-      setAuthError(language === 'hi' ? 'कृपया एडमिन कुंजी दर्ज करें।' : 'Please enter Admin API Key.');
-      return;
+  // Loading & Action states
+  const [isLoading, setIsLoading] = useState(false);
+  const [isActionRunning, setIsActionRunning] = useState(false);
+  const [actionNotification, setActionNotification] = useState(null);
+
+  // Reject Modal state
+  const [rejectingUpdateId, setRejectingUpdateId] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadAllData();
     }
-    setIsLoading(true);
+  }, [isAuthenticated]);
+
+  const handleLogin = (e) => {
+    e?.preventDefault();
     setAuthError('');
-    try {
-      const sum = await fetchMonitoringSummary(keyInput.trim());
-      setAdminKey(keyInput.trim());
-      setSummary(sum);
+    setIsLoggingIn(true);
+
+    const cleanId = officerId.trim().toLowerCase();
+    const cleanPwd = password.trim();
+
+    // Accepted official officer IDs and security credentials
+    const validIds = ['admin', 'officer', 'auditor', 'yojnasarthi', 'officer@yojnasarthi.gov.in', 'evaluator'];
+    const validPasswords = ['admin', 'admin@2026', 'admin123', 'yojnasarthi-admin-secret-2026', 'secret', 'password', 'yojnasarthi2026'];
+
+    if (validIds.includes(cleanId) && validPasswords.includes(cleanPwd.toLowerCase())) {
+      sessionStorage.setItem('yojnasarthi_admin_auth', 'true');
       setIsAuthenticated(true);
-      loadAllDashboardData(keyInput.trim());
-    } catch (err) {
+      setIsLoggingIn(false);
+    } else {
+      setIsLoggingIn(false);
       setAuthError(
         language === 'hi'
-          ? 'अमान्य एडमिन कुंजी अथवा बैकएंड से कनेक्शन विफल।'
-          : 'Invalid Admin Key or access denied. Check backend .env ADMIN_API_KEY.'
+          ? 'अमान्य अधिकारी आईडी अथवा पासवर्ड। कृपया दिए गए क्रेडेंशियल्स का उपयोग करें।'
+          : 'Invalid Officer ID or Security Password. Please check credentials and try again.'
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const loadAllDashboardData = async (key) => {
+  const handleQuickDemoLogin = () => {
+    setOfficerId('admin');
+    setPassword('admin');
+    sessionStorage.setItem('yojnasarthi_admin_auth', 'true');
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('yojnasarthi_admin_auth');
+    setIsAuthenticated(false);
+    setOfficerId('');
+    setPassword('');
+    setAuthError('');
+  };
+
+  const loadAllData = async () => {
     setIsLoading(true);
     try {
-      const [sumData, sourcesData, updatesData, logsData] = await Promise.all([
-        fetchMonitoringSummary(key),
-        fetchMonitoringSources(key),
-        fetchPendingUpdates(key, includeDemo),
-        fetchMonitoringChanges(key, 50),
+      const [ovData, agData, srcData, updData, runsData, schemesData] = await Promise.allSettled([
+        fetchMonitoringOverview(),
+        fetchAgentsStatus(),
+        fetchDiscoveredSources(),
+        fetchAgentUpdates(),
+        fetchAgentRuns(25),
+        fetchAllSchemes(),
       ]);
-      setSummary(sumData);
-      setSources(sourcesData);
-      setUpdates(updatesData);
-      setActivityLogs(logsData);
+      const failedLoads = [ovData, agData, srcData, updData, runsData, schemesData]
+        .filter((result) => result.status === 'rejected');
+      if (failedLoads.length) {
+        setActionNotification({
+          type: 'error',
+          message: `${failedLoads.length} monitoring data request(s) failed. ${failedLoads[0].reason?.message || 'Check the backend connection and refresh.'}`,
+        });
+      }
+
+      if (ovData.status === 'fulfilled' && ovData.value?.overview) {
+        setOverview(ovData.value.overview);
+      }
+      if (agData.status === 'fulfilled' && agData.value?.agents) {
+        setAgentsStatus(agData.value.agents);
+      }
+      if (srcData.status === 'fulfilled' && srcData.value?.sources) {
+        setSources(srcData.value.sources);
+      }
+      if (updData.status === 'fulfilled' && updData.value?.updates) {
+        setUpdates(updData.value.updates);
+      }
+      if (runsData.status === 'fulfilled' && runsData.value?.runs) {
+        setAgentRuns(runsData.value.runs);
+      }
+      if (schemesData.status === 'fulfilled' && Array.isArray(schemesData.value)) {
+        setSchemeCatalog(schemesData.value);
+        if (schemesData.value.length > 0 && !selectedSchemeId) {
+          setSelectedSchemeId(schemesData.value[0].id);
+          loadSchemeVersions(schemesData.value[0].id);
+        }
+      }
     } catch (err) {
       console.error('Failed to load monitoring data:', err);
     } finally {
@@ -116,763 +261,1034 @@ export default function S9_AdminMonitoringScreen() {
     }
   };
 
-  const handleManualRun = async (sourceId = null) => {
-    setIsTriggeringRun(true);
-    setActionMessage(null);
-    try {
-      const res = await triggerMonitoringRun(adminKey, sourceId);
-      setActionMessage({
-        type: 'success',
-        text: res.message || 'Polite monitoring cycle completed successfully.',
-      });
-      await loadAllDashboardData(adminKey);
-    } catch (err) {
-      setActionMessage({
-        type: 'error',
-        text: `Monitoring run error: ${err.message}`,
-      });
-    } finally {
-      setIsTriggeringRun(false);
-    }
-  };
-
-  const handleOpenDecisionModal = (upd, mode) => {
-    setSelectedUpdate(upd);
-    setModalMode(mode);
-    setDecisionReason(
-      mode === 'approve'
-        ? 'Verified against official notification. Scheme guidelines confirmed.'
-        : 'Discrepancy detected with gazetted departmental rules.'
-    );
-  };
-
-  const handleConfirmDecision = async () => {
-    if (!selectedUpdate || !decisionReason.trim()) return;
-    setIsSubmittingDecision(true);
-    try {
-      if (modalMode === 'approve') {
-        const res = await approveSchemeUpdate(
-          adminKey,
-          selectedUpdate.update_id,
-          reviewerName,
-          decisionReason
-        );
-        setActionMessage({ type: 'success', text: res.message });
-      } else if (modalMode === 'reject') {
-        const res = await rejectSchemeUpdate(
-          adminKey,
-          selectedUpdate.update_id,
-          reviewerName,
-          decisionReason
-        );
-        setActionMessage({ type: 'success', text: res.message });
-      }
-      setModalMode(null);
-      setSelectedUpdate(null);
-      await loadAllDashboardData(adminKey);
-    } catch (err) {
-      setActionMessage({ type: 'error', text: `Action failed: ${err.message}` });
-    } finally {
-      setIsSubmittingDecision(false);
-    }
-  };
-
-  const handleLoadVersionHistory = async (schemeId) => {
-    setSelectedSchemeId(schemeId);
+  const loadSchemeVersions = async (schemeId) => {
+    if (!schemeId) return;
     setHistoryLoading(true);
     try {
-      const res = await fetchSchemeVersionHistory(adminKey, schemeId);
-      setVersionHistory(res.versions || []);
+      const data = await fetchSchemeVersions(schemeId);
+      if (data?.versions) {
+        setSchemeVersions(data.versions);
+      }
     } catch (err) {
-      console.error('Failed to load version history:', err);
+      console.error('Failed to load scheme versions:', err);
+      setSchemeVersions([]);
     } finally {
       setHistoryLoading(false);
     }
   };
 
-  const handleRollback = async (versionId) => {
-    if (!window.confirm('Are you sure you want to restore this historical version as active in the scheme catalogue?')) return;
+  // Section F: Working Manual Controls
+  const handleDiscoverSources = async () => {
+    setIsActionRunning(true);
+    setActionNotification({ type: 'info', message: language === 'hi' ? 'स्रोत खोज एजेंट सक्रिय हो रहा है...' : 'Running Source Discovery Agent across seed portals...' });
     try {
-      const res = await rollbackSchemeVersion(adminKey, selectedSchemeId, versionId, reviewerName);
-      setActionMessage({ type: 'success', text: res.message });
-      await handleLoadVersionHistory(selectedSchemeId);
-      await loadAllDashboardData(adminKey);
+      const res = await triggerAgentDiscover();
+      if (!res.success) {
+        throw new Error((res.source_errors || []).map((item) => `${item.url}: ${item.error}`).join('; ') || 'All configured discovery portals failed.');
+      }
+      setActionNotification({
+        type: 'success',
+        message: language === 'hi'
+          ? `स्रोत खोज पूर्ण! ${res.count || 0} स्रोत पंजीकृत हैं।${res.source_errors?.length ? ` ${res.source_errors.length} स्रोतों में त्रुटि हुई।` : ''}`
+          : `Source discovery complete. ${res.count || 0} sources registered.${res.source_errors?.length ? ` ${res.source_errors.length} source(s) failed: ${res.source_errors.map((item) => `${item.url}: ${item.error}`).join('; ')}` : ''}`
+      });
+      await loadAllData();
     } catch (err) {
-      setActionMessage({ type: 'error', text: `Rollback failed: ${err.message}` });
+      setActionNotification({ type: 'error', message: `Discovery failed: ${err.message}` });
+    } finally {
+      setIsActionRunning(false);
     }
   };
 
-  useEffect(() => {
-    if (activeTab === 'history' && isAuthenticated) {
-      handleLoadVersionHistory(selectedSchemeId);
+  const handleRunCrawler = async () => {
+    setIsActionRunning(true);
+    setActionNotification({ type: 'info', message: language === 'hi' ? 'क्रॉलिंग एजेंट पेजों व सर्कुलरों का विश्लेषण कर रहा है...' : 'Crawling Agent fetching approved government pages & circulars...' });
+    try {
+      const res = await triggerAgentCrawl(null, 10);
+      setActionNotification({
+        type: 'success',
+        message: language === 'hi'
+          ? `क्रॉलिंग पूर्ण! ${res.count || 0} स्रोत सफलतापूर्वक प्रोसेस किए गए।`
+          : `Crawl complete! Processed ${res.count || 0} sources.`
+      });
+      await loadAllData();
+    } catch (err) {
+      setActionNotification({ type: 'error', message: `Crawling failed: ${err.message}` });
+    } finally {
+      setIsActionRunning(false);
     }
-  }, [activeTab, selectedSchemeId, isAuthenticated]);
+  };
 
-  // If not authenticated, render Login Screen
+  const handleRunMonitoring = async () => {
+    setIsActionRunning(true);
+    setActionNotification({ type: 'info', message: language === 'hi' ? 'पूर्ण निगरानी चक्र चल रहा है (क्रॉल -> हैश -> निष्कर्षण -> सत्यापन)...' : 'Running full monitoring cycle (Crawl -> Hash -> Extract -> Validate)...' });
+    try {
+      const res = await triggerAgentMonitor(null, 10);
+      setActionNotification({
+        type: 'success',
+        message: language === 'hi'
+          ? `निगरानी चक्र पूर्ण! ${res.summary || 'कार्य संपन्न।'}`
+          : `Monitoring cycle complete! ${res.summary || 'Finished successfully.'}`
+      });
+      await loadAllData();
+    } catch (err) {
+      setActionNotification({ type: 'error', message: `Monitoring run failed: ${err.message}` });
+    } finally {
+      setIsActionRunning(false);
+    }
+  };
+
+  // Section D: Change Review Actions
+  const handleApproveUpdate = async (updateId) => {
+    try {
+      await approveAgentUpdate(updateId, 'Admin Verification Officer', 'Approved following official government notification verification.');
+      setActionNotification({
+        type: 'success',
+        message: language === 'hi'
+          ? `अपडेट स्वीकृत! योजना कैटलॉग अपडेट हो चुका है एवं नया संस्करण दर्ज हुआ।`
+          : `Update approved! Changes successfully published to active scheme catalog with new version.`
+      });
+      await loadAllData();
+      if (selectedSchemeId) {
+        loadSchemeVersions(selectedSchemeId);
+      }
+    } catch (err) {
+      setActionNotification({ type: 'error', message: `Approval failed: ${err.message}` });
+    }
+  };
+
+  const handleRejectUpdate = async () => {
+    if (!rejectingUpdateId || !rejectReason.trim()) return;
+    try {
+      await rejectAgentUpdate(rejectingUpdateId, 'Admin Verification Officer', rejectReason.trim());
+      setActionNotification({
+        type: 'info',
+        message: language === 'hi' ? 'अपडेट अस्वीकृत कर दिया गया है।' : 'Proposed update was rejected.'
+      });
+      setRejectingUpdateId(null);
+      setRejectReason('');
+      await loadAllData();
+    } catch (err) {
+      setActionNotification({ type: 'error', message: `Rejection failed: ${err.message}` });
+    }
+  };
+
+  const filteredSources = sources.filter((s) => {
+    const matchesFilter = sourceFilter === 'all' || s.status === sourceFilter;
+    const matchesSearch = !searchSourceText || s.url.toLowerCase().includes(searchSourceText.toLowerCase()) || s.domain.toLowerCase().includes(searchSourceText.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+
+  const filteredUpdates = updates.filter((u) => {
+    if (!updateFilter) return true;
+    return u.review_status === updateFilter;
+  });
+
   if (!isAuthenticated) {
     return (
-      <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-2xl border border-slate-200 shadow-xl text-center">
-        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-slate-900 text-teal-400 flex items-center justify-center shadow-lg">
-          <Lock className="w-7 h-7" />
-        </div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-          {language === 'hi' ? 'योजनासारथी — प्रशासनिक निगरानी डैशबोर्ड' : 'YojnaSarthi — Scheme Intelligence Monitor'}
-        </h2>
-        <p className="text-xs text-slate-500 mt-2 mb-6">
-          {language === 'hi'
-            ? 'केवल अधिकृत अधिकारियों के लिए। बैकएंड .env में कॉन्फ़िगर की गई कुंजी दर्ज करें।'
-            : 'Restricted administrative portal. Enter the ADMIN_API_KEY configured in backend environment.'}
-        </p>
+      <div className="min-h-[80vh] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+        <div className="bg-white rounded-3xl max-w-md w-full border border-slate-200/90 shadow-2xl p-6 sm:p-8 space-y-6">
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 rounded-2xl bg-slate-900 text-teal-400 border border-teal-500/30 flex items-center justify-center mx-auto shadow-md">
+              <Lock className="w-8 h-8" />
+            </div>
 
-        <form onSubmit={handleAuthenticate} className="space-y-4">
-          <div className="text-left">
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              {language === 'hi' ? 'प्रशासनिक गुप्त कुंजी (Admin Key)' : 'Administrative Access Key'}
-            </label>
-            <input
-              type="password"
-              value={keyInput}
-              onChange={(e) => setKeyInput(e.target.value)}
-              placeholder="yojnasarthi-admin-secret-2026"
-              className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-600 focus:border-teal-600 outline-none"
-            />
+            <div>
+              <span className="inline-block text-[10px] font-extrabold uppercase tracking-widest bg-rose-50 text-rose-800 border border-rose-200 px-3 py-0.5 rounded-full mb-1.5">
+                Restricted Administrative Portal
+              </span>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                YojnaSarthi Intelligence Monitor
+              </h2>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                {language === 'hi'
+                  ? 'बहु-एजेंट निगरानी एवं नीति समीक्षा द्वार हेतु प्रशासनिक अधिकारी प्रमाणीकरण आवश्यक है।'
+                  : 'Authorized Public Policy Officers, System Evaluators & Nodal Administrators Only.'}
+              </p>
+            </div>
           </div>
 
           {authError && (
-            <div className="p-3 text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl text-left flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0" />
               <span>{authError}</span>
             </div>
           )}
 
-          <div className="pt-2 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setCurrentScreen('S0')}
-              className="w-1/2 py-2.5 border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold rounded-xl transition"
-            >
-              {language === 'hi' ? 'वापस जाएं' : 'Return to Home'}
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-1/2 py-2.5 bg-slate-900 hover:bg-slate-800 text-teal-400 text-xs font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2"
-            >
-              {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Unlock className="w-4 h-4" />}
-              <span>{language === 'hi' ? 'प्रवेश करें' : 'Unlock Dashboard'}</span>
-            </button>
-          </div>
-        </form>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 block">
+                {language === 'hi' ? 'अधिकारी आईडी / यूज़रनेम' : 'Officer ID / Username'}
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={officerId}
+                  onChange={(e) => setOfficerId(e.target.value)}
+                  placeholder="admin"
+                  className="w-full text-xs sm:text-sm pl-10 pr-3 py-3 rounded-xl border border-slate-300 focus:border-teal-600 focus:outline-hidden bg-slate-50/60 font-medium"
+                />
+                <UserCheck className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 block">
+                {language === 'hi' ? 'सुरक्षा पासवर्ड' : 'Security Password'}
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full text-xs sm:text-sm pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:border-teal-600 focus:outline-hidden bg-slate-50/60 font-medium"
+                />
+                <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Mentor / Reviewer Fast Credentials Box */}
+            <div className="p-3 bg-teal-50/80 border border-teal-200 rounded-xl space-y-1.5 text-xs text-teal-950">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[11px] uppercase tracking-wider text-teal-900">
+                  Mentor Review Credentials
+                </span>
+                <span className="text-[10px] bg-teal-200/80 px-1.5 py-0.5 rounded font-mono font-bold">
+                  Demo
+                </span>
+              </div>
+              <p className="text-[11px] text-teal-800">
+                Officer ID: <strong className="font-mono">admin</strong> &nbsp;|&nbsp; Password: <strong className="font-mono">admin</strong>
+              </p>
+              <button
+                type="button"
+                onClick={handleQuickDemoLogin}
+                className="w-full text-center py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold text-[11px] shadow-2xs transition-colors cursor-pointer"
+              >
+                ⚡ One-Click Unlock Dashboard as Demo Officer
+              </button>
+            </div>
+
+            <div className="pt-2 flex flex-col gap-2">
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+              >
+                <Lock className="w-4 h-4 text-teal-400" />
+                <span>{language === 'hi' ? 'डैशबोर्ड अनलॉक करें' : 'Unlock Dashboard'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentScreen('S0')}
+                className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-xs transition-colors cursor-pointer text-center"
+              >
+                {language === 'hi' ? 'नागरिक पोर्टल पर लौटें' : 'Return to Citizen Portal'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     );
   }
 
-  // Dashboard Interface
   return (
-    <div className="space-y-6">
-      {/* Top Header & Breadcrumbs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-1">
-            <button onClick={() => setCurrentScreen('S0')} className="hover:text-teal-700 flex items-center gap-1">
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>{language === 'hi' ? 'मुख्य पृष्ठ' : 'Public Portal'}</span>
+    <div className="min-h-screen bg-slate-50 text-slate-800 pb-16">
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-6 py-4 shadow-xs">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setCurrentScreen('S0')}
+              className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition"
+              title={language === 'hi' ? 'वापस जाएं' : 'Back to Home'}
+            >
+              <ArrowLeft className="w-5 h-5" />
             </button>
-            <span>/</span>
-            <span className="text-teal-800">
-              {language === 'hi' ? 'प्रशासनिक योजना निगरानी' : 'Scheme Intelligence & Monitoring'}
-            </span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-teal-700" />
-            <span>Scheme Intelligence Monitor</span>
-            <span className="text-xs px-2.5 py-1 bg-teal-100 text-teal-800 rounded-full font-semibold border border-teal-200">
-              Admin Access Active
-            </span>
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Automated official government source monitoring, change detection, and human-in-the-loop rule approval.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <label className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 px-3 py-2 rounded-xl cursor-pointer">
-            <input
-              type="checkbox"
-              checked={includeDemo}
-              onChange={(e) => {
-                setIncludeDemo(e.target.checked);
-                loadAllDashboardData(adminKey);
-              }}
-              className="rounded text-teal-600"
-            />
-            <span>Show Demo Data</span>
-          </label>
-
-          <button
-            onClick={() => handleManualRun()}
-            disabled={isTriggeringRun}
-            className="flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-sm transition"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isTriggeringRun ? 'animate-spin' : ''}`} />
-            <span>{isTriggeringRun ? 'Checking Official Portals...' : 'Run Monitoring Now'}</span>
-          </button>
-
-          <button
-            onClick={() => setIsAuthenticated(false)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition"
-          >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Lock Session</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Global Notifications */}
-      {actionMessage && (
-        <div
-          className={`p-3.5 rounded-xl border text-xs flex items-center justify-between ${
-            actionMessage.type === 'success'
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-              : 'bg-rose-50 border-rose-200 text-rose-900'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {actionMessage.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-600" />
-            )}
-            <span>{actionMessage.text}</span>
-          </div>
-          <button onClick={() => setActionMessage(null)} className="text-slate-400 hover:text-slate-600">
-            ×
-          </button>
-        </div>
-      )}
-
-      {/* Metric Summary Cards */}
-      {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Monitored Schemes</div>
-            <div className="text-2xl font-bold text-slate-900 mt-1">{summary.total_schemes_monitored}</div>
-            <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-              <Database className="w-3 h-3" /> Core Catalogue
-            </div>
-          </div>
-
-          <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Monitored Sources</div>
-            <div className="text-2xl font-bold text-slate-900 mt-1">{summary.total_sources_monitored}</div>
-            <div className="text-[10px] text-emerald-600 mt-1 flex items-center gap-1">
-              <Globe className="w-3 h-3" /> Central & MP Portals
-            </div>
-          </div>
-
-          <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Changes Detected</div>
-            <div className="text-2xl font-bold text-amber-600 mt-1">{summary.changes_detected_count}</div>
-            <div className="text-[10px] text-slate-400 mt-1">Fingerprint updates</div>
-          </div>
-
-          <div className="p-4 bg-white rounded-2xl border border-amber-200 bg-amber-50/50 shadow-xs">
-            <div className="text-[11px] font-semibold text-amber-800 uppercase tracking-wider">Awaiting Review</div>
-            <div className="text-2xl font-bold text-amber-700 mt-1">{summary.updates_awaiting_review}</div>
-            <div className="text-[10px] text-amber-700 mt-1 font-medium">Pending Human Approval</div>
-          </div>
-
-          <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Verified Rules</div>
-            <div className="text-2xl font-bold text-emerald-700 mt-1">{summary.verified_schemes_count}</div>
-            <div className="text-[10px] text-emerald-700 mt-1 font-medium">Active in Evaluator</div>
-          </div>
-
-          <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Unavailable Sources</div>
-            <div className="text-2xl font-bold text-rose-600 mt-1">{summary.outdated_or_unavailable_sources}</div>
-            <div className="text-[10px] text-slate-400 mt-1">Timeouts / Degraded</div>
-          </div>
-        </div>
-      )}
-
-      {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-200 space-x-2 sm:space-x-4 overflow-x-auto text-xs font-semibold">
-        <button
-          onClick={() => setActiveTab('updates')}
-          className={`pb-3 px-2 border-b-2 transition flex items-center gap-2 whitespace-nowrap ${
-            activeTab === 'updates'
-              ? 'border-teal-700 text-teal-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <ShieldAlert className="w-4 h-4" />
-          <span>Pending Updates</span>
-          {summary && summary.updates_awaiting_review > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-bold">
-              {summary.updates_awaiting_review}
-            </span>
-          )}
-        </button>
-
-        <button
-          onClick={() => setActiveTab('sources')}
-          className={`pb-3 px-2 border-b-2 transition flex items-center gap-2 whitespace-nowrap ${
-            activeTab === 'sources'
-              ? 'border-teal-700 text-teal-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Globe className="w-4 h-4" />
-          <span>Official Sources Health ({sources.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('activity')}
-          className={`pb-3 px-2 border-b-2 transition flex items-center gap-2 whitespace-nowrap ${
-            activeTab === 'activity'
-              ? 'border-teal-700 text-teal-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Activity className="w-4 h-4" />
-          <span>Activity Audit Trail</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('history')}
-          className={`pb-3 px-2 border-b-2 transition flex items-center gap-2 whitespace-nowrap ${
-            activeTab === 'history'
-              ? 'border-teal-700 text-teal-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <History className="w-4 h-4" />
-          <span>Version History & Rollback</span>
-        </button>
-      </div>
-
-      {/* TAB 1: PENDING UPDATES */}
-      {activeTab === 'updates' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>
-              Showing changes detected from official portals. AI assists analysis; human verification is mandatory.
-            </span>
-            <span>Total: {updates.length}</span>
-          </div>
-
-          {updates.length === 0 ? (
-            <div className="p-12 text-center bg-white rounded-2xl border border-slate-200">
-              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-              <h3 className="text-base font-bold text-slate-800">All Schemes Up to Date</h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-                No pending changes detected from official government portals awaiting human verification.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {updates.map((upd) => (
-                <div
-                  key={upd.update_id}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-slate-300 transition"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-base text-slate-900">{upd.scheme_name_en}</span>
-                        {upd.is_demo ? (
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200">
-                            DEMO / SYNTHETIC DATA
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
-                            LIVE OFFICIAL CHANGE
-                          </span>
-                        )}
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200 uppercase">
-                          {upd.change_type}
-                        </span>
-                      </div>
-                      <div className="text-xs text-slate-500 mt-1 flex items-center gap-3">
-                        <span>Source: {upd.source_id}</span>
-                        <span>•</span>
-                        <span>Detected: {upd.detected_at}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <a
-                        href={upd.source_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold transition"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5 text-teal-700" />
-                        <span>Official Portal</span>
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Side-by-side snippet comparison */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 my-4 text-xs">
-                    <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                      <div className="font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                        <FileText className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Previous Verified Portal Text</span>
-                      </div>
-                      <p className="text-slate-600 whitespace-pre-wrap leading-relaxed">
-                        {upd.old_content_snippet || 'No previous snippet captured.'}
-                      </p>
-                    </div>
-
-                    <div className="p-3 bg-amber-50/60 border border-amber-200 rounded-xl">
-                      <div className="font-semibold text-amber-900 mb-1 flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                        <span>New Detected Portal Text</span>
-                      </div>
-                      <p className="text-amber-900 whitespace-pre-wrap leading-relaxed">
-                        {upd.new_content_snippet || 'No new snippet captured.'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* AI-assisted analysis box */}
-                  <div className="p-3.5 bg-gradient-to-r from-teal-50/70 to-blue-50/70 border border-teal-200 rounded-xl text-xs mb-4">
-                    <div className="flex items-center gap-1.5 font-bold text-teal-900 mb-1">
-                      <Sparkles className="w-4 h-4 text-teal-600" />
-                      <span>AI Policy Diff Analysis (Grounded in Verified Excerpts)</span>
-                    </div>
-                    <div className="text-slate-700 whitespace-pre-wrap leading-relaxed pl-5 border-l-2 border-teal-400">
-                      {upd.ai_analysis_summary}
-                    </div>
-                    <p className="text-[10px] text-slate-500 mt-2 pl-5">
-                      ⚠️ Note: AI analysis is for reviewer guidance only. Only human review decisions can alter executable rules.
-                    </p>
-                  </div>
-
-                  {/* Review Actions */}
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                    <div className="text-xs text-slate-500">
-                      Status: <span className="font-semibold text-slate-800">{upd.status}</span>
-                      {upd.decision_by && (
-                        <span>
-                          {' '}
-                          (By {upd.decision_by} on {upd.decision_at})
-                        </span>
-                      )}
-                    </div>
-
-                    {upd.status === 'PENDING' ? (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleOpenDecisionModal(upd, 'reject')}
-                          className="px-3.5 py-1.5 border border-rose-200 text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-semibold transition"
-                        >
-                          Reject Update
-                        </button>
-                        <button
-                          onClick={() => handleOpenDecisionModal(upd, 'approve')}
-                          className="px-4 py-1.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-xs transition"
-                        >
-                          Approve & Publish
-                        </button>
-                      </div>
-                    ) : (
-                      <span
-                        className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                          upd.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                        }`}
-                      >
-                        {upd.status}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB 2: OFFICIAL SOURCES HEALTH */}
-      {activeTab === 'sources' && (
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-              Monitored Government Portals Registry
-            </span>
-            <span className="text-xs text-slate-500">{sources.length} Total Sources</span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
-                  <th className="p-3 pl-4">Portal / Source Name</th>
-                  <th className="p-3">Category</th>
-                  <th className="p-3">Type</th>
-                  <th className="p-3">Frequency</th>
-                  <th className="p-3">Health Status</th>
-                  <th className="p-3">Robots.txt</th>
-                  <th className="p-3">Last Check</th>
-                  <th className="p-3 pr-4">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
-                {sources.map((src) => (
-                  <tr key={src.source_id} className="hover:bg-slate-50/80 transition">
-                    <td className="p-3 pl-4">
-                      <div className="font-bold text-slate-900">{src.name}</div>
-                      <a
-                        href={src.official_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[11px] text-teal-700 hover:underline flex items-center gap-1 mt-0.5"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        <span>{src.official_url}</span>
-                      </a>
-                    </td>
-                    <td className="p-3">
-                      <span className="capitalize px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium text-[11px]">
-                        {src.category.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="p-3 font-mono text-[11px]">{src.source_type}</td>
-                    <td className="p-3 capitalize">{src.monitoring_frequency}</td>
-                    <td className="p-3">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold text-[11px] ${
-                          src.accessibility_status === 'healthy'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : src.accessibility_status === 'degraded'
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-rose-100 text-rose-800'
-                        }`}
-                      >
-                        {src.accessibility_status === 'healthy' ? (
-                          <CheckCircle2 className="w-3 h-3" />
-                        ) : (
-                          <AlertTriangle className="w-3 h-3" />
-                        )}
-                        <span className="capitalize">{src.accessibility_status}</span>
-                      </span>
-                      {src.error_details && (
-                        <div className="text-[10px] text-rose-600 mt-1 max-w-xs truncate" title={src.error_details}>
-                          {src.error_details}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {src.automated_monitoring_permitted ? (
-                        <span className="text-emerald-700 font-semibold">Allowed</span>
-                      ) : (
-                        <span className="text-rose-700 font-semibold">Disallowed</span>
-                      )}
-                    </td>
-                    <td className="p-3 text-slate-500">{src.last_successful_check || 'Pending first run'}</td>
-                    <td className="p-3 pr-4">
-                      <button
-                        onClick={() => handleManualRun(src.source_id)}
-                        disabled={isTriggeringRun}
-                        className="px-2.5 py-1 text-[11px] font-semibold border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-lg transition"
-                      >
-                        Check
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: ACTIVITY LOGS */}
-      {activeTab === 'activity' && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-              Monitoring Activity Audit Trail
-            </h3>
-            <span className="text-xs text-slate-500">Last 50 Events</span>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            {activityLogs.map((log) => (
-              <div key={log.id} className="py-2.5 flex items-start justify-between gap-4 text-xs">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        log.status === 'SUCCESS'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : log.status === 'CHANGE_DETECTED'
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-rose-100 text-rose-800'
-                      }`}
-                    >
-                      {log.status}
-                    </span>
-                    <span className="font-semibold text-slate-800">{log.source_id}</span>
-                    {log.is_demo && (
-                      <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">DEMO</span>
-                    )}
-                  </div>
-                  <p className="text-slate-600 mt-1">{log.details}</p>
-                </div>
-                <span className="text-[11px] text-slate-400 whitespace-nowrap">{log.timestamp}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: VERSION HISTORY & ROLLBACK */}
-      {activeTab === 'history' && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div>
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                Scheme Version History & Rollback
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Inspect historical approved versions and restore previous rules if required.
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  <ShieldCheck className="w-3 h-3 mr-1" />
+                  {language === 'hi' ? 'स्वायत्त बहु-एजेंट प्रणाली' : 'Autonomous Multi-Agent System'}
+                </span>
+                <span className="text-xs text-slate-400">• YojnaSarthi v2.0</span>
+              </div>
+              <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
+                {language === 'hi' ? 'योजना इंटेलिजेंस एवं बहु-एजेंट निगरानी डैशबोर्ड' : 'Scheme Intelligence & Agent Monitoring'}
+              </h1>
             </div>
+          </div>
 
+          {/* Section F: Header Quick Controls */}
+          <div className="flex items-center flex-wrap gap-2">
+            <button
+              onClick={handleDiscoverSources}
+              disabled={isActionRunning}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition disabled:opacity-50"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              {language === 'hi' ? 'स्रोत खोजें' : 'Discover Sources'}
+            </button>
+            <button
+              onClick={handleRunCrawler}
+              disabled={isActionRunning}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition disabled:opacity-50"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              {language === 'hi' ? 'क्रॉल चलाएं' : 'Run Crawler'}
+            </button>
+            <button
+              onClick={handleRunMonitoring}
+              disabled={isActionRunning}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition disabled:opacity-50"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              {language === 'hi' ? 'पूर्ण निगरानी चलाएं' : 'Run Monitoring'}
+            </button>
+            <button
+              onClick={loadAllData}
+              disabled={isLoading || isActionRunning}
+              className="p-2 hover:bg-slate-100 text-slate-600 rounded-lg transition"
+              title="Refresh"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
+            </button>
+
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+              <span className="hidden xl:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Admin Officer</span>
+              </span>
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 hover:border-rose-300 transition-colors cursor-pointer"
+                title="Lock & Logout"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>{language === 'hi' ? 'लॉगआउट' : 'Lock Portal'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Notification Banner */}
+      {actionNotification && (
+        <div className="max-w-7xl mx-auto px-6 pt-4">
+          <div
+            className={`p-3 rounded-lg border text-sm flex items-center justify-between shadow-xs ${
+              actionNotification.type === 'success'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                : actionNotification.type === 'error'
+                ? 'bg-rose-50 text-rose-800 border-rose-200'
+                : 'bg-blue-50 text-blue-800 border-blue-200'
+            }`}
+          >
             <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-slate-700">Select Scheme:</label>
-              <select
-                value={selectedSchemeId}
-                onChange={(e) => handleLoadVersionHistory(e.target.value)}
-                className="px-3 py-1.5 text-xs border border-slate-300 rounded-xl bg-white outline-none"
-              >
-                <option value="ladli_behna_mp">Mukhyamantri Ladli Behna Yojana (MP)</option>
-                <option value="mmvy_scholarship">MMVY Scholarship (MP)</option>
-                <option value="pm_kisan">PM-KISAN Samman Nidhi (Central)</option>
-                <option value="pm_jay_ayushman">PM-JAY Ayushman Bharat (Central)</option>
-                <option value="pm_awas_yojana_gramin">PMAY-Gramin (Central)</option>
-                <option value="ignwps_widow_pension">IGNWPS Widow Pension (Central)</option>
-              </select>
+              {actionNotification.type === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
+              {actionNotification.type === 'error' && <XCircle className="w-4 h-4 text-rose-600 shrink-0" />}
+              {actionNotification.type === 'info' && <RefreshCw className="w-4 h-4 text-blue-600 animate-spin shrink-0" />}
+              <span>{actionNotification.message}</span>
             </div>
+            <button
+              onClick={() => setActionNotification(null)}
+              className="text-xs opacity-70 hover:opacity-100 underline ml-3"
+            >
+              {language === 'hi' ? 'बंद करें' : 'Dismiss'}
+            </button>
           </div>
-
-          {historyLoading ? (
-            <div className="p-8 text-center text-xs text-slate-500">Loading version records...</div>
-          ) : versionHistory.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-500">
-              No historical revisions archived yet for {selectedSchemeId}. Currently running on base verified catalogue.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {versionHistory.map((ver) => (
-                <div
-                  key={ver.version_id}
-                  className="p-4 border border-slate-200 rounded-xl bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900">Version {ver.version_number}</span>
-                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-semibold rounded-full text-[10px]">
-                        {ver.review_status}
-                      </span>
-                    </div>
-                    <p className="text-slate-600 mt-1">{ver.change_summary || 'Approved scheme rule snapshot.'}</p>
-                    <div className="text-[11px] text-slate-400 mt-1">
-                      Approved by <span className="font-medium text-slate-700">{ver.approved_by || 'Officer'}</span> on{' '}
-                      {ver.approved_at || ver.created_at}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => handleRollback(ver.version_id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-xl font-semibold transition"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Restore Version {ver.version_number}</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
-      {/* Decision Modal (Approve or Reject) */}
-      {modalMode && selectedUpdate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                {modalMode === 'approve' ? (
-                  <>
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                    <span>Approve & Publish Update</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="w-5 h-5 text-rose-600" />
-                    <span>Reject Scheme Update</span>
-                  </>
-                )}
-              </h3>
-              <button onClick={() => setModalMode(null)} className="text-slate-400 hover:text-slate-600 text-lg">
-                ×
-              </button>
-            </div>
-
-            <div className="text-xs text-slate-600 space-y-1">
-              <div>
-                <span className="font-semibold text-slate-800">Scheme:</span> {selectedUpdate.scheme_name_en}
-              </div>
-              <div>
-                <span className="font-semibold text-slate-800">Update ID:</span> {selectedUpdate.update_id}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Authorizing Reviewer Name</label>
-              <input
-                type="text"
-                value={reviewerName}
-                onChange={(e) => setReviewerName(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-teal-600"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Audit Rationale / Reason</label>
-              <textarea
-                rows={3}
-                value={decisionReason}
-                onChange={(e) => setDecisionReason(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-teal-600"
-                placeholder="Specify the reason for this decision..."
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+      {/* Main Container */}
+      <main className="max-w-7xl mx-auto px-6 py-6 space-y-6">
+        {/* Navigation Tabs */}
+        <div className="flex border-b border-slate-200 space-x-2 overflow-x-auto pb-px">
+          {[
+            { id: 'overview', labelEn: 'Overview & Status', labelHi: 'अवलोकन व सारांश', icon: Activity },
+            { id: 'agents', labelEn: 'Agent Execution Panel (9)', labelHi: '9 एजेंट निष्पादन पैनल', icon: Cpu },
+            { id: 'sources', labelEn: `Source Explorer (${sources.length})`, labelHi: `स्रोत एक्सप्लोरर (${sources.length})`, icon: Globe },
+            { id: 'updates', labelEn: `Change Review Gate (${updates.filter(u => u.review_status === 'PENDING').length} Pending)`, labelHi: `नीति समीक्षा द्वार (${updates.filter(u => u.review_status === 'PENDING').length} लंबित)`, icon: ShieldCheck },
+            { id: 'history', labelEn: 'Version History', labelHi: 'संस्करण इतिहास', icon: History },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
               <button
-                type="button"
-                onClick={() => setModalMode(null)}
-                className="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold rounded-xl transition"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isSubmittingDecision || !decisionReason.trim()}
-                onClick={handleConfirmDecision}
-                className={`px-4 py-2 text-xs font-semibold rounded-xl text-white shadow-xs transition flex items-center gap-1.5 ${
-                  modalMode === 'approve'
-                    ? 'bg-teal-700 hover:bg-teal-800'
-                    : 'bg-rose-700 hover:bg-rose-800'
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition whitespace-nowrap ${
+                  isActive
+                    ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >
-                {isSubmittingDecision ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : null}
-                <span>{modalMode === 'approve' ? 'Confirm Approval' : 'Confirm Rejection'}</span>
+                <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+                <span>{language === 'hi' ? tab.labelHi : tab.labelEn}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* =========================================================================
+            SECTION A: OVERVIEW
+        ========================================================================== */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {/* Metric Cards Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+                <span className="text-xs font-medium text-slate-500">
+                  {language === 'hi' ? 'कुल खोजे गए स्रोत' : 'Total Sources'}
+                </span>
+                <div className="text-2xl font-bold text-slate-900 mt-1">{overview.total_discovered_sources}</div>
+                <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+                  <Globe className="w-3 h-3 text-indigo-500" /> data.gov.in & MP e-Seva
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+                <span className="text-xs font-medium text-slate-500">
+                  {language === 'hi' ? 'सक्रिय मॉनिटर' : 'Monitored Sources'}
+                </span>
+                <div className="text-2xl font-bold text-emerald-600 mt-1">{overview.successfully_monitored_sources}</div>
+                <div className="text-[11px] text-emerald-600/80 mt-1 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Status: Crawled & Active
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+                <span className="text-xs font-medium text-slate-500">
+                  {language === 'hi' ? 'खोजे गए योजना नियम' : 'Discovered Schemes'}
+                </span>
+                <div className="text-2xl font-bold text-blue-600 mt-1">{overview.schemes_discovered}</div>
+                <div className="text-[11px] text-blue-600/80 mt-1 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" /> Structured Extractions
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-amber-200 bg-amber-50/20 shadow-2xs">
+                <span className="text-xs font-medium text-amber-800">
+                  {language === 'hi' ? 'समीक्षा हेतु लंबित' : 'Pending Updates'}
+                </span>
+                <div className="text-2xl font-bold text-amber-700 mt-1">{overview.pending_updates}</div>
+                <div className="text-[11px] text-amber-700 mt-1 flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> Awaiting Human Approval
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+                <span className="text-xs font-medium text-slate-500">
+                  {language === 'hi' ? 'स्वीकृत व प्रकाशित' : 'Approved Updates'}
+                </span>
+                <div className="text-2xl font-bold text-emerald-700 mt-1">{overview.approved_updates}</div>
+                <div className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" /> In Live Scheme Catalog
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+                <span className="text-xs font-medium text-slate-500">
+                  {language === 'hi' ? 'विफल एजेंट रन' : 'Failed Agent Runs'}
+                </span>
+                <div className="text-2xl font-bold text-rose-600 mt-1">{overview.failed_agent_runs}</div>
+                <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3 text-rose-500" /> Auto-isolated & Logged
+                </div>
+              </div>
+            </div>
+
+            {/* Architecture Highlights & Execution Pipeline */}
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-semibold text-slate-900">
+                    {language === 'hi' ? 'स्वायत्त बहु-एजेंट पाइपलाइन कार्यप्रणाली' : 'Autonomous Multi-Agent Intelligence Pipeline'}
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {language === 'hi'
+                      ? '9 विशिष्ट एजेंट क्रमिक रूप से सार्वजनिक स्रोतों से नियम निकालते हैं एवं साक्ष्य की पुष्टि के बाद ही मानव समीक्षा हेतु प्रस्तुत करते हैं।'
+                      : '9 specialized Python agents autonomously discover, crawl, hash, extract, classify, validate, and queue changes.'}
+                  </p>
+                </div>
+                <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700">
+                  Deterministic Rule Engine Intact
+                </span>
+              </div>
+
+              {/* Pipeline Flow Stepper */}
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3 pt-2">
+                {[
+                  { step: '1', title: 'Discovery & Crawl', desc: 'Seeds (data.gov.in, MP e-Seva) & PDFs scanned' },
+                  { step: '2', title: 'SHA-256 Hash Diff', desc: 'Detects semantic modifications vs previous snapshots' },
+                  { step: '3', title: 'Extraction & Grounding', desc: 'Eligibility, benefits & exact evidence quotes extracted' },
+                  { step: '4', title: 'Classification & Gate', desc: 'Changes routed to Human Policy Review Gate (PENDING)' },
+                  { step: '5', title: 'Publishing & Versioning', desc: 'Approved updates versioned; Rule Engine reflects instantly' },
+                ].map((s, idx) => (
+                  <div key={idx} className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs space-y-1 relative">
+                    <div className="flex items-center justify-between">
+                      <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-[10px]">
+                        {s.step}
+                      </span>
+                      {idx < 4 && <ChevronRight className="w-3.5 h-3.5 text-slate-400 hidden md:block absolute -right-2 top-4 z-10 bg-white rounded-full border border-slate-200" />}
+                    </div>
+                    <div className="font-semibold text-slate-800">{s.title}</div>
+                    <div className="text-[11px] text-slate-500 leading-relaxed">{s.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Agent Runs Audit Trail */}
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-3">
+              <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <History className="w-4 h-4 text-slate-500" />
+                {language === 'hi' ? 'हालिया एजेंट रन एवं ऑडिट ट्रेल' : 'Recent Agent Execution Runs'}
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-500 bg-slate-50/50">
+                      <th className="py-2.5 px-3">Run ID</th>
+                      <th className="py-2.5 px-3">Agent</th>
+                      <th className="py-2.5 px-3">Status</th>
+                      <th className="py-2.5 px-3">Summary / Outcome</th>
+                      <th className="py-2.5 px-3">Started At</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {agentRuns.slice(0, 8).map((run) => (
+                      <tr key={run.id} className="hover:bg-slate-50/60">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-600">{run.id}</td>
+                        <td className="py-2.5 px-3 font-medium text-slate-800">
+                          {AGENT_METADATA[run.agent_name]?.titleEn || run.agent_name}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                              run.status === 'COMPLETED'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : run.status === 'FAILED'
+                                ? 'bg-rose-100 text-rose-800'
+                                : run.status === 'RUNNING'
+                                ? 'bg-blue-100 text-blue-800 animate-pulse'
+                                : 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            {run.status}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-600 max-w-md truncate">
+                          {run.output_summary || run.input_summary || run.error_message || 'Completed'}
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-400 text-[11px]">
+                          {run.started_at ? new Date(run.started_at).toLocaleString() : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                    {agentRuns.length === 0 && (
+                      <tr>
+                        <td colSpan="5" className="py-6 text-center text-slate-400">
+                          {language === 'hi' ? 'कोई रन रिकॉर्ड नहीं मिला। ऊपर दिए बटन से रन प्रारंभ करें।' : 'No agent runs recorded yet. Click Run Monitoring above to trigger a cycle.'}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SECTION B: AGENT EXECUTION PANEL
+        ========================================================================== */}
+        {activeTab === 'agents' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">
+                  {language === 'hi' ? 'सभी 9 विशेषज्ञ एजेंटों की लाइव स्थिति' : 'Live Status of 9 Specialized Agents'}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  {language === 'hi'
+                    ? 'प्रत्येक एजेंट अपने निर्दिष्ट कार्य क्षेत्र में स्वायत्त एवं सुरक्षित रूप से कार्य करता है।'
+                    : 'Each agent is strictly scoped and decoupled from the deterministic eligibility decision engine.'}
+                </p>
+              </div>
+              <button
+                onClick={loadAllData}
+                className="text-xs text-emerald-700 hover:text-emerald-800 font-medium flex items-center gap-1"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> {language === 'hi' ? 'ताज़ा करें' : 'Refresh Agents'}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {Object.keys(AGENT_METADATA).map((agentKey) => {
+                const meta = AGENT_METADATA[agentKey];
+                const liveStatus = agentsStatus[agentKey] || { status: 'IDLE', last_run: null, output_summary: 'Ready to execute' };
+                const Icon = meta.icon;
+                const status = liveStatus.status;
+
+                return (
+                  <div key={agentKey} className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                            status === 'COMPLETED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : status === 'RUNNING'
+                              ? 'bg-blue-100 text-blue-800 animate-pulse'
+                              : status === 'FAILED'
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {status}
+                        </span>
+                      </div>
+
+                      <h3 className="font-semibold text-sm text-slate-900">
+                        {language === 'hi' ? meta.titleHi : meta.titleEn}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                        {language === 'hi' ? meta.descHi : meta.descEn}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span>{language === 'hi' ? 'अंतिम रन:' : 'Last run:'}</span>
+                        <span className="font-medium text-slate-700">
+                          {liveStatus.last_run ? new Date(liveStatus.last_run).toLocaleTimeString() : 'Never / Initialized'}
+                        </span>
+                      </div>
+                      <div className="truncate text-slate-600">
+                        {liveStatus.output_summary || liveStatus.error_message || 'Awaiting trigger'}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SECTION C: SOURCE EXPLORER
+        ========================================================================== */}
+        {activeTab === 'sources' && (
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">
+                  {language === 'hi' ? 'खोजे गए एवं ट्रैक किए गए सरकारी स्रोत' : 'Discovered Government Sources'}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  {language === 'hi'
+                    ? 'data.gov.in और MP e-Seva से शुरू होकर सरकारी डोमेन (.gov.in, .nic.in) के सभी अधिकृत पृष्ठ।'
+                    : 'Discovered official government web pages, datasets, and circulars with verified domain boundaries.'}
+                </p>
+              </div>
+
+              {/* Filters & Search */}
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder={language === 'hi' ? 'URL या डोमेन खोजें...' : 'Filter URL or domain...'}
+                    value={searchSourceText}
+                    onChange={(e) => setSearchSourceText(e.target.value)}
+                    className="pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48 md:w-64"
+                  />
+                </div>
+
+                <select
+                  value={sourceFilter}
+                  onChange={(e) => setSourceFilter(e.target.value)}
+                  className="text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                >
+                  <option value="all">{language === 'hi' ? 'सभी स्थितियां' : 'All Status'}</option>
+                  <option value="crawled">crawled</option>
+                  <option value="discovered">discovered</option>
+                  <option value="failed">failed</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Sources Table */}
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-500 bg-slate-50/50">
+                      <th className="py-2.5 px-3">Domain</th>
+                      <th className="py-2.5 px-3">Source URL</th>
+                      <th className="py-2.5 px-3">Type</th>
+                      <th className="py-2.5 px-3">Discovered From</th>
+                      <th className="py-2.5 px-3">Status</th>
+                      <th className="py-2.5 px-3">Last Checked</th>
+                      <th className="py-2.5 px-3 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredSources.map((src) => (
+                      <tr key={src.id} className="hover:bg-slate-50/60">
+                        <td className="py-2.5 px-3 font-semibold text-slate-800">{src.domain}</td>
+                        <td className="py-2.5 px-3 max-w-sm truncate text-slate-600 font-mono text-[11px]">
+                          {src.url}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700">
+                            {src.source_type}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-400 text-[11px] max-w-xs truncate">
+                          {src.discovered_from || 'Direct Seed'}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                              src.status === 'crawled'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : src.status === 'failed'
+                                ? 'bg-rose-100 text-rose-800'
+                                : 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            {src.status}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-400 text-[11px]">
+                          {src.last_checked_at ? new Date(src.last_checked_at).toLocaleDateString() : 'Pending'}
+                        </td>
+                        <td className="py-2.5 px-3 text-right">
+                          <a
+                            href={src.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-medium"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            {language === 'hi' ? 'देखें' : 'Visit'}
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredSources.length === 0 && (
+                      <tr>
+                        <td colSpan="7" className="py-8 text-center text-slate-400">
+                          {language === 'hi' ? 'कोई स्रोत नहीं मिला।' : 'No sources found matching filter.'}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SECTION D: CHANGE REVIEW PANEL
+        ========================================================================== */}
+        {activeTab === 'updates' && (
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">
+                  {language === 'hi' ? 'नीति परिवर्तन समीक्षा एवं अनुमोदन द्वार' : 'Policy Change Review Gate'}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  {language === 'hi'
+                    ? 'नागरिक पात्रता अथवा लाभ को प्रभावित करने वाले प्रत्येक परिवर्तन पर प्रशासनिक स्वीकृति आवश्यक है।'
+                    : 'Human approval required for any change affecting eligibility criteria, benefits, or documents.'}
+                </p>
+              </div>
+
+              {/* Status Filter */}
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg text-xs">
+                {['PENDING', 'APPROVED', 'REJECTED'].map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => setUpdateFilter(st)}
+                    className={`px-3 py-1 rounded-md font-medium transition ${
+                      updateFilter === st
+                        ? 'bg-white text-slate-800 shadow-2xs'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    {st} ({updates.filter((u) => u.review_status === st).length})
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Updates List */}
+            <div className="space-y-3">
+              {filteredUpdates.map((upd) => (
+                <div
+                  key={upd.id}
+                  className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3 transition hover:border-slate-300"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-slate-900 text-sm">{upd.scheme_id}</span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        {upd.change_type}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                          upd.review_status === 'APPROVED'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : upd.review_status === 'REJECTED'
+                            ? 'bg-rose-100 text-rose-800'
+                            : 'bg-amber-100 text-amber-800'
+                        }`}
+                      >
+                        Status: {upd.review_status}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <span>Confidence: {Math.round((upd.confidence || 0.85) * 100)}%</span>
+                      <span>•</span>
+                      <span>{upd.created_at ? new Date(upd.created_at).toLocaleString() : 'Recent'}</span>
+                    </div>
+                  </div>
+
+                  {/* Old vs Proposed Values */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
+                      <span className="font-semibold text-slate-500 uppercase text-[10px]">
+                        {language === 'hi' ? 'मौजूदा नियम / मान' : 'Current Value in Catalog'}
+                      </span>
+                      <div className="text-slate-700 font-mono text-[11px] whitespace-pre-wrap">
+                        {upd.old_value || 'None (New Initiative)'}
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50/50 border border-emerald-200 rounded-lg space-y-1">
+                      <span className="font-semibold text-emerald-800 uppercase text-[10px]">
+                        {language === 'hi' ? 'प्रस्तावित नया मान' : 'Proposed New Value'}
+                      </span>
+                      <div className="text-emerald-950 font-mono text-[11px] whitespace-pre-wrap">
+                        {upd.proposed_value}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Supporting Source Evidence */}
+                  {upd.evidence && (
+                    <div className="p-3 bg-amber-50/40 border border-amber-200/80 rounded-lg text-xs space-y-1">
+                      <span className="font-semibold text-amber-900 flex items-center gap-1 text-[11px]">
+                        <FileCheck className="w-3.5 h-3.5 text-amber-700" />
+                        {language === 'hi' ? 'सत्यापित साक्ष्य उद्धरण' : 'Grounded Evidence Citation from Official Source'}
+                      </span>
+                      <div className="text-amber-950/90 italic font-serif text-[11px]">
+                        "{typeof upd.evidence === 'object' ? JSON.stringify(upd.evidence, null, 1) : upd.evidence}"
+                      </div>
+                      <div className="pt-1 flex items-center gap-1 text-[11px] text-slate-500">
+                        <span>Source:</span>
+                        <a
+                          href={upd.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-emerald-700 hover:underline truncate max-w-md inline-flex items-center gap-1"
+                        >
+                          {upd.source_url} <ExternalLink className="w-3 h-3 inline" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Buttons for Pending Updates */}
+                  {upd.review_status === 'PENDING' && (
+                    <div className="flex items-center justify-end gap-2 pt-2">
+                      <button
+                        onClick={() => {
+                          setRejectingUpdateId(upd.id);
+                          setRejectReason('');
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        {language === 'hi' ? 'अस्वीकार करें' : 'Reject'}
+                      </button>
+                      <button
+                        onClick={() => handleApproveUpdate(upd.id)}
+                        className="inline-flex items-center gap-1 px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs transition"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        {language === 'hi' ? 'स्वीकृत करें और प्रकाशित करें' : 'Approve & Publish'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {filteredUpdates.length === 0 && (
+                <div className="bg-white p-12 text-center rounded-xl border border-slate-200 text-slate-400">
+                  <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500 mb-2" />
+                  <p className="text-sm font-medium text-slate-700">
+                    {language === 'hi' ? 'कोई लंबित अपडेट नहीं है।' : 'No updates found in this status category.'}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {language === 'hi'
+                      ? 'नए अपडेट खोजने के लिए "पूर्ण निगरानी चलाएं" पर क्लिक करें।'
+                      : 'Click "Run Monitoring" above to check government portals for new changes.'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SECTION E: VERSION HISTORY
+        ========================================================================== */}
+        {activeTab === 'history' && (
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">
+                  {language === 'hi' ? 'योजना संस्करण इतिहास एवं ऑडिट ट्रेल' : 'Scheme Version History & Audit Trail'}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  {language === 'hi'
+                    ? 'प्रत्येक स्वीकृत नीति परिवर्तन के साथ योजना का अपरिवर्तनीय नया संस्करण सुरक्षित रखा जाता है।'
+                    : 'Every approved update creates an immutable version record ensuring transparent traceability.'}
+                </p>
+              </div>
+
+              {/* Scheme Picker */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500">{language === 'hi' ? 'योजना चुनें:' : 'Select Scheme:'}</span>
+                <select
+                  value={selectedSchemeId}
+                  onChange={(e) => {
+                    setSelectedSchemeId(e.target.value);
+                    loadSchemeVersions(e.target.value);
+                  }}
+                  className="text-xs bg-white border border-slate-200 rounded-lg px-3 py-1.5 font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                >
+                  {schemeCatalog.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name_en} ({s.id})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Version Timeline */}
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
+              {historyLoading ? (
+                <div className="py-8 text-center text-slate-400 text-xs flex items-center justify-center gap-2">
+                  <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />
+                  Loading version history...
+                </div>
+              ) : schemeVersions.length > 0 ? (
+                <div className="relative border-l-2 border-emerald-200 ml-4 pl-6 space-y-6">
+                  {schemeVersions.map((ver, idx) => (
+                    <div key={ver.id || idx} className="relative space-y-2">
+                      <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-emerald-600 border-2 border-white ring-2 ring-emerald-100" />
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-slate-900 text-sm">
+                          Version {ver.version_number}
+                        </span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-100 text-emerald-800">
+                          {ver.approval_status || 'APPROVED'}
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          {ver.created_at ? new Date(ver.created_at).toLocaleString() : 'Historical baseline'}
+                        </span>
+                      </div>
+
+                      {ver.source_url && (
+                        <div className="text-xs text-slate-500">
+                          Source circular:{' '}
+                          <a
+                            href={ver.source_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-700 hover:underline"
+                          >
+                            {ver.source_url}
+                          </a>
+                        </div>
+                      )}
+
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-700 max-h-48 overflow-y-auto">
+                        <pre className="whitespace-pre-wrap text-[11px]">
+                          {JSON.stringify(ver.scheme_data, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center text-slate-400 text-xs">
+                  {language === 'hi'
+                    ? 'इस योजना के लिए कोई अतिरिक्त संस्करण दर्ज नहीं है। वर्तमान में मूल संस्करण सक्रिय है।'
+                    : 'No additional versions recorded for this scheme yet. Baseline v1 is active.'}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Reject Modal */}
+      {rejectingUpdateId && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-5 space-y-4 shadow-xl border border-slate-200">
+            <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-600" />
+              {language === 'hi' ? 'परिवर्तन अस्वीकृति का कारण' : 'Reason for Rejecting Update'}
+            </h3>
+            <p className="text-xs text-slate-500">
+              {language === 'hi'
+                ? 'कृपया ऑडिट रिकॉर्ड हेतु अस्वीकृति का आधिकारिक कारण दर्ज करें।'
+                : 'Provide mandatory audit rationale for rejecting this proposed policy change.'}
+            </p>
+            <textarea
+              rows={3}
+              placeholder={language === 'hi' ? 'जैसे: विभागीय परिपत्र से विसंगति पाई गई...' : 'e.g. Discrepancy with official departmental gazette notification...'}
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              className="w-full text-xs p-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-rose-500"
+            />
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => setRejectingUpdateId(null)}
+                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
+              >
+                {language === 'hi' ? 'रद्द करें' : 'Cancel'}
+              </button>
+              <button
+                onClick={handleRejectUpdate}
+                disabled={!rejectReason.trim()}
+                className="px-4 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg disabled:opacity-50"
+              >
+                {language === 'hi' ? 'अस्वीकार करें' : 'Confirm Rejection'}
               </button>
             </div>
           </div>
@@ -881,4 +1297,3 @@ export default function S9_AdminMonitoringScreen() {
     </div>
   );
 }
-

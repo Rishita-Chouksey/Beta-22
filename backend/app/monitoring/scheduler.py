@@ -43,6 +43,17 @@ class MonitoringBackgroundScheduler:
                 report = await monitor_service.run_monitoring_cycle()
                 self._last_run = report.get("cycle_completed_at")
                 logger.info(f"Monitoring cycle finished: {report.get('success_count')} succeeded, {report.get('changes_detected')} changes.")
+                try:
+                    # Run the agentic source registry as part of the same daily
+                    # cycle, off the event loop because its HTTP client is sync.
+                    from ..agents.orchestrator import orchestrator
+                    agent_report = await asyncio.to_thread(
+                        orchestrator.run_monitoring_cycle,
+                        max_sources=50,
+                    )
+                    logger.info("Agentic monitoring cycle finished: %s", agent_report.get("summary"))
+                except Exception:
+                    logger.exception("Agentic monitoring cycle failed.")
             except asyncio.CancelledError:
                 break
             except Exception as e:

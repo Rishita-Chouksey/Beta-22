@@ -64,7 +64,7 @@ async def list_activity_changes(
 
 @router.get("/pending-updates")
 async def list_pending_updates(
-    include_demo: bool = Query(True),
+    include_demo: bool = Query(False),
     _authorized: bool = Depends(verify_admin_access)
 ):
     """Lists scheme updates awaiting human verification and authorization."""

@@ -1,0 +1,36 @@
+{
+  "income_bands": [
+    {
+      "id": "below_1_lakh",
+      "min_inr": 0,
+      "max_inr": 100000,
+      "label_en": "Below ₹1 Lakh",
+      "label_hi": "₹1 लाख से कम",
+      "label_bn": "₹১ লক্ষের নিচে"
+    },
+    {
+      "id": "1_to_2.5_lakh",
+      "min_inr": 100000,
+      "max_inr": 250000,
+      "label_en": "₹1 Lakh to ₹2.5 Lakh",
+      "label_hi": "₹1 लाख से ₹2.5 लाख",
+      "label_bn": "₹১ লক্ষ থেকে ₹২.৫ লক্ষ"
+    },
+    {
+      "id": "2.5_to_6_lakh",
+      "min_inr": 250000,
+      "max_inr": 600000,
+      "label_en": "₹2.5 Lakh to ₹6 Lakh",
+      "label_hi": "₹2.5 लाख से ₹6 लाख",
+      "label_bn": "₹২.৫ লক্ষ থেকে ₹৬ লক্ষ"
+    },
+    {
+      "id": "above_6_lakh",
+      "min_inr": 600000,
+      "max_inr": 10000000,
+      "label_en": "Above ₹6 Lakh",
+      "label_hi": "₹6 लाख से अधिक",
+      "label_bn": "₹৬ লক্ষের উপরে"
+    }
+  ]
+}

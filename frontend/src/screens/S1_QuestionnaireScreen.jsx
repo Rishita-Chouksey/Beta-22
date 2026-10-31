@@ -274,8 +274,8 @@ export default function S1_QuestionnaireScreen() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {questionData.options.map((opt, idx) => {
                   const isSelected = selectedValue === opt.value;
-                  const label = language === 'hi' ? opt.label_hi : opt.label_en;
-                  const desc = language === 'hi' ? opt.description_hi : opt.description_en;
+                  const label = language === 'hi' ? opt.label_hi : (language === 'bn' ? (opt.label_bn || opt.label_hi || opt.label_en) : opt.label_en);
+                  const desc = language === 'hi' ? opt.description_hi : (language === 'bn' ? (opt.description_bn || opt.description_hi || opt.description_en) : opt.description_en);
 
                   return (
                     <div

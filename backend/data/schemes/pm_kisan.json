@@ -2,41 +2,88 @@
   "id": "pm_kisan",
   "name_en": "PM Kisan Samman Nidhi",
   "name_hi": "प्रधानमंत्री किसान सम्मान निधि",
+  "name_bn": "প্রধানমন্ত্রী কিষাণ সম্মান নিধি",
   "level": "central",
+  "state": null,
   "applicable_states": ["ALL"],
   "category": "Agriculture",
+  "personas": ["farmer"],
   "benefit_en": "Direct income support of ₹6,000 per year in 3 equal installments of ₹2,000 directly into bank account.",
   "benefit_hi": "बैंक खाते में सीधे ₹2,000 की 3 समान किस्तों में प्रति वर्ष ₹6,000 की प्रत्यक्ष आय सहायता।",
+  "benefit_bn": "ব্যাঙ্ক অ্যাকাউন্টে সরাসরি ₹২,০০০ টাকার ৩টি সমান কিস্তিতে প্রতি বছর ₹৬,০০০ টাকার সরাসরি আয় সহায়তা।",
   "description_en": "Central sector scheme to augment income of all landholding farmer families across the country.",
   "description_hi": "देश भर के सभी भूमिधारक किसान परिवारों की आय बढ़ाने के लिए केंद्रीय क्षेत्र की योजना।",
+  "description_bn": "সারা দেশে সমস্ত জমিধারী কৃষক পরিবারের আয় বৃদ্ধির জন্য কেন্দ্রীয় খাতের প্রকল্প।",
+  "review_status": "verified",
+  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "auto_update": null,
+  "machine_translated": {
+    "hi": false,
+    "bn": true
+  },
+  "tracked": [
+    {
+      "rule_id": "landholding",
+      "extractor": "land_limit",
+      "kind": "area_ha"
+    }
+  ],
   "rules": [
     {
+      "rule_id": "occupation",
       "field": "occupation",
       "operator": "eq",
       "value": "farmer",
       "description_en": "Applicant must be an active farmer / cultivator.",
-      "description_hi": "आवेदक एक सक्रिय किसान/काश्तकार होना चाहिए।"
+      "description_hi": "आवेदक एक सक्रिय किसान/काश्तकार होना चाहिए।",
+      "description_bn": "আবেদনকারীকে একজন সক্রিয় কৃষক/চাষী হতে হবে।",
+      "why_template": {
+        "en": "Applicant must be an active {value}.",
+        "hi": "आवेदक एक सक्रिय {value} होना चाहिए।",
+        "bn": "আবেদনকারীকে একজন সক্রিয় {value} হতে হবে।"
+      }
     },
     {
+      "rule_id": "landholding",
       "field": "landholding_hectares",
       "operator": "lte",
       "value": 2.0,
       "description_en": "Cultivable landholding must be up to 2.0 hectares (small and marginal farmers).",
-      "description_hi": "कृषि योग्य भूमि 2.0 हेक्टेयर तक होनी चाहिए (लघु एवं सीमांत किसान)।"
+      "description_hi": "कृषि योग्य भूमि 2.0 हेक्टेयर तक होनी चाहिए (लघु एवं सीमांत किसान)।",
+      "description_bn": "আবাদযোগ্য কৃষিজমি ২.০ হেক্টর পর্যন্ত হতে হবে (ক্ষুদ্র ও প্রান্তিক কৃষক)।",
+      "why_template": {
+        "en": "Cultivable landholding must be up to {value} hectares.",
+        "hi": "कृषि योग्य भूमि {value} हेक्टेयर तक होनी चाहिए।",
+        "bn": "আবাদযোগ্য কৃষিজমি {value} হেক্টর পর্যন্ত হতে হবে।"
+      }
     },
     {
+      "rule_id": "institutional_land",
       "field": "is_institutional_landholder",
       "operator": "eq",
       "value": false,
       "description_en": "Land must not be registered under an institution, trust, or enterprise.",
-      "description_hi": "भूमि किसी संस्था, ट्रस्ट या उद्यम के अधीन पंजीकृत नहीं होनी चाहिए।"
+      "description_hi": "भूमि किसी संस्था, ट्रस्ट या उद्यम के अधीन पंजीकृत नहीं होनी चाहिए।",
+      "description_bn": "জমি কোনো প্রতিষ্ঠান, ট্রাস্ট বা উদ্যোগের অধীনে নিবন্ধিত হওয়া উচিত নয়।",
+      "why_template": {
+        "en": "Land institutional holder status must be {value}.",
+        "hi": "संस्थागत भूमि धारक स्थिति {value} होनी चाहिए।",
+        "bn": "প্রাতিষ্ঠানিক জমিধারীর স্থিতি {value} হতে হবে।"
+      }
     },
     {
+      "rule_id": "constitutional_post",
       "field": "holds_constitutional_post",
       "operator": "eq",
       "value": false,
       "description_en": "No family member should hold constitutional or government posts.",
-      "description_hi": "परिवार का कोई भी सदस्य संवैधानिक या सरकारी पद पर नहीं होना चाहिए।"
+      "description_hi": "परिवार का कोई भी सदस्य संवैधानिक या सरकारी पद पर नहीं होना चाहिए।",
+      "description_bn": "পরিবারের কোনো সদস্য সাংবিধানিক বা সরকারি পদে থাকা উচিত নয়।",
+      "why_template": {
+        "en": "Holds constitutional post must be {value}.",
+        "hi": "संवैधानिक पद धारक स्थिति {value} होनी चाहिए।",
+        "bn": "সাংবিধানিক পদাধিকারী স্থিতি {value} হতে হবে।"
+      }
     }
   ],
   "restrictions": [
@@ -48,10 +95,13 @@
       "id": "aadhaar",
       "name_en": "Aadhaar Card",
       "name_hi": "आधार कार्ड",
+      "name_bn": "আধার কার্ড",
       "purpose_en": "Primary biometric and identity verification.",
       "purpose_hi": "प्राथमिक बायोमेट्रिक और पहचान सत्यापन।",
+      "purpose_bn": "প্রাথমিক বায়োমেট্রিক এবং পরিচয় যাচাইকরণ।",
       "how_to_get_en": "Issued by UIDAI. Download e-Aadhaar from myaadhaar.uidai.gov.in or visit Aadhaar Seva Kendra.",
       "how_to_get_hi": "UIDAI द्वारा जारी। myaadhaar.uidai.gov.in से डाउनलोड करें या आधार सेवा केंद्र पर जाएं।",
+      "how_to_get_bn": "UIDAI দ্বারা জারি করা। myaadhaar.uidai.gov.in থেকে ই-আধার ডাউনলোড করুন অথবা আধার সেবা কেন্দ্রে যান।",
       "online_url": "https://myaadhaar.uidai.gov.in/",
       "offline_office": "Aadhaar Seva Kendra / Nearest Post Office"
     },
@@ -59,10 +109,13 @@
       "id": "land_record",
       "name_en": "Land Ownership Records (Khasra / Khatauni / 7/12)",
       "name_hi": "भूमि स्वामित्व अभिलेख (खसरा / खतौनी / 7/12)",
+      "name_bn": "জমির মালিকানার নথি (খসরা / খতৌনি)",
       "purpose_en": "Proof of cultivable agricultural land title in applicant's name.",
       "purpose_hi": "आवेदक के नाम पर कृषि योग्य भूमि के स्वामित्व का प्रमाण।",
+      "purpose_bn": "আবেদনকারীর নামে আবাদযোগ্য কৃষিজমির মালিকানার প্রমাণ।",
       "how_to_get_en": "Download digital land record from State Bhulekh portal or collect certified copy from Patwari / Tehsildar.",
       "how_to_get_hi": "राज्य भूलेख पोर्टल से डिजिटल रिकॉर्ड डाउनलोड करें या पटवारी/तहसीलदार से प्रमाणित प्रति प्राप्त करें।",
+      "how_to_get_bn": "রাজ্য ভূমি রেকর্ড পোর্টাল থেকে ডিজিটাল কপি ডাউনলোড করুন অথবা তহশিলদার অফিস থেকে সংগ্রহ করুন।",
       "online_url": "https://pmkisan.gov.in/",
       "offline_office": "Tehsil Office / Patwari (Lekhpal)"
     },
@@ -70,10 +123,13 @@
       "id": "bank_passbook",
       "name_en": "Bank Account Details (Aadhaar Seeded)",
       "name_hi": "बैंक खाता विवरण (आधार सीडेड)",
+      "name_bn": "ব্যাঙ্ক অ্যাকাউন্ট বিবরণ (আধার সংযুক্ত)",
       "purpose_en": "For DBT transfer of ₹2,000 four-monthly installments.",
       "purpose_hi": "प्रत्यक्ष लाभ अंतरण (DBT) के लिए।",
+      "purpose_bn": "সরাসরি বেনিফিট ট্রান্সফারের (DBT) জন্য।",
       "how_to_get_en": "Bank passbook copy showing Account No. and IFSC code with active NPCI Aadhaar seeding.",
       "how_to_get_hi": "बैंक पासबुक की प्रति जिसमें खाता संख्या और IFSC कोड हो एवं एनपीसीआई आधार सीडिंग सक्रिय हो।",
+      "how_to_get_bn": "অ্যাকাউন্ট নম্বর এবং আইএফএসসি কোড সহ সক্রিয় আধার সংযুক্ত ব্যাঙ্ক পাসবুকের কপি।",
       "online_url": null,
       "offline_office": "Local Bank Branch / Post Payment Bank"
     }
