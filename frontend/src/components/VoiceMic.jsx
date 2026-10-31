@@ -1,69 +1,160 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff } from 'lucide-react';
+import { Mic, Square, AlertCircle, Volume2, Loader2 } from 'lucide-react';
 import { createSpeechRecognizer } from '../services/speech';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function VoiceMic({ onTranscriptChange, className = '' }) {
-  const [isListening, setIsListening] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+export default function VoiceMic({ onTranscriptChange, onLiveInterim = null, className = '' }) {
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [hasCapturedSpeech, setHasCapturedSpeech] = useState(false);
   const { language, t } = useLanguage();
+  
   const recognizerRef = useRef(null);
+  const timerRef = useRef(null);
+  const latestTextRef = useRef('');
 
   useEffect(() => {
     recognizerRef.current = createSpeechRecognizer({
       language,
-      onResult: (text) => {
-        if (onTranscriptChange) {
-          onTranscriptChange(text);
+      onInterim: (liveText) => {
+        latestTextRef.current = liveText;
+        setHasCapturedSpeech(Boolean(liveText.trim()));
+        if (onLiveInterim) {
+          onLiveInterim(liveText);
         }
       },
-      onError: (err) => {
-        setIsListening(false);
-        setErrorMsg('Microphone hint: Speak clearly or use text typing.');
+      onFinal: (finalText) => {
+        const textToSubmit = finalText || latestTextRef.current;
+        if (textToSubmit && textToSubmit.trim()) {
+          if (onTranscriptChange) {
+            onTranscriptChange(textToSubmit.trim());
+          }
+        }
       },
-      onEnd: () => {
-        setIsListening(false);
+      onError: (errCode) => {
+        if (errCode === 'permission_denied') {
+          setErrorMessage(
+            language === 'hi'
+              ? 'माइक्रोफ़ोन की अनुमति अस्वीकृत है। कृपया ब्राउज़र सेटिंग्स में माइक्रोफ़ोन की अनुमति दें।'
+              : 'Microphone permission blocked. Please allow mic access in your browser address bar.'
+          );
+        } else if (errCode === 'browser_unsupported') {
+          setErrorMessage(
+            language === 'hi'
+              ? 'इस ब्राउज़र में ध्वनि पहचान समर्थित नहीं है। कृपया लिखकर विवरण दर्ज करें।'
+              : 'Speech recognition is not supported in this browser. Please use text typing.'
+          );
+        } else if (errCode === 'network_error') {
+          setErrorMessage(
+            language === 'hi'
+              ? 'ध्वनि सेवा नेटवर्क समस्या। आप नीचे लिखकर भी विवरण दर्ज कर सकते हैं।'
+              : 'Voice recognition network error. You can continue by typing.'
+          );
+        }
       },
+      onStateChange: (active) => {
+        setIsRecording(active);
+      }
     });
 
     return () => {
       if (recognizerRef.current) {
-        recognizerRef.current.stop();
+        recognizerRef.current.cancel();
+      }
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
       }
     };
-  }, [language, onTranscriptChange]);
+  }, [language, onTranscriptChange, onLiveInterim]);
 
-  const toggleListening = () => {
-    setErrorMsg('');
-    if (isListening) {
-      recognizerRef.current?.stop();
-      setIsListening(false);
+  // Timer while recording
+  useEffect(() => {
+    if (isRecording) {
+      setRecordingSeconds(0);
+      timerRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
     } else {
-      setIsListening(true);
-      recognizerRef.current?.start();
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isRecording]);
+
+  const handleStartRecording = () => {
+    setErrorMessage('');
+    latestTextRef.current = '';
+    setHasCapturedSpeech(false);
+    recognizerRef.current?.start();
+  };
+
+  const handleStopRecording = () => {
+    recognizerRef.current?.stop();
+    setIsRecording(false);
+  };
+
+  const formatTime = (secs) => {
+    const mins = Math.floor(secs / 60);
+    const rem = secs % 60;
+    return `${mins}:${rem < 10 ? '0' : ''}${rem}`;
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={toggleListening}
-        className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
-          isListening
-            ? 'bg-rose-600 text-white mic-pulse shadow-md'
-            : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200'
-        } ${className}`}
-        title={isListening ? t('voice_stop') : t('voice_input')}
-        aria-label={isListening ? t('voice_stop') : t('voice_input')}
-      >
-        {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-      </button>
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-3">
+        {!isRecording ? (
+          <button
+            type="button"
+            onClick={handleStartRecording}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100/80 text-teal-900 border border-teal-300 font-semibold text-xs sm:text-sm shadow-2xs hover:shadow-xs transition-all active:scale-98 min-h-[44px] ${className}`}
+            title={t('voice_input')}
+            aria-label={t('voice_input')}
+          >
+            <Mic className="w-4 h-4 text-teal-700" />
+            <span>{language === 'hi' ? 'बोलकर बताएं' : 'Speak with Voice'}</span>
+          </button>
+        ) : (
+          <div className="inline-flex items-center gap-3 p-1.5 pr-3 rounded-xl bg-rose-50 border border-rose-300 shadow-sm animate-pulse">
+            {/* Live recording pulsing indicator */}
+            <div className="flex items-center gap-2 px-2.5 py-1 text-xs font-bold text-rose-800">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping inline-block" />
+              <span>{language === 'hi' ? 'सुन रहे हैं...' : 'Recording...'}</span>
+              <span className="font-mono text-rose-950 font-extrabold">{formatTime(recordingSeconds)}</span>
+            </div>
 
-      {errorMsg && (
-        <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-          {errorMsg}
-        </span>
+            {/* Obvious Manual Stop Button */}
+            <button
+              type="button"
+              onClick={handleStopRecording}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 min-h-[36px]"
+              title={t('voice_stop')}
+              aria-label={t('voice_stop')}
+            >
+              <Square className="w-3.5 h-3.5 fill-current" />
+              <span>{language === 'hi' ? 'रिकॉर्डिंग रोकें (Stop)' : 'Stop Recording'}</span>
+            </button>
+          </div>
+        )}
+
+        {isRecording && (
+          <span className="text-[11px] text-slate-500 hidden sm:inline">
+            {language === 'hi'
+              ? 'बोलते रहें; बोलने के बाद "रिकॉर्डिंग रोकें" दबाएं।'
+              : 'Speak naturally with pauses; click Stop when finished.'}
+          </span>
+        )}
+      </div>
+
+      {/* Permission or error message alert */}
+      {errorMessage && (
+        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-xs">
+          <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+          <span className="leading-snug">{errorMessage}</span>
+        </div>
       )}
     </div>
   );

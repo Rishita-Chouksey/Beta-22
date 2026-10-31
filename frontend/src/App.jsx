@@ -39,14 +39,26 @@ function MainAppContent() {
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-700">YojnaSarthi</span>
             <span>•</span>
-            <span>नागरिक कल्याण एवं सार्वजनिक योजना सहायता</span>
+            <span>
+              {language === 'hi'
+                ? 'नागरिक कल्याण एवं सार्वजनिक योजना सहायता'
+                : 'Citizen Welfare & Public Scheme Assistance'}
+            </span>
           </div>
           <div className="flex items-center gap-4 text-[11px] text-slate-400">
-            <span>सत्यापित सरकारी नियम</span>
+            <span>
+              {language === 'hi' ? 'सत्यापित सरकारी नियम' : 'Verified Official Rules'}
+            </span>
             <span>•</span>
-            <span>शून्य डेटा संचयन (Zero Retention)</span>
+            <span>
+              {language === 'hi'
+                ? 'शून्य डेटा संचयन (Zero Retention)'
+                : 'Zero Data Retention'}
+            </span>
             <span>•</span>
-            <span>डिजिटल भारत</span>
+            <span>
+              {language === 'hi' ? 'डिजिटल भारत' : 'Digital India'}
+            </span>
           </div>
         </div>
       </footer>

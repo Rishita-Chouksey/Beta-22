@@ -2,22 +2,24 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useSession } from '../context/SessionContext';
 import { sendChatMessage } from '../services/api';
-import { MessageSquare, X, Send, Bot, User, ExternalLink, Sparkles } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, ExternalLink, Sparkles, HelpCircle, ArrowRight } from 'lucide-react';
 import AudioSpeaker from './AudioSpeaker';
+import VoiceMic from './VoiceMic';
 
 export default function ChatbotDrawer() {
   const { language, t } = useLanguage();
   const { isChatOpen, setIsChatOpen, activeSchemeModal, profile } = useSession();
-  const [messages, setMessages] = useState([
-    {
-      id: 'welcome',
-      sender: 'bot',
-      text: language === 'hi'
-        ? 'नमस्ते! मैं योजनासारथी सरकारी योजना सहायक हूँ। आप मुझसे किसी भी योजना की पात्रता, आवश्यक दस्तावेज़ या आवेदन प्रक्रिया के बारे में पूछ सकते हैं।'
-        : 'Namaste! I am your YojnaSarthi Assistant. Ask me about eligibility rules, required documents, or application procedures.',
-      sources: []
-    }
-  ]);
+  
+  const initialBotWelcome = {
+    id: 'welcome',
+    sender: 'bot',
+    text: language === 'hi'
+      ? 'नमस्ते! मैं योजनासारथी सरकारी योजना सहायक हूँ। आप मुझसे किसी भी सरकारी योजना की पात्रता, आवश्यक दस्तावेज़ या आवेदन प्रक्रिया के बारे में पूछ सकते हैं।'
+      : 'Namaste! I am your YojnaSarthi Government Scheme Assistant. Ask me about scheme eligibility rules, required documents, or official application procedures.',
+    sources: []
+  };
+
+  const [messages, setMessages] = useState([initialBotWelcome]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
@@ -28,23 +30,55 @@ export default function ChatbotDrawer() {
     }
   }, [messages, isChatOpen]);
 
-  const handleSend = async (e) => {
-    e?.preventDefault();
-    const query = inputValue.trim();
+  // Update initial welcome if user hasn't messaged yet
+  useEffect(() => {
+    setMessages((prev) => {
+      if (prev.length === 1 && prev[0].id === 'welcome') {
+        return [initialBotWelcome];
+      }
+      return prev;
+    });
+  }, [language]);
+
+  const quickPrompts = language === 'hi' ? [
+    { label: 'MMVY छात्रवृत्ति क्या है?', text: 'MMVY क्या है और इसके लिए क्या पात्रता है?' },
+    { label: 'विधवा पेंशन नियम', text: 'विधवा पेंशन के लिए कौन से नियम और दस्तावेज़ चाहिए?' },
+    { label: 'लाड़ली बहना योजना', text: 'लाड़ली बहना योजना की पात्रता और लाभ क्या हैं?' },
+    { label: 'पीएम किसान पात्रता', text: 'पीएम किसान सम्मान निधि के नियम क्या हैं?' }
+  ] : [
+    { label: 'What is MMVY?', text: 'What is MMVY and who is eligible?' },
+    { label: 'Widow Pension Rules', text: 'What are the rules and required documents for Widow Pension?' },
+    { label: 'Ladli Behna Yojana', text: 'What is Ladli Behna Yojana and its benefits?' },
+    { label: 'PM Kisan Eligibility', text: 'What are the eligibility criteria for PM-KISAN?' }
+  ];
+
+  const sendMessageWithText = async (textToSend) => {
+    const query = textToSend.trim();
     if (!query || isLoading) return;
 
     const userMsg = { id: Date.now().toString(), sender: 'user', text: query };
-    setMessages((prev) => [...prev, userMsg]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInputValue('');
     setIsLoading(true);
+
+    // Prepare history payload for conversational context
+    const historyPayload = updatedMessages
+      .filter((m) => m.id !== 'welcome')
+      .map((m) => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        text: m.text
+      }));
 
     try {
       const resp = await sendChatMessage(
         query,
         activeSchemeModal?.scheme_id || null,
         profile,
-        language
+        language,
+        historyPayload
       );
+
       const botMsg = {
         id: (Date.now() + 1).toString(),
         sender: 'bot',
@@ -54,6 +88,7 @@ export default function ChatbotDrawer() {
       };
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
+      console.error('Chat error:', err);
       setMessages((prev) => [
         ...prev,
         {
@@ -61,12 +96,23 @@ export default function ChatbotDrawer() {
           sender: 'bot',
           text: language === 'hi'
             ? 'क्षमा करें, सेवा अभी व्यस्त है। कृपया आधिकारिक पोर्टल देखें।'
-            : 'Sorry, the service is currently experiencing delay. Please try again.',
+            : 'Sorry, the service is currently experiencing delay. Please try again or visit official portals.',
           sources: []
         }
       ]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSend = (e) => {
+    e?.preventDefault();
+    sendMessageWithText(inputValue);
+  };
+
+  const handleVoiceTranscript = (spokenText) => {
+    if (spokenText && spokenText.trim()) {
+      setInputValue((prev) => (prev ? `${prev} ${spokenText}` : spokenText));
     }
   };
 
@@ -76,10 +122,10 @@ export default function ChatbotDrawer() {
       {!isChatOpen && (
         <button
           onClick={() => setIsChatOpen(true)}
-          className="no-print fixed bottom-6 right-6 bg-slate-900 hover:bg-slate-800 text-white rounded-full p-4 shadow-xl flex items-center gap-2.5 border border-slate-700 z-40 transition-transform active:scale-95 touch-target hover:scale-105"
+          className="no-print fixed bottom-6 right-6 bg-slate-900 hover:bg-slate-800 text-white rounded-full p-4 shadow-xl flex items-center gap-2.5 border border-teal-500/30 z-40 transition-transform active:scale-95 touch-target hover:scale-105"
           aria-label={t('chat_title')}
         >
-          <Bot className="w-6 h-6 text-blue-400" />
+          <Bot className="w-6 h-6 text-teal-400" />
           <span className="text-xs font-bold pr-1 hidden sm:inline">{t('chat_title')}</span>
         </button>
       )}
@@ -91,31 +137,32 @@ export default function ChatbotDrawer() {
             {/* Header */}
             <div className="bg-slate-900 text-white px-5 py-4 flex items-center justify-between border-b border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-600/30 flex items-center justify-center border border-blue-500/40 text-blue-400">
+                <div className="w-9 h-9 rounded-xl bg-teal-500/20 flex items-center justify-center border border-teal-400/30 text-teal-300">
                   <Bot className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm leading-tight text-white">{t('chat_title')}</h3>
-                  <p className="text-[11px] text-slate-400">{t('chat_disclaimer')}</p>
+                  <p className="text-[11px] text-teal-300/80">{t('chat_disclaimer')}</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsChatOpen(false)}
                 className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-50/60">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-50/70">
               {messages.map((m) => (
                 <div
                   key={m.id}
                   className={`flex gap-2.5 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {m.sender === 'bot' && (
-                    <div className="w-7 h-7 rounded-lg bg-blue-900 text-white flex items-center justify-center text-xs flex-shrink-0 mt-1 shadow-xs">
+                    <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs flex-shrink-0 mt-1 shadow-xs border border-teal-500/30">
                       🏛️
                     </div>
                   )}
@@ -123,8 +170,8 @@ export default function ChatbotDrawer() {
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-xs ${
                       m.sender === 'user'
-                        ? 'bg-blue-600 text-white rounded-br-xs'
-                        : 'bg-white text-slate-800 border border-slate-200 rounded-bl-xs'
+                        ? 'bg-blue-700 text-white rounded-br-xs'
+                        : 'bg-white text-slate-900 border border-slate-200 rounded-bl-xs'
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{m.text}</p>
@@ -137,9 +184,9 @@ export default function ChatbotDrawer() {
                             href={m.sources[0]}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[11px] text-blue-700 hover:underline flex items-center gap-1 font-semibold"
+                            className="text-[11px] text-teal-700 hover:underline flex items-center gap-1 font-semibold"
                           >
-                            <span>आधिकारिक स्रोत</span>
+                            <span>{language === 'hi' ? 'आधिकारिक स्रोत' : 'Official Source'}</span>
                             <ExternalLink className="w-3 h-3" />
                           </a>
                         )}
@@ -148,7 +195,7 @@ export default function ChatbotDrawer() {
                   </div>
 
                   {m.sender === 'user' && (
-                    <div className="w-7 h-7 rounded-lg bg-slate-800 text-slate-200 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">
+                    <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-900 flex items-center justify-center text-xs flex-shrink-0 mt-1">
                       <User className="w-4 h-4" />
                     </div>
                   )}
@@ -156,30 +203,61 @@ export default function ChatbotDrawer() {
               ))}
 
               {isLoading && (
-                <div className="flex items-center gap-2 text-slate-500 text-xs py-2 px-2">
-                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                  <span>योजना नियमों से उत्तर सत्यापित हो रहा है...</span>
+                <div className="flex gap-2.5 justify-start">
+                  <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs flex-shrink-0">
+                    🏛️
+                  </div>
+                  <div className="bg-white border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-500 flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-teal-600 animate-ping" />
+                    <span>{language === 'hi' ? 'सत्यापित नियमों से उत्तर खोजा जा रहा है...' : 'Verifying official rules...'}</span>
+                  </div>
                 </div>
               )}
+
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Form */}
-            <form onSubmit={handleSend} className="p-3 bg-white border-t border-slate-200 flex gap-2">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder={t('chat_placeholder')}
-                className="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:bg-white focus:border-blue-600 focus:outline-hidden"
-              />
-              <button
-                type="submit"
-                disabled={!inputValue.trim() || isLoading}
-                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3.5 py-2.5 rounded-xl flex items-center justify-center shadow-xs transition-colors"
-              >
-                <Send className="w-4 h-4" />
-              </button>
+            {/* Quick Suggestion Chips */}
+            <div className="px-4 py-2 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              {quickPrompts.map((qp, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => sendMessageWithText(qp.text)}
+                  className="text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-teal-50 hover:text-teal-900 border border-slate-200 px-3 py-1 rounded-full whitespace-nowrap transition-colors flex-shrink-0"
+                >
+                  {qp.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Input Form with Text & Voice */}
+            <form onSubmit={handleSend} className="p-3 bg-white border-t border-slate-200 space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder={t('chat_placeholder')}
+                  className="flex-1 text-xs sm:text-sm p-3 rounded-xl border border-slate-300 focus:border-teal-600 focus:outline-hidden bg-slate-50/50"
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={!inputValue.trim() || isLoading}
+                  className="w-10 h-10 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white flex items-center justify-center transition-all flex-shrink-0 shadow-xs"
+                  aria-label="Send"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+                <VoiceMic onTranscriptChange={handleVoiceTranscript} />
+                <span className="text-[11px] text-slate-400">
+                  {language === 'hi' ? 'गोपनीय एवं सुरक्षित' : 'Zero PII logged'}
+                </span>
+              </div>
             </form>
           </div>
         </div>

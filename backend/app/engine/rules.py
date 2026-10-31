@@ -1,4 +1,4 @@
-from typing import Any, Tuple, Optional
+from typing import Any, Tuple, Optional, List
 from ..models.profile import CitizenProfile
 from ..models.scheme import SchemeRule
 from ..models.evaluation import RuleEvaluationResult
@@ -16,8 +16,46 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
     Evaluates a single SchemeRule against a CitizenProfile.
     Returns RuleEvaluationResult with outcome: 'PASS', 'FAIL', or 'UNKNOWN'.
     Never guesses unknown values.
-    Handles income ranges crossing limits, borderline values, and unconfirmed fields.
+    Handles income ranges crossing limits, borderline values, OR combinations, and unconfirmed fields.
     """
+    # 0. Handle composite OR rules
+    if rule.operator.lower() == "or" or (rule.or_rules and len(rule.or_rules) > 0):
+        sub_rules = rule.or_rules or []
+        sub_results = [evaluate_single_rule(r, profile) for r in sub_rules]
+        passed = [sr for sr in sub_results if sr.outcome == "PASS"]
+        if passed:
+            return RuleEvaluationResult(
+                field=rule.field,
+                operator="or",
+                expected_value=rule.value,
+                actual_value=passed[0].actual_value,
+                outcome="PASS",
+                reason_en=f"Satisfied alternative condition: {passed[0].reason_en}",
+                reason_hi=f"वैकल्पिक शर्त पूरी हुई: {passed[0].reason_hi}",
+                is_external_unverifiable=False
+            )
+        if all(sr.outcome == "FAIL" for sr in sub_results):
+            return RuleEvaluationResult(
+                field=rule.field,
+                operator="or",
+                expected_value=rule.value,
+                actual_value=[sr.actual_value for sr in sub_results],
+                outcome="FAIL",
+                reason_en=f"None of the alternative criteria met: {rule.description_en}",
+                reason_hi=f"वैकल्पिक मानदंडों में से कोई भी पूरा नहीं हुआ: {rule.description_hi}",
+                is_external_unverifiable=False
+            )
+        return RuleEvaluationResult(
+            field=rule.field,
+            operator="or",
+            expected_value=rule.value,
+            actual_value=None,
+            outcome="UNKNOWN",
+            reason_en=f"Verification required for one of the alternative conditions: {rule.description_en}",
+            reason_hi=f"वैकल्पिक शर्तों में से एक के सत्यापन की आवश्यकता है: {rule.description_hi}",
+            is_external_unverifiable=False
+        )
+
     field_name = rule.field
     actual_value = getattr(profile, field_name, None)
     
@@ -68,7 +106,6 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
     op = rule.operator.lower()
     expected = rule.value
 
-    # Evaluate by operator
     try:
         if op == "eq":
             return _eval_eq(rule, actual_value, expected)

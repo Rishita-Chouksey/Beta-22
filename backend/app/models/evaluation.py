@@ -23,6 +23,9 @@ class SchemeEvaluationResult(BaseModel):
     deciding_reason_en: str
     deciding_reason_hi: str
     rule_results: List[RuleEvaluationResult] = Field(default_factory=list)
+    satisfied_conditions: List[str] = Field(default_factory=list)
+    unknown_conditions: List[str] = Field(default_factory=list)
+    failed_conditions: List[str] = Field(default_factory=list)
     missing_fields: List[str] = Field(default_factory=list)
     last_verified_date: str
     is_stale: bool = False
@@ -36,3 +39,4 @@ class OverallEvaluationResponse(BaseModel):
     no_rules: List[SchemeEvaluationResult] = Field(default_factory=list)
     total_evaluated: int = 0
     active_profile_summary: Dict[str, Any] = Field(default_factory=dict)
+    contradictions: List[Dict[str, Any]] = Field(default_factory=list)

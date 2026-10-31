@@ -47,7 +47,9 @@ export default function S5_SchemeDetailsModal() {
           <div className="space-y-1.5 flex-1">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-800 text-blue-300 border border-slate-700">
-                {activeSchemeModal.level === 'central' ? 'केंद्रीय योजना (Central)' : 'राज्य योजना (State)'}
+                {activeSchemeModal.level === 'central'
+                  ? (language === 'hi' ? 'केंद्रीय योजना (Central)' : 'Central Scheme')
+                  : (language === 'hi' ? 'राज्य योजना (State)' : 'State Scheme')}
               </span>
               <span className="text-xs text-slate-400 font-semibold">
                 {activeSchemeModal.category}
@@ -118,7 +120,9 @@ export default function S5_SchemeDetailsModal() {
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2 text-xs sm:text-sm">
               <h4 className="font-bold text-amber-900 flex items-center gap-1.5">
                 <AlertTriangle className="w-4 h-4 text-amber-700" />
-                <span>महत्वपूर्ण अपवर्जन शर्तें (Exclusions)</span>
+                <span>
+                  {language === 'hi' ? 'महत्वपूर्ण अपवर्जन शर्तें (Exclusions)' : 'Important Exclusion Rules'}
+                </span>
               </h4>
               <ul className="list-disc list-inside space-y-1 text-amber-950">
                 {fullScheme.restrictions.map((res, i) => (

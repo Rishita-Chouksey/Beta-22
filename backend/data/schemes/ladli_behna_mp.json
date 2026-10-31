@@ -18,6 +18,13 @@
       "description_hi": "आवेदिका महिला होनी चाहिए।"
     },
     {
+      "field": "marital_status",
+      "operator": "in",
+      "value": ["married", "widow", "divorced"],
+      "description_en": "Applicant must be a married woman, widow, or divorced/deserted woman (unmarried women are excluded).",
+      "description_hi": "आवेदिका विवाहित, विधवा या तलाकशुदा/परित्यक्ता महिला होनी चाहिए (अविवाहित युवतियां योजना के अंतर्गत शामिल नहीं हैं)।"
+    },
+    {
       "field": "age",
       "operator": "between",
       "value": [21, 60],
@@ -34,14 +41,15 @@
     {
       "field": "landholding_hectares",
       "operator": "lte",
-      "value": 5.0,
+      "value": 2.02,
       "description_en": "Family agricultural land must not exceed 5 acres (approx 2.02 hectares).",
-      "description_hi": "परिवार के पास 5 एकड़ (लगभग 2 हेक्टेयर) से अधिक कृषि भूमि नहीं होनी चाहिए।"
+      "description_hi": "परिवार के पास 5 एकड़ (लगभग 2.02 हेक्टेयर) से अधिक कृषि भूमि नहीं होनी चाहिए।"
     }
   ],
   "restrictions": [
     "No family member should be an income tax payer.",
-    "Applicant must not be a permanent or contractual employee in any government department."
+    "Applicant must not be a permanent or contractual employee in any government department.",
+    "Applicant must hold a Madhya Pradesh resident domicile."
   ],
   "required_documents": [
     {

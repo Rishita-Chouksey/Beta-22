@@ -7,6 +7,8 @@ class QuestionOption(BaseModel):
     label_en: str
     label_hi: str
     value: Any
+    description_en: Optional[str] = None
+    description_hi: Optional[str] = None
 
 class NextQuestion(BaseModel):
     field: str
@@ -14,6 +16,10 @@ class NextQuestion(BaseModel):
     title_hi: str
     subtitle_en: Optional[str] = None
     subtitle_hi: Optional[str] = None
+    explanation_en: Optional[str] = None
+    explanation_hi: Optional[str] = None
+    examples_en: Optional[str] = None
+    examples_hi: Optional[str] = None
     type: str = Field(..., description="'single_choice', 'number', 'boolean', 'range'")
     options: Optional[List[QuestionOption]] = None
     min_val: Optional[float] = None
@@ -64,11 +70,16 @@ class ParseTextResponse(BaseModel):
     summary_en: str
     summary_hi: str
 
+class ChatMessageItem(BaseModel):
+    role: str = "user" # "user" or "bot" or "assistant"
+    text: str
+
 class ChatRequest(BaseModel):
     message: str
     language: str = "hi"
     current_scheme_id: Optional[str] = None
     profile: Optional[Dict[str, Any]] = None
+    history: Optional[List[ChatMessageItem]] = None
 
 class ChatResponse(BaseModel):
     reply: str

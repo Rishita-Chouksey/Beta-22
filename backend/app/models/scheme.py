@@ -3,11 +3,12 @@ from pydantic import BaseModel, Field
 
 class SchemeRule(BaseModel):
     field: str = Field(..., description="Profile field key to evaluate against")
-    operator: str = Field(..., description="Rule operator: eq, ne, in, not_in, lte, gte, between")
+    operator: str = Field(..., description="Rule operator: eq, ne, in, not_in, lte, gte, between, or")
     value: Any = Field(..., description="Expected value, threshold or [min, max] range")
     description_en: str = Field(..., description="Human-readable rule explanation in English")
     description_hi: str = Field(..., description="Human-readable rule explanation in Hindi")
     is_external_unverifiable: bool = Field(False, description="Flag for rules requiring offline/external verification")
+    or_rules: Optional[List['SchemeRule']] = Field(default=None, description="Optional sub-rules where any passing satisfies the condition")
 
 class DocumentRequirement(BaseModel):
     id: str = Field(..., description="Unique document ID (e.g. aadhaar, income_cert)")

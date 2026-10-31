@@ -26,11 +26,11 @@ export default function AudioSpeaker({ text, className = '' }) {
       onClick={handleToggle}
       className={`inline-flex items-center justify-center rounded-xl border transition-all ${
         isPlaying
-          ? 'bg-blue-600 text-white border-blue-600 animate-pulse'
-          : 'bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-700 border-slate-200'
-      } w-9 h-9 flex-shrink-0 ${className}`}
-      title={isPlaying ? 'बोलना बंद करें' : t('read_aloud')}
-      aria-label={t('read_aloud')}
+          ? 'bg-teal-700 text-white border-teal-800 shadow-sm animate-pulse'
+          : 'bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-900 border-slate-200'
+      } w-9 h-9 flex-shrink-0 touch-target ${className}`}
+      title={isPlaying ? (language === 'hi' ? 'बोलना बंद करें' : 'Stop speaking') : t('read_aloud')}
+      aria-label={isPlaying ? (language === 'hi' ? 'बोलना बंद करें' : 'Stop speaking') : t('read_aloud')}
     >
       {isPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
     </button>

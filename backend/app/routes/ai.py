@@ -23,11 +23,13 @@ async def chat_assistant(req: ChatRequest):
     Interactive assistant grounded in verified scheme rules and application guidance.
     Admits frankly if information is unavailable.
     """
+    history_data = [h.model_dump() for h in req.history] if req.history else None
     res = gemini_service.chat_grounded_response(
         message=req.message,
         current_scheme_id=req.current_scheme_id,
         profile=req.profile,
-        language=req.language
+        language=req.language,
+        history=history_data
     )
     return ChatResponse(**res)
 

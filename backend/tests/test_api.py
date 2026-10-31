@@ -93,3 +93,50 @@ def test_parse_text_api():
     assert extracted.get("age") == 48
     assert extracted.get("state") == "Madhya Pradesh"
     assert extracted.get("landholding_hectares") == 1.5
+
+def test_chat_helpdesk_direct_scheme_query():
+    # User asks "What is MMVY?" - must not return generic welcome message
+    payload = {
+        "message": "What is MMVY?",
+        "language": "en",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "Mukhyamantri Medhavi Vidyarthi Yojana" in reply or "MMVY" in reply
+    assert "Welcome to YojnaSarthi! How can I help you today?" not in reply
+
+def test_chat_helpdesk_follow_up_with_history():
+    # User asks a follow-up referring to previous context
+    history = [
+        {"role": "user", "text": "What is MMVY?"},
+        {"role": "assistant", "text": "Mukhyamantri Medhavi Vidyarthi Yojana (MMVY) is a flagship scholarship in Madhya Pradesh."}
+    ]
+    payload = {
+        "message": "What documents are required for it?",
+        "language": "en",
+        "history": history
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert ("marksheet" in reply.lower() or "samagra" in reply.lower() or "aadhaar" in reply.lower() or "domicile" in reply.lower() or "document" in reply.lower())
+
+def test_chat_helpdesk_profile_eligibility_query():
+    # User asks "I am 29 years old and a widow. Which schemes can I apply for?"
+    payload = {
+        "message": "I am 29 years old and a widow. Which schemes can I apply for?",
+        "language": "en",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "Ladli Behna" in reply or "Sanjay Gandhi" in reply or "pension" in reply.lower()
+    # Must note MMVY ineligibility
+    assert "MMVY" in reply
+

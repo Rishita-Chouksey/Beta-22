@@ -58,7 +58,11 @@ export default function S2_FreeTextInputScreen() {
       setCurrentScreen('S3');
     } catch (err) {
       console.error('Text parsing error:', err);
-      setErrorMsg('विवरण विश्लेषण में समस्या आई। कृपया नीचे दोबारा प्रयास करें।');
+      setErrorMsg(
+        language === 'hi'
+          ? 'विवरण विश्लेषण में समस्या आई। कृपया नीचे दोबारा प्रयास करें।'
+          : 'Could not extract profile details. Please try again or rephrase.'
+      );
     } finally {
       setIsParsing(false);
     }

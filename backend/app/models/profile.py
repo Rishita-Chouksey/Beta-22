@@ -32,8 +32,9 @@ class CitizenProfile(BaseModel):
     disability_status: Optional[bool] = Field(None, description="Whether citizen has certified disability")
     disability_percent: Optional[float] = Field(None, description="Disability percentage if applicable", ge=0, le=100)
     
-    # Meta tracking: which fields have been explicitly confirmed by user
+    # Meta tracking: which fields have been explicitly confirmed or skipped by user
     confirmed_fields: List[str] = Field(default_factory=list, description="Fields explicitly verified/confirmed by user")
+    skipped_fields: List[str] = Field(default_factory=list, description="Fields explicitly skipped or declared unknown by user")
 
     def is_field_confirmed(self, field_name: str) -> bool:
         # If confirmed_fields is empty, we consider fields populated via direct questionnaire as confirmed

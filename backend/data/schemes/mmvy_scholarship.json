@@ -18,6 +18,20 @@
       "description_hi": "आवेदक उच्च शिक्षा प्राप्त करने वाला एक सक्रिय छात्र होना चाहिए।"
     },
     {
+      "field": "marital_status",
+      "operator": "eq",
+      "value": "single",
+      "description_en": "Applicant must be an unmarried dependent student. Adult widows and married independent heads of household are not eligible for this school-leaver youth scholarship (refer to Ladli Behna or Widow Pension for social security schemes).",
+      "description_hi": "आवेदक अविवाहित आश्रित छात्र होना चाहिए। वयस्क विधवाएं और विवाहित परिवार प्रमुख इस छात्रवृत्ति के लिए पात्र नहीं हैं (सामाजिक सुरक्षा हेतु लाड़ली बहना या विधवा पेंशन देखें)।"
+    },
+    {
+      "field": "enrolled_higher_education",
+      "operator": "eq",
+      "value": true,
+      "description_en": "Must have confirmed admission in a recognised undergraduate degree, engineering, medical or diploma course.",
+      "description_hi": "मान्यता प्राप्त स्नातक डिग्री, इंजीनियरिंग, मेडिकल या डिप्लोमा पाठ्यक्रम में प्रवेश की पुष्टि होनी चाहिए।"
+    },
+    {
       "field": "student_class12_marks_percent",
       "operator": "gte",
       "value": 70.0,
@@ -28,19 +42,13 @@
       "field": "annual_income",
       "operator": "lte",
       "value": 600000.0,
-      "description_en": "Total family annual income must not exceed ₹6,00,000.",
-      "description_hi": "परिवार की कुल वार्षिक आय ₹6,00,000 से अधिक नहीं होनी चाहिए।"
-    },
-    {
-      "field": "enrolled_higher_education",
-      "operator": "eq",
-      "value": true,
-      "description_en": "Must have confirmed admission in a recognised degree, engineering, medical or diploma course.",
-      "description_hi": "मान्यता प्राप्त डिग्री, इंजीनियरिंग, मेडिकल या डिप्लोमा पाठ्यक्रम में प्रवेश की पुष्टि होनी चाहिए।"
+      "description_en": "Total parents'/family annual income must not exceed ₹6,00,000.",
+      "description_hi": "माता-पिता/परिवार की कुल वार्षिक आय ₹6,00,000 से अधिक नहीं होनी चाहिए।"
     }
   ],
   "restrictions": [
     "Applicant must hold a valid Madhya Pradesh resident domicile certificate.",
+    "Applicant must be an unmarried dependent youth taking direct admission into undergraduate studies.",
     "Students receiving any other complete state/central fee reimbursement scholarship cannot duplicate benefits."
   ],
   "required_documents": [
@@ -70,7 +78,7 @@
       "id": "income_cert",
       "name_en": "Income Certificate (Under ₹6 Lakhs)",
       "name_hi": "सक्षम प्राधिकारी द्वारा जारी आय प्रमाण पत्र (₹6 लाख से कम)",
-      "purpose_en": "To verify that family annual income is below ₹6 Lakhs.",
+      "purpose_en": "To verify that parents' annual income is below ₹6 Lakhs.",
       "purpose_hi": "यह सत्यापित करने के लिए कि वार्षिक आय ₹6 लाख से कम है।",
       "how_to_get_en": "Issued by Tehsildar/Sub-Divisional Magistrate (SDM) through MP Lok Seva Kendra.",
       "how_to_get_hi": "तहसीलदार/एसडीएम द्वारा लोक सेवा केंद्र के माध्यम से जारी।",
