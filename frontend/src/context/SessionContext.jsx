@@ -7,12 +7,16 @@ const AUTO_CLEAR_TIME_MS = 10 * 60 * 1000;   // 10 minutes
 
 export function SessionProvider({ children }) {
   // In-memory tab state ONLY. No localStorage or sessionStorage used for personal citizen data!
-  const [currentScreen, setCurrentScreen] = useState('S0'); // 'S0', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7'
+  const [currentScreen, setCurrentScreen] = useState('S0'); // 'S0', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8' (Document Guide)
   const [profile, setProfile] = useState({});
   const [evaluationResults, setEvaluationResults] = useState(null);
   const [activeSchemeModal, setActiveSchemeModal] = useState(null);
   const [checklistData, setChecklistData] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  // Document Guide state & cross-navigation
+  const [selectedDocId, setSelectedDocId] = useState(null);
+  const [docGuideReturnScreen, setDocGuideReturnScreen] = useState(null);
 
   // Privacy & Session Timeout modals
   const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
@@ -21,11 +25,22 @@ export function SessionProvider({ children }) {
   const lastActivityRef = useRef(Date.now());
   const idleTimerRef = useRef(null);
 
+  const openDocumentGuide = (docId = null, returnScreen = null) => {
+    setSelectedDocId(docId);
+    if (returnScreen) {
+      setDocGuideReturnScreen(returnScreen);
+    }
+    setCurrentScreen('S8');
+    lastActivityRef.current = Date.now();
+  };
+
   const resetSession = () => {
     setProfile({});
     setEvaluationResults(null);
     setActiveSchemeModal(null);
     setChecklistData(null);
+    setSelectedDocId(null);
+    setDocGuideReturnScreen(null);
     setShowClearConfirmModal(false);
     setShowIdleWarningModal(false);
     setCurrentScreen('S0');
@@ -92,6 +107,11 @@ export function SessionProvider({ children }) {
         setShowClearConfirmModal,
         showIdleWarningModal,
         setShowIdleWarningModal,
+        selectedDocId,
+        setSelectedDocId,
+        docGuideReturnScreen,
+        setDocGuideReturnScreen,
+        openDocumentGuide,
         resetSession,
       }}
     >

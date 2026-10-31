@@ -81,8 +81,17 @@
   "select_option": "-- Select an option --",
   "not_sure_option": "Not sure / I don't know",
   "selecting_question": "Selecting next impactful question...",
-  "contradiction_warning": "Profile Inconsistency Detected",
   "satisfied_conditions_label": "Satisfied Conditions",
   "unknown_conditions_label": "Unknown / Missing Conditions",
-  "failed_conditions_label": "Unsatisfied Conditions"
+  "failed_conditions_label": "Unsatisfied Conditions",
+  "nav_home": "Home",
+  "nav_doc_guide": "Document Guide",
+  "nav_form_help": "Form Helper",
+  "doc_guide_title": "Official Document Guide & Sample Viewer",
+  "doc_guide_subtitle": "Issuance authorities, requirements, step-by-step procedures, and synthetic sample previews.",
+  "doc_guide_sample_watermark": "ILLUSTRATIVE SAMPLE — NOT AN OFFICIAL DOCUMENT",
+  "open_in_doc_guide": "View Document Guide & Sample",
+  "back_to_checklist": "Back to Checklist",
+  "back_to_scheme": "Back to Scheme Details",
+  "apply_for_document": "Apply for this Document"
 }

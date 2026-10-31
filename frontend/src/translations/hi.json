@@ -81,8 +81,17 @@
   "select_option": "-- विकल्प चुनें --",
   "not_sure_option": "निश्चित नहीं / मुझे नहीं पता",
   "selecting_question": "अगला प्रासंगिक प्रश्न तैयार हो रहा है...",
-  "contradiction_warning": "प्रोफ़ाइल में परस्पर विरोधी जानकारी पाई गई",
   "satisfied_conditions_label": "पूरी की गई पात्रता शर्तें",
   "unknown_conditions_label": "अज्ञात या शेष आवश्यक जानकारी",
-  "failed_conditions_label": "पूरी न होने वाली शर्तें"
+  "failed_conditions_label": "पूरी न होने वाली शर्तें",
+  "nav_home": "मुख्य पृष्ठ",
+  "nav_doc_guide": "दस्तावेज़ मार्गदर्शिका",
+  "nav_form_help": "फॉर्म सहायक",
+  "doc_guide_title": "सरकारी दस्तावेज़ गाइड एवं नमूना प्रदर्शक",
+  "doc_guide_subtitle": "आधिकारिक जारीकर्ता, आवश्यकताएं, प्रक्रिया एवं सांकेतिक नमूने।",
+  "doc_guide_sample_watermark": "सांकेतिक नमूना — आधिकारिक दस्तावेज़ नहीं है",
+  "open_in_doc_guide": "दस्तावेज़ गाइड एवं नमूना देखें",
+  "back_to_checklist": "चेकलिस्ट पर वापस जाएं",
+  "back_to_scheme": "योजना विवरण पर वापस जाएं",
+  "apply_for_document": "इस दस्तावेज़ हेतु आवेदन करें"
 }

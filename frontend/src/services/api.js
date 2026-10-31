@@ -87,3 +87,62 @@ export async function submitFeedback(schemeId = null, rating = 5, isHelpful = tr
   if (!resp.ok) throw new Error(`Feedback failed: ${resp.status}`);
   return await resp.json();
 }
+
+// ==============================================================================
+// Document Guide API
+// ==============================================================================
+export async function fetchDocumentList(query = null, category = null) {
+  const params = new URLSearchParams();
+  if (query) params.append('query', query);
+  if (category && category !== 'all') params.append('category', category);
+  const url = `${API_BASE_URL}/documents${params.toString() ? `?${params.toString()}` : ''}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Fetch documents failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchDocumentDetails(docId) {
+  const resp = await fetch(`${API_BASE_URL}/documents/${encodeURIComponent(docId)}`);
+  if (!resp.ok) throw new Error(`Fetch document details failed: ${resp.status}`);
+  return await resp.json();
+}
+
+// ==============================================================================
+// Bhashini Integration API
+// ==============================================================================
+export async function translateWithBhashini(text, sourceLanguage = 'en', targetLanguage = 'hi') {
+  const resp = await fetch(`${API_BASE_URL}/bhashini/translate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, sourceLanguage, targetLanguage }),
+  });
+  if (!resp.ok) throw new Error(`Bhashini translation failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function speechToTextBhashini(audioBase64, language = 'hi') {
+  const resp = await fetch(`${API_BASE_URL}/bhashini/speech-to-text`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ audio_base64: audioBase64, language }),
+  });
+  if (!resp.ok) throw new Error(`Bhashini STT failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function textToSpeechBhashini(text, language = 'hi') {
+  const resp = await fetch(`${API_BASE_URL}/bhashini/text-to-speech`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, language }),
+  });
+  if (!resp.ok) throw new Error(`Bhashini TTS failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchIntegrationsStatus() {
+  const resp = await fetch(`${API_BASE_URL}/integrations/status`);
+  if (!resp.ok) throw new Error(`Fetch integration status failed: ${resp.status}`);
+  return await resp.json();
+}
+

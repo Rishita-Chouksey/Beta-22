@@ -260,7 +260,7 @@ const DOCUMENT_SAMPLES_CONFIG = {
 
 export default function S6_DocumentChecklistScreen() {
   const { language, t } = useLanguage();
-  const { evaluationResults, setCurrentScreen, checklistData, setChecklistData } = useSession();
+  const { evaluationResults, setCurrentScreen, checklistData, setChecklistData, openDocumentGuide } = useSession();
 
   const [readyDocs, setReadyDocs] = useState({});
   const [expandedPreview, setExpandedPreview] = useState({});
@@ -494,13 +494,13 @@ export default function S6_DocumentChecklistScreen() {
                         </div>
                       </div>
 
-                      {/* Sample Preview Button (Issue #7) */}
-                      {sampleConfig && (
-                        <div className="pt-1 no-print">
+                      {/* Sample Preview & Document Guide Navigation */}
+                      <div className="pt-1 no-print flex flex-wrap items-center gap-2">
+                        {sampleConfig && (
                           <button
                             type="button"
                             onClick={() => togglePreview(doc.document_id)}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-800 hover:text-teal-950 bg-teal-50 hover:bg-teal-100/70 border border-teal-200 px-3 py-1.5 rounded-lg transition-colors"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-800 hover:text-teal-950 bg-teal-50 hover:bg-teal-100/70 border border-teal-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>
@@ -510,8 +510,16 @@ export default function S6_DocumentChecklistScreen() {
                             </span>
                             {isPreviewOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                           </button>
-                        </div>
-                      )}
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => openDocumentGuide(doc.document_id, 'S6')}
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-900 hover:text-amber-950 bg-amber-50 hover:bg-amber-100/70 border border-amber-300 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-amber-700" />
+                          <span>{language === 'hi' ? 'दस्तावेज़ गाइड में खोलें' : 'Open in Document Guide'}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 

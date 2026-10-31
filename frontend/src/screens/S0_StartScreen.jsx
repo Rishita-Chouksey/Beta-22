@@ -19,7 +19,7 @@ import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S0_StartScreen() {
   const { language, t } = useLanguage();
-  const { setCurrentScreen, setProfile } = useSession();
+  const { setCurrentScreen, setProfile, openDocumentGuide } = useSession();
   const [rulesStatus, setRulesStatus] = useState(null);
 
   useEffect(() => {
@@ -80,174 +80,250 @@ export default function S0_StartScreen() {
   };
 
   return (
-    <div className="space-y-10 animate-fade-in">
-      {/* 1. Hero Section */}
-      <section className="bg-gradient-to-b from-white to-blue-50/50 border border-slate-200/80 rounded-2xl p-6 sm:p-10 shadow-xs relative overflow-hidden">
-        <div className="max-w-3xl space-y-4">
-          {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>
-              {language === 'hi'
-                ? 'सत्यापित सरकारी कल्याण पोर्टल • 100% सटीक नियम'
-                : 'Verified Government Scheme Guide • 100% Deterministic Rules'}
-            </span>
-          </div>
+    <div className="space-y-8 animate-fade-in">
+      {/* 1. Civic Hero Section (Navy & Warm Off-White Civic Direction) */}
+      <section className="bg-gradient-to-br from-[#0c1a38] via-[#102450] to-[#0a1630] text-white border border-blue-900/60 rounded-3xl p-6 sm:p-10 shadow-lg relative overflow-hidden">
+        {/* Decorative civic backdrop glow */}
+        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/3 -mb-16 w-80 h-80 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
 
-          {/* Heading with Speaker */}
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              {language === 'hi'
-                ? 'सरकारी योजनाओं में अपने अधिकार और पात्रता जानें'
-                : 'Discover Government Schemes You May Be Eligible For'}
-            </h1>
-            <AudioSpeaker
-              text={
-                language === 'hi'
-                  ? 'सरकारी योजनाओं में अपने अधिकार और पात्रता जानें। 2 मिनट से भी कम समय में अपने अधिकार, आवश्यक दस्तावेज़ और आवेदन प्रक्रिया जानें।'
-                  : 'Discover Government Schemes You May Be Eligible For in less than 2 minutes.'
-              }
-              className="mt-1"
-            />
-          </div>
-
-          {/* Subtitle */}
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
-            {language === 'hi'
-              ? 'आधिकारिक सरकारी नियमों के आधार पर तुरंत अपनी पात्रता जांचें। कोई लॉगिन आवश्यक नहीं, न ही कोई डेटा सहेजा जाता है।'
-              : 'Find out your exact entitlement, required documents, and application procedure in less than 2 minutes. Guidance is strictly based on verified official criteria.'}
-          </p>
-
-          {/* CTA & Trust note */}
-          <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <button
-              onClick={() => setCurrentScreen('S1')}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all min-h-[48px]"
-            >
-              <span>{language === 'hi' ? 'पात्रता जांच शुरू करें' : 'Get Started Now'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <span className="text-xs text-slate-500 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-8 space-y-4">
+            {/* Trust Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-700/60 text-blue-200 text-xs font-semibold backdrop-blur-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>
                 {language === 'hi'
-                  ? 'आधिकारिक सरकारी नियमों पर आधारित • 100% सुरक्षित'
-                  : 'Based strictly on verified official guidelines • Zero data stored'}
+                  ? 'सत्यापित सरकारी कल्याण पोर्टल • 100% सटीक नियम'
+                  : 'Verified Government Scheme Guide • 100% Deterministic Rules'}
               </span>
-            </span>
+            </div>
+
+            {/* Heading with Speaker */}
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                {language === 'hi'
+                  ? 'सरकारी योजनाओं में अपने अधिकार और पात्रता जानें'
+                  : 'Discover Government Schemes You May Be Eligible For'}
+              </h1>
+              <AudioSpeaker
+                text={
+                  language === 'hi'
+                    ? 'सरकारी योजनाओं में अपने अधिकार और पात्रता जानें। 2 मिनट से भी कम समय में अपने अधिकार, आवश्यक दस्तावेज़ और आवेदन प्रक्रिया जानें।'
+                    : 'Discover Government Schemes You May Be Eligible For in less than 2 minutes.'
+                }
+                className="mt-1 flex-shrink-0 bg-blue-900/60 border-blue-700 text-white hover:bg-blue-800"
+              />
+            </div>
+
+            {/* Subtitle */}
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+              {language === 'hi'
+                ? 'आधिकारिक सरकारी नियमों के आधार पर तुरंत अपनी पात्रता जांचें, आवश्यक दस्तावेज़ों का आधिकारिक नमूना देखें और सीधे अधिकृत पोर्टल पर आवेदन करें। कोई लॉगिन आवश्यक नहीं, न ही कोई डेटा सहेजा जाता है।'
+                : 'Find out your exact entitlement, required documents with illustrative sample previews, and application procedure in less than 2 minutes. Guidance is strictly based on verified official criteria.'}
+            </p>
+
+            {/* Hero Quick Metrics */}
+            <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-slate-300">
+              <span className="flex items-center gap-1.5 bg-blue-950/60 px-3 py-1.5 rounded-lg border border-blue-800/40">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span>
+                  {language === 'hi' ? 'सत्यापित नियम' : 'Deterministic Rules'}
+                </span>
+              </span>
+              <span className="flex items-center gap-1.5 bg-blue-950/60 px-3 py-1.5 rounded-lg border border-blue-800/40">
+                <FileCheck2 className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                <span>
+                  {language === 'hi' ? 'दस्तावेज़ गाइड व नमूने' : 'Document Guide & Samples'}
+                </span>
+              </span>
+              <span className="flex items-center gap-1.5 bg-blue-950/60 px-3 py-1.5 rounded-lg border border-blue-800/40">
+                <Lock className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                <span>
+                  {language === 'hi' ? 'शून्य डेटा संचयन' : 'Zero Data Retention'}
+                </span>
+              </span>
+            </div>
+          </div>
+
+          {/* Citizen Representation Visual Pillar (Image 2 & 3 Aesthetic) */}
+          <div className="lg:col-span-4 bg-gradient-to-b from-blue-950/50 to-slate-900/80 p-5 rounded-2xl border border-blue-800/40 backdrop-blur-xs space-y-3 text-center sm:text-left">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300">
+              {language === 'hi' ? 'सभी नागरिकों के लिए कल्याणकारी सेवाएं' : 'Welfare Services for Every Citizen'}
+            </p>
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="bg-[#12234a]/80 p-3 rounded-xl border border-blue-800/30 text-center space-y-1">
+                <span className="text-2xl">🌾</span>
+                <p className="text-xs font-bold text-white">{language === 'hi' ? 'किसान कल्याण' : 'Farmers'}</p>
+                <p className="text-[10px] text-slate-400">{language === 'hi' ? 'PM-Kisan, सिंचाई' : 'Direct Aid'}</p>
+              </div>
+              <div className="bg-[#12234a]/80 p-3 rounded-xl border border-blue-800/30 text-center space-y-1">
+                <span className="text-2xl">👩‍💼</span>
+                <p className="text-xs font-bold text-white">{language === 'hi' ? 'महिला सशक्तिकरण' : 'Women'}</p>
+                <p className="text-[10px] text-slate-400">{language === 'hi' ? 'लाड़ली बहना, पेंशन' : 'Social Security'}</p>
+              </div>
+              <div className="bg-[#12234a]/80 p-3 rounded-xl border border-blue-800/30 text-center space-y-1">
+                <span className="text-2xl">🎓</span>
+                <p className="text-xs font-bold text-white">{language === 'hi' ? 'विद्यार्थी' : 'Students'}</p>
+                <p className="text-[10px] text-slate-400">{language === 'hi' ? 'MMVY छात्रवृत्ति' : 'Scholarships'}</p>
+              </div>
+              <div className="bg-[#12234a]/80 p-3 rounded-xl border border-blue-800/30 text-center space-y-1">
+                <span className="text-2xl">👨‍👩‍👧‍👦</span>
+                <p className="text-xs font-bold text-white">{language === 'hi' ? 'परिवार' : 'Families'}</p>
+                <p className="text-[10px] text-slate-400">{language === 'hi' ? 'आवास, राशन, स्वास्थ्य' : 'Housing & Health'}</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 2. Main Feature Selection (3 Balanced Cards) */}
+      {/* 2. Two Primary Action Cards (Images 2 & 3 Core Structure) */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-            {language === 'hi' ? 'अपनी सुविधा अनुसार विकल्प चुनें' : 'Choose How You Want to Begin'}
-          </h2>
-          <span className="text-xs text-slate-500 hidden sm:inline">
-            {language === 'hi' ? 'सरल एवं पारदर्शी प्रक्रिया' : 'Simple, transparent assistance'}
-          </span>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+              {language === 'hi' ? 'पात्रता जांच के दो आसान तरीके' : 'Two Easy Ways to Check Eligibility'}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {language === 'hi' ? 'अपनी सुविधा के अनुसार कोई भी एक विकल्प चुनें:' : 'Choose either method to discover your entitlements:'}
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Feature Card 1: Questionnaire */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Action Card 1: Guided Questionnaire */}
           <div
             onClick={() => setCurrentScreen('S1')}
-            className="premium-card premium-card-hover p-6 flex flex-col justify-between group"
+            className="group relative bg-white border-2 border-blue-200 hover:border-blue-600 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
             role="button"
             tabIndex={0}
           >
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-100/80 text-blue-800 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <ClipboardList className="w-6 h-6" />
+              <div className="flex items-center justify-between">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
+                  <ClipboardList className="w-7 h-7" />
+                </div>
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+                  {language === 'hi' ? 'अनुशंसित (Recommended)' : 'Recommended'}
+                </span>
               </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-700 transition-colors">
-                  {t('start_questionnaire')}
+
+              <div className="space-y-2">
+                <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-blue-700 transition-colors">
+                  {language === 'hi' ? '१. कुछ सरल प्रश्नों के उत्तर दें' : '1. Answer a Few Questions'}
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {t('start_questionnaire_desc')}
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  {language === 'hi'
+                    ? 'अपनी प्रोफ़ाइल के अनुसार 4 से 8 सीधे प्रश्नों के उत्तर दें। प्रत्येक प्रश्न के साथ कारण और उदाहरण समझाए गए हैं।'
+                    : 'Answer 4 to 8 simple, step-by-step questions tailored to your profile. Every question explains why it is asked.'}
                 </p>
+              </div>
+
+              <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-500">
+                <span className="bg-slate-100 px-2.5 py-1 rounded-md">⚡ 2 मिनट में पूरा</span>
+                <span className="bg-slate-100 px-2.5 py-1 rounded-md">✓ कोई गलत व्याख्या नहीं</span>
               </div>
             </div>
 
-            <div className="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs font-semibold text-blue-700 group-hover:underline flex items-center gap-1">
+            <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-sm font-bold text-blue-700 group-hover:underline flex items-center gap-1.5">
                 <span>{language === 'hi' ? 'प्रश्नावली शुरू करें' : 'Start Questionnaire'}</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
-              <span className="text-[11px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
-                ⚡ ~8 Qs
+              <span className="text-xs text-slate-400 font-medium">
+                ~8 Questions
               </span>
             </div>
           </div>
 
-          {/* Feature Card 2: Voice or Text */}
+          {/* Action Card 2: Speak or Type (Free-text / Voice) */}
           <div
             onClick={() => setCurrentScreen('S2')}
-            className="premium-card premium-card-hover p-6 flex flex-col justify-between group"
+            className="group relative bg-white border-2 border-teal-200 hover:border-teal-600 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
             role="button"
             tabIndex={0}
           >
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-xl bg-teal-100/80 text-teal-800 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Mic className="w-6 h-6" />
+              <div className="flex items-center justify-between">
+                <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
+                  <Mic className="w-7 h-7" />
+                </div>
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
+                  {language === 'hi' ? 'आवाज़ या विवरण' : 'Voice or Text'}
+                </span>
               </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 text-base group-hover:text-teal-700 transition-colors">
-                  {t('start_voice_text')}
+
+              <div className="space-y-2">
+                <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-teal-700 transition-colors">
+                  {language === 'hi' ? '२. अपने बारे में बोलकर या लिखकर बताएं' : '2. Tell Us About Yourself'}
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {t('start_voice_text_desc')}
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  {language === 'hi'
+                    ? 'अपनी भाषा में बोलें या लिखें (जैसे "मैं रीवा का किसान हूँ, 2 एकड़ जमीन है")। एआई जानकारी निकालेगा और पुष्टि के बाद ही नियम लागू होंगे।'
+                    : 'Speak in your mother tongue or type naturally. Our assistant extracts profile fields for your explicit review before applying verified rules.'}
                 </p>
+              </div>
+
+              <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-500">
+                <span className="bg-slate-100 px-2.5 py-1 rounded-md">🎙️ Bhashini / Voice Support</span>
+                <span className="bg-slate-100 px-2.5 py-1 rounded-md">👁️ नागरिक समीक्षा अनिवार्य</span>
               </div>
             </div>
 
-            <div className="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs font-semibold text-teal-700 group-hover:underline flex items-center gap-1">
+            <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-sm font-bold text-teal-700 group-hover:underline flex items-center gap-1.5">
                 <span>{language === 'hi' ? 'बोलें या लिखें' : 'Speak or Type'}</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
-              <span className="text-[11px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
-                🎙️ AI Assisted
+              <span className="text-xs text-slate-400 font-medium">
+                AI + Manual Review
               </span>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Feature Card 3: Form Field Explainer */}
-          <div
-            onClick={() => setCurrentScreen('S7')}
-            className="premium-card premium-card-hover p-6 flex flex-col justify-between group"
-            role="button"
-            tabIndex={0}
-          >
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-100/80 text-amber-900 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <FileText className="w-6 h-6" />
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 text-base group-hover:text-amber-800 transition-colors">
-                  {t('form_help_title')}
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {language === 'hi'
-                    ? 'सरकारी आवेदन फॉर्म के कठिन शब्दों जैसे खसरा, समग्र आईडी, डीबीटी को सरल भाषा में समझें।'
-                    : 'Understand complicated terminology and fields on official government application forms.'}
-                </p>
-              </div>
+      {/* 3. Prominent Document Guide Feature Card (New S8 Highlight) */}
+      <section className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-2 border-amber-300/80 rounded-2xl p-6 sm:p-7 shadow-xs relative overflow-hidden">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold border border-amber-300">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>{language === 'hi' ? 'नया फीचर: आधिकारिक दस्तावेज़ मार्गदर्शिका' : 'New Feature: Official Document Guide'}</span>
             </div>
+            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+              {language === 'hi'
+                ? 'सरकारी प्रमाण पत्र कैसे बनवाएं? सांकेतिक नमूने एवं सीधे ऑनलाइन आवेदन लिंक'
+                : 'How to Obtain Scheme Documents? Sample Previews & Direct Portal Links'}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              {language === 'hi'
+                ? 'आय प्रमाण पत्र, मूल निवास, जाति प्रमाण पत्र, समग्र आईडी, 12वीं अंकसूची आदि के जारीकर्ता, क्या जांचना है, सांकेतिक नमूने और सीधे आधिकारिक सरकारी आवेदन पोर्टल (जैसे MP e-District, UIDAI, crsorgi) की पूरी जानकारी।'
+                : 'Complete catalogue of required government proofs with issuing authorities, step-by-step procedures, watermarked synthetic sample previews, and verified application portal links.'}
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1 text-[11px] font-semibold text-amber-900">
+              <span className="bg-amber-100/70 px-2.5 py-0.5 rounded border border-amber-200">11+ सरकारी प्रमाण पत्र</span>
+              <span className="bg-amber-100/70 px-2.5 py-0.5 rounded border border-amber-200">वाटरमार्क सांकेतिक नमूने</span>
+              <span className="bg-amber-100/70 px-2.5 py-0.5 rounded border border-amber-200">आधिकारिक सरकारी पोर्टल</span>
+            </div>
+          </div>
 
-            <div className="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs font-semibold text-amber-800 group-hover:underline flex items-center gap-1">
-                <span>{language === 'hi' ? 'फॉर्म शब्द समझें' : 'Explore Form Terms'}</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </span>
-              <span className="text-[11px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
-                🔍 Helper
-              </span>
-            </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+            <button
+              onClick={() => openDocumentGuide()}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-sm shadow-md transition-all min-h-[48px]"
+            >
+              <FileCheck2 className="w-4 h-4" />
+              <span>{language === 'hi' ? 'दस्तावेज़ मार्गदर्शिका खोलें' : 'Open Document Guide'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentScreen('S7')}
+              className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs border border-slate-300 transition-colors min-h-[48px]"
+            >
+              <FileText className="w-4 h-4 text-slate-500" />
+              <span>{language === 'hi' ? 'कठिन फॉर्म शब्द समझें' : 'Form Terms'}</span>
+            </button>
           </div>
         </div>
       </section>

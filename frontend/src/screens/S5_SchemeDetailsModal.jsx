@@ -13,13 +13,14 @@ import {
   ListOrdered,
   AlertTriangle,
   Info,
-  Calendar
+  Calendar,
+  Eye
 } from 'lucide-react';
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S5_SchemeDetailsModal() {
   const { language, t } = useLanguage();
-  const { activeSchemeModal, setActiveSchemeModal } = useSession();
+  const { activeSchemeModal, setActiveSchemeModal, currentScreen, openDocumentGuide } = useSession();
 
   const [fullScheme, setFullScheme] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +35,7 @@ export default function S5_SchemeDetailsModal() {
     }
   }, [activeSchemeModal]);
 
-  if (!activeSchemeModal) return null;
+  if (!activeSchemeModal || currentScreen === 'S8') return null;
 
   const name = language === 'hi' ? activeSchemeModal.scheme_name_hi : activeSchemeModal.scheme_name_en;
   const benefit = language === 'hi' ? activeSchemeModal.benefit_hi : activeSchemeModal.benefit_en;
@@ -145,20 +146,30 @@ export default function S5_SchemeDetailsModal() {
                   const docName = language === 'hi' ? doc.name_hi : doc.name_en;
                   const docProc = language === 'hi' ? doc.how_to_get_hi : doc.how_to_get_en;
                   return (
-                    <div key={doc.id} className="p-3.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm space-y-1 shadow-2xs">
+                    <div key={doc.id} className="p-3.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm space-y-2 shadow-2xs">
                       <div className="font-bold text-slate-900">{docName}</div>
                       <div className="text-slate-600 text-xs">{docProc}</div>
-                      {doc.online_url && (
-                        <a
-                          href={doc.online_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-bold pt-1"
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => openDocumentGuide(doc.id, 'S5')}
+                          className="inline-flex items-center gap-1.5 text-xs text-amber-900 hover:text-amber-950 font-bold bg-amber-50 hover:bg-amber-100 border border-amber-300/80 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
                         >
-                          <span>{t('online_link')}</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      )}
+                          <Eye className="w-3.5 h-3.5 text-amber-700" />
+                          <span>{t('open_in_doc_guide')}</span>
+                        </button>
+                        {doc.online_url && (
+                          <a
+                            href={doc.online_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-bold px-2 py-1"
+                          >
+                            <span>{t('online_link')}</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                      </div>
                     </div>
                   );
                 })}

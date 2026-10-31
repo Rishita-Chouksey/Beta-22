@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import enTranslations from '../translations/en.json';
 import hiTranslations from '../translations/hi.json';
+import { translateWithBhashini } from '../services/api';
 
 const LanguageContext = createContext();
 
@@ -29,8 +30,21 @@ export function LanguageProvider({ children }) {
     return String(arg1 || arg2 || '');
   };
 
+  const translateDynamic = async (text, targetLang = null, sourceLang = null) => {
+    if (!text || typeof text !== 'string') return text;
+    const target = targetLang || language;
+    const source = sourceLang || (target === 'hi' ? 'en' : 'hi');
+    try {
+      const res = await translateWithBhashini(text, source, target);
+      return res.translated_text || text;
+    } catch (err) {
+      console.warn('Dynamic translation fallback:', err);
+      return text;
+    }
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, getBilingualText }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, getBilingualText, translateDynamic }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -13,6 +13,7 @@ import S4_ResultsScreen from './screens/S4_ResultsScreen';
 import S5_SchemeDetailsModal from './screens/S5_SchemeDetailsModal';
 import S6_DocumentChecklistScreen from './screens/S6_DocumentChecklistScreen';
 import S7_FormHelpScreen from './screens/S7_FormHelpScreen';
+import S8_DocumentGuideScreen from './screens/S8_DocumentGuideScreen';
 
 function MainAppContent() {
   const { currentScreen } = useSession();
@@ -31,6 +32,7 @@ function MainAppContent() {
         {currentScreen === 'S4' && <S4_ResultsScreen />}
         {currentScreen === 'S6' && <S6_DocumentChecklistScreen />}
         {currentScreen === 'S7' && <S7_FormHelpScreen />}
+        {currentScreen === 'S8' && <S8_DocumentGuideScreen />}
       </main>
 
       {/* Global Civic Footer */}

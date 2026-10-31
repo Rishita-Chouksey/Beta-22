@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useSession } from '../context/SessionContext';
 import { sendChatMessage } from '../services/api';
-import { MessageSquare, X, Send, Bot, User, ExternalLink, Sparkles, HelpCircle, ArrowRight } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, ExternalLink, Sparkles, HelpCircle, ArrowRight, FileCheck2 } from 'lucide-react';
 import AudioSpeaker from './AudioSpeaker';
 import VoiceMic from './VoiceMic';
 
 export default function ChatbotDrawer() {
   const { language, t } = useLanguage();
-  const { isChatOpen, setIsChatOpen, activeSchemeModal, profile } = useSession();
+  const { isChatOpen, setIsChatOpen, activeSchemeModal, profile, openDocumentGuide } = useSession();
   
   const initialBotWelcome = {
     id: 'welcome',
@@ -155,6 +155,24 @@ export default function ChatbotDrawer() {
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Document Guide Quick Hint */}
+            <div className="bg-amber-50/90 border-b border-amber-200 px-4 py-2 flex items-center justify-between text-xs text-amber-900">
+              <span className="flex items-center gap-1.5 font-medium">
+                <FileCheck2 className="w-3.5 h-3.5 text-amber-700" />
+                <span>{language === 'hi' ? 'दस्तावेज़ों का नमूना देखना चाहते हैं?' : 'Need document sample previews?'}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsChatOpen(false);
+                  openDocumentGuide();
+                }}
+                className="font-bold text-amber-800 hover:text-amber-950 underline cursor-pointer"
+              >
+                {language === 'hi' ? 'गाइड खोलें' : 'Open Guide'}
               </button>
             </div>
 
