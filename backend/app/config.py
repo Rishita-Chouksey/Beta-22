@@ -3,16 +3,32 @@ from pathlib import Path
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-# Load .env if present
+# Load .env if present (check backend/.env then root .env)
 env_path = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(dotenv_path=env_path)
+root_env = Path(__file__).resolve().parent.parent.parent / ".env"
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
+elif root_env.exists():
+    load_dotenv(dotenv_path=root_env)
+else:
+    load_dotenv()
 
 class Settings(BaseModel):
     PROJECT_NAME: str = "YojnaSarthi Backend"
-    VERSION: str = "2.0.0"
+    VERSION: str = "2.1.0"
     API_PREFIX: str = "/api"
     
-    # AI Keys
+    # Microsoft Azure AI Translator Configuration
+    AZURE_TRANSLATOR_KEY: str = os.getenv("AZURE_TRANSLATOR_KEY", "")
+    AZURE_TRANSLATOR_REGION: str = os.getenv("AZURE_TRANSLATOR_REGION", "")
+    AZURE_TRANSLATOR_ENDPOINT: str = os.getenv("AZURE_TRANSLATOR_ENDPOINT", "https://api.cognitive.microsofttranslator.com")
+    
+    # Administrative Security & Monitoring
+    ADMIN_API_KEY: str = os.getenv("ADMIN_API_KEY", "yojnasarthi-admin-secret-2026")
+    ENABLE_AUTOMATIC_MONITORING: bool = os.getenv("ENABLE_AUTOMATIC_MONITORING", "true").lower() == "true"
+    MONITORING_INTERVAL_SECONDS: int = int(os.getenv("MONITORING_INTERVAL_SECONDS", "86400"))
+
+    # Gemini AI API Configuration
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     
     # myScheme / API Setu Configuration
@@ -24,7 +40,7 @@ class Settings(BaseModel):
     MYSCHEME_API_AUTH_MODE: str = os.getenv("MYSCHEME_API_AUTH_MODE", "api_key")
     ENABLE_MYSCHEME_INTEGRATION: bool = os.getenv("ENABLE_MYSCHEME_INTEGRATION", "false").lower() == "true"
     
-    # Bhashini Configuration
+    # Bhashini Configuration (Legacy/Fallback)
     BHASHINI_API_ENABLED: bool = os.getenv("BHASHINI_API_ENABLED", "false").lower() == "true"
     BHASHINI_API_KEY: str = os.getenv("BHASHINI_API_KEY", "")
     BHASHINI_INFERENCE_API_KEY: str = os.getenv("BHASHINI_INFERENCE_API_KEY", "") or os.getenv("BHASHINI_API_KEY", "")
@@ -37,11 +53,6 @@ class Settings(BaseModel):
     ENABLE_BHASHINI_TRANSLATION: bool = os.getenv("ENABLE_BHASHINI_TRANSLATION", "false").lower() == "true"
     ENABLE_BHASHINI_ASR: bool = os.getenv("ENABLE_BHASHINI_ASR", "false").lower() == "true"
     ENABLE_BHASHINI_TTS: bool = os.getenv("ENABLE_BHASHINI_TTS", "false").lower() == "true"
-    
-    # Administrative Security & Monitoring
-    ADMIN_API_KEY: str = os.getenv("ADMIN_API_KEY", "yojnasarthi-admin-secret-2026")
-    ENABLE_AUTOMATIC_MONITORING: bool = os.getenv("ENABLE_AUTOMATIC_MONITORING", "true").lower() == "true"
-    MONITORING_INTERVAL_SECONDS: int = int(os.getenv("MONITORING_INTERVAL_SECONDS", "86400"))
 
     # Caching TTL
     TRANSLATION_CACHE_TTL_SECONDS: int = int(os.getenv("TRANSLATION_CACHE_TTL_SECONDS", "86400"))

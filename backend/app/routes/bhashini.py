@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 from ..services.bhashini_adapter import bhashini_adapter
+from ..services.azure_translator_service import azure_translator_service
 
 router = APIRouter()
 
@@ -48,6 +49,20 @@ async def translate_text(req: TranslationRequest):
     Translates text between supported Indic and English languages using official Bhashini NMT.
     Protects official terms, caches queries, and falls back gracefully.
     """
+    if azure_translator_service.is_configured():
+        res = await azure_translator_service.translate(
+            text=req.text,
+            source_lang=req.sourceLanguage,
+            target_lang=req.targetLanguage
+        )
+        return TranslationResponse(
+            translatedText=res.get("translated_text", req.text),
+            sourceLanguage=res.get("source_language", req.sourceLanguage),
+            targetLanguage=res.get("target_language", req.targetLanguage),
+            cached=res.get("cached", False),
+            service=res.get("service", "azure_ai_translator"),
+            note="Routed via Microsoft Azure AI Translator"
+        )
     res = await bhashini_adapter.translate(
         text=req.text,
         source_lang=req.sourceLanguage,

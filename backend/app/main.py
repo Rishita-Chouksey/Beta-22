@@ -5,10 +5,11 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from .config import settings
-from .routes import eligibility, schemes, checklist, ai, voice, documents, bhashini, admin_monitoring
+from .routes import eligibility, schemes, checklist, ai, voice, documents, bhashini, admin_monitoring, translator
 from .services.scheme_service import scheme_service
 from .services.myscheme_adapter import myscheme_adapter
 from .services.bhashini_adapter import bhashini_adapter
+from .services.azure_translator_service import azure_translator_service
 from .services.document_service import document_service
 from .db.database import (
     init_db,
@@ -106,6 +107,7 @@ app.include_router(ai.router, prefix=settings.API_PREFIX, tags=["AI Assistance"]
 app.include_router(voice.router, prefix=settings.API_PREFIX, tags=["Voice & Language (Legacy)"])
 app.include_router(documents.router, prefix=settings.API_PREFIX, tags=["Document Guide"])
 app.include_router(bhashini.router, prefix=settings.API_PREFIX, tags=["Bhashini Official Integration"])
+app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Azure AI Translator"])
 app.include_router(admin_monitoring.router, prefix=settings.API_PREFIX, tags=["Admin Scheme Monitoring"])
 
 @app.get("/api/integrations/status", tags=["Integration Status"])
@@ -123,6 +125,7 @@ async def get_integrations_status():
     """
     myscheme_stat = myscheme_adapter.get_status()
     bhashini_stat = bhashini_adapter.get_status()
+    azure_stat = azure_translator_service.get_status()
     monitoring_summary = MonitoringRepository.get_monitoring_summary()
     scheduler_status = monitoring_scheduler.get_status()
 
@@ -155,6 +158,7 @@ async def get_integrations_status():
             "mode": "public_catalog_mode",
             "message": "Monitored as public discovery source; API Setu credentials optional."
         },
+        "azure_translator": azure_stat,
         "bhashini_translation": {
             "name": "Bhashini NMT Text Translation",
             "status": bhashini_stat["translation"],

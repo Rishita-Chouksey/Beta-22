@@ -452,3 +452,4 @@ Whenever a new feature, screen, API endpoint, or database table is added or modi
 4. **Update Section 11** whenever adding or changing API endpoints.
 5. **Update Section 14** whenever new tests are added to the test suite.
 6. **Preserve Section 1 Invariants**: Under no circumstance should a change violate the non-negotiable principles of rule engine authority, zero PII retention, or 100% bilingual parity.
+
