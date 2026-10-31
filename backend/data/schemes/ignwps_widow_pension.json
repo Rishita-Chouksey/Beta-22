@@ -1,0 +1,105 @@
+{
+  "id": "ignwps_widow_pension",
+  "name_en": "Indira Gandhi National Widow Pension Scheme (IGNWPS)",
+  "name_hi": "इंदिरा गांधी राष्ट्रीय विधवा पेंशन योजना (IGNWPS)",
+  "level": "central",
+  "applicable_states": ["ALL"],
+  "category": "Social Security",
+  "benefit_en": "Monthly pension assistance (central + state matching contribution, typically ₹600 - ₹1,500/month depending on state).",
+  "benefit_hi": "मासिक पेंशन सहायता (केंद्र + राज्य का संयुक्त अंशदान, राज्य के अनुसार ₹600 से ₹1,500/माह)।",
+  "description_en": "National Social Assistance Programme component providing regular monthly financial support to destitute widows living below the poverty line.",
+  "description_hi": "गरीबी रेखा से नीचे जीवन यापन करने वाली निराश्रित विधवा महिलाओं को नियमित वित्तीय सहायता प्रदान करने वाली राष्ट्रीय सामाजिक सहायता कार्यक्रम योजना।",
+  "rules": [
+    {
+      "field": "marital_status",
+      "operator": "eq",
+      "value": "widow",
+      "description_en": "Applicant must be a widow.",
+      "description_hi": "आवेदिका विधवा महिला होनी चाहिए।"
+    },
+    {
+      "field": "gender",
+      "operator": "eq",
+      "value": "female",
+      "description_en": "Applicant must be female.",
+      "description_hi": "आवेदिका महिला होनी चाहिए।"
+    },
+    {
+      "field": "age",
+      "operator": "between",
+      "value": [40, 79],
+      "description_en": "Applicant must be aged between 40 and 79 years.",
+      "description_hi": "आवेदिका की आयु 40 से 79 वर्ष के बीच होनी चाहिए।"
+    },
+    {
+      "field": "bpl_card_holder",
+      "operator": "eq",
+      "value": true,
+      "description_en": "Household must belong to Below Poverty Line (BPL) as per central/state norms.",
+      "description_hi": "परिवार गरीबी रेखा से नीचे (BPL) की श्रेणी में होना चाहिए।"
+    }
+  ],
+  "restrictions": [
+    "Remarriage leads to discontinuation of benefits.",
+    "Applicant must not be receiving any regular government service pension."
+  ],
+  "required_documents": [
+    {
+      "id": "aadhaar",
+      "name_en": "Aadhaar Card",
+      "name_hi": "आधार कार्ड",
+      "purpose_en": "Identity and age verification.",
+      "purpose_hi": "पहचान और आयु सत्यापन।",
+      "how_to_get_en": "Issued by UIDAI.",
+      "how_to_get_hi": "UIDAI द्वारा जारी।",
+      "online_url": "https://myaadhaar.uidai.gov.in/",
+      "offline_office": "Aadhaar Seva Kendra / Post Office"
+    },
+    {
+      "id": "death_certificate_husband",
+      "name_en": "Husband's Death Certificate",
+      "name_hi": "पति का मृत्यु प्रमाण पत्र",
+      "purpose_en": "Official civil registration proof of widow status.",
+      "purpose_hi": "विधवा स्थिति का आधिकारिक नागरिक पंजीकरण प्रमाण।",
+      "how_to_get_en": "Obtained from Municipal Corporation, Gram Panchayat or Registrar of Births and Deaths.",
+      "how_to_get_hi": "नगर निगम, ग्राम पंचायत या जन्म-मृत्यु रजिस्ट्रार कार्यालय से प्राप्त करें।",
+      "online_url": "https://crsorgi.gov.in/",
+      "offline_office": "Gram Panchayat Office / Municipal Ward Office"
+    },
+    {
+      "id": "bpl_ration_card",
+      "name_en": "BPL Ration Card / BPL Survey Number",
+      "name_hi": "बीपीएल राशन कार्ड / बीपीएल सर्वे क्रमांक",
+      "purpose_en": "Evidence of living below poverty line.",
+      "purpose_hi": "गरीबी रेखा से नीचे होने का प्रमाण।",
+      "how_to_get_en": "Issued by Food & Civil Supplies Department of respective state.",
+      "how_to_get_hi": "संबंधित राज्य के खाद्य एवं नागरिक आपूर्ति विभाग द्वारा जारी।",
+      "online_url": null,
+      "offline_office": "Block Development Office (BDO) / Food Office"
+    },
+    {
+      "id": "bank_passbook",
+      "name_en": "Bank / Post Office Savings Account Passbook",
+      "name_hi": "बैंक / डाकघर बचत खाता पासबुक",
+      "purpose_en": "Direct DBT credit of monthly pension.",
+      "purpose_hi": "मासिक पेंशन के सीधे डीबीटी भुगतान के लिए।",
+      "how_to_get_en": "Single account in applicant's name with Aadhaar seeding.",
+      "how_to_get_hi": "आवेदिका के नाम पर आधार से जुड़ा एकल बैंक खाता।",
+      "online_url": null,
+      "offline_office": "Local Bank Branch / Post Office"
+    }
+  ],
+  "application_procedure": [
+    "Step 1: Obtain Form from Gram Panchayat / Municipal Ward Office or download from nsap.nic.in.",
+    "Step 2: Attach copies of Aadhaar, husband's death certificate, BPL card and bank passbook.",
+    "Step 3: Submit application to Block Development Officer (BDO) in rural areas or Sub-Divisional Magistrate (SDM) / Municipal Commissioner in urban areas.",
+    "Step 4: Verification is conducted by Gram Sevak / Ward Inspector.",
+    "Step 5: Sanction order issued and monthly DBT pension commences."
+  ],
+  "official_source_url": "https://nsap.nic.in/",
+  "last_verified_date": "2026-10-15",
+  "max_allowed_age_days": 180,
+  "verification_status": "verified",
+  "conflicting_schemes": [],
+  "helpline": "14445 / 011-23381669"
+}

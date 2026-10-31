@@ -1,0 +1,95 @@
+{
+  "id": "pm_kisan",
+  "name_en": "PM Kisan Samman Nidhi",
+  "name_hi": "प्रधानमंत्री किसान सम्मान निधि",
+  "level": "central",
+  "applicable_states": ["ALL"],
+  "category": "Agriculture",
+  "benefit_en": "Direct income support of ₹6,000 per year in 3 equal installments of ₹2,000 directly into bank account.",
+  "benefit_hi": "बैंक खाते में सीधे ₹2,000 की 3 समान किस्तों में प्रति वर्ष ₹6,000 की प्रत्यक्ष आय सहायता।",
+  "description_en": "Central sector scheme to augment income of all landholding farmer families across the country.",
+  "description_hi": "देश भर के सभी भूमिधारक किसान परिवारों की आय बढ़ाने के लिए केंद्रीय क्षेत्र की योजना।",
+  "rules": [
+    {
+      "field": "occupation",
+      "operator": "eq",
+      "value": "farmer",
+      "description_en": "Applicant must be an active farmer / cultivator.",
+      "description_hi": "आवेदक एक सक्रिय किसान/काश्तकार होना चाहिए।"
+    },
+    {
+      "field": "landholding_hectares",
+      "operator": "lte",
+      "value": 2.0,
+      "description_en": "Cultivable landholding must be up to 2.0 hectares (small and marginal farmers).",
+      "description_hi": "कृषि योग्य भूमि 2.0 हेक्टेयर तक होनी चाहिए (लघु एवं सीमांत किसान)।"
+    },
+    {
+      "field": "is_institutional_landholder",
+      "operator": "eq",
+      "value": false,
+      "description_en": "Land must not be registered under an institution, trust, or enterprise.",
+      "description_hi": "भूमि किसी संस्था, ट्रस्ट या उद्यम के अधीन पंजीकृत नहीं होनी चाहिए।"
+    },
+    {
+      "field": "holds_constitutional_post",
+      "operator": "eq",
+      "value": false,
+      "description_en": "No family member should hold constitutional or government posts.",
+      "description_hi": "परिवार का कोई भी सदस्य संवैधानिक या सरकारी पद पर नहीं होना चाहिए।"
+    }
+  ],
+  "restrictions": [
+    "Institutional landholders are strictly excluded.",
+    "Present or retired officers of state/central ministries, public sector undertakings, and income tax payers are excluded."
+  ],
+  "required_documents": [
+    {
+      "id": "aadhaar",
+      "name_en": "Aadhaar Card",
+      "name_hi": "आधार कार्ड",
+      "purpose_en": "Primary biometric and identity verification.",
+      "purpose_hi": "प्राथमिक बायोमेट्रिक और पहचान सत्यापन।",
+      "how_to_get_en": "Issued by UIDAI. Download e-Aadhaar from myaadhaar.uidai.gov.in or visit Aadhaar Seva Kendra.",
+      "how_to_get_hi": "UIDAI द्वारा जारी। myaadhaar.uidai.gov.in से डाउनलोड करें या आधार सेवा केंद्र पर जाएं।",
+      "online_url": "https://myaadhaar.uidai.gov.in/",
+      "offline_office": "Aadhaar Seva Kendra / Nearest Post Office"
+    },
+    {
+      "id": "land_record",
+      "name_en": "Land Ownership Records (Khasra / Khatauni / 7/12)",
+      "name_hi": "भूमि स्वामित्व अभिलेख (खसरा / खतौनी / 7/12)",
+      "purpose_en": "Proof of cultivable agricultural land title in applicant's name.",
+      "purpose_hi": "आवेदक के नाम पर कृषि योग्य भूमि के स्वामित्व का प्रमाण।",
+      "how_to_get_en": "Download digital land record from State Bhulekh portal or collect certified copy from Patwari / Tehsildar.",
+      "how_to_get_hi": "राज्य भूलेख पोर्टल से डिजिटल रिकॉर्ड डाउनलोड करें या पटवारी/तहसीलदार से प्रमाणित प्रति प्राप्त करें।",
+      "online_url": "https://pmkisan.gov.in/",
+      "offline_office": "Tehsil Office / Patwari (Lekhpal)"
+    },
+    {
+      "id": "bank_passbook",
+      "name_en": "Bank Account Details (Aadhaar Seeded)",
+      "name_hi": "बैंक खाता विवरण (आधार सीडेड)",
+      "purpose_en": "For DBT transfer of ₹2,000 four-monthly installments.",
+      "purpose_hi": "प्रत्यक्ष लाभ अंतरण (DBT) के लिए।",
+      "how_to_get_en": "Bank passbook copy showing Account No. and IFSC code with active NPCI Aadhaar seeding.",
+      "how_to_get_hi": "बैंक पासबुक की प्रति जिसमें खाता संख्या और IFSC कोड हो एवं एनपीसीआई आधार सीडिंग सक्रिय हो।",
+      "online_url": null,
+      "offline_office": "Local Bank Branch / Post Payment Bank"
+    }
+  ],
+  "application_procedure": [
+    "Step 1: Open the official portal pmkisan.gov.in or visit your nearest CSC (Common Service Center).",
+    "Step 2: Click on 'Farmers Corner' -> 'New Farmer Registration'.",
+    "Step 3: Enter your Aadhaar number, mobile number, and select your state.",
+    "Step 4: Verify OTP received on Aadhaar-linked mobile phone.",
+    "Step 5: Fill land ownership survey details (District, Sub-district, Village, Khasra number, Area in hectares).",
+    "Step 6: Submit application and note the Reference Application Number for status tracking."
+  ],
+  "official_source_url": "https://pmkisan.gov.in/",
+  "last_verified_date": "2026-10-15",
+  "max_allowed_age_days": 180,
+  "verification_status": "verified",
+  "conflicting_schemes": [],
+  "helpline": "155261 / 1800-115-526"
+}
