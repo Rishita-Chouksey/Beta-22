@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "field": "state",
+      "type": "searchable_picker",
+      "priority_rank": 1,
+      "title_en": "Which state or Union Territory do you reside in?",
+      "title_hi": "आप किस राज्य या केंद्र शासित प्रदेश के निवासी हैं?",
+      "title_bn": "আপনি কোন রাজ্য বা কেন্দ্রশাসিত অঞ্চলের বাসিন্দা?",
+      "subtitle_en": "Government welfare schemes are often specific to your state of domicile.",
+      "subtitle_hi": "कई सरकारी योजनाएं आपके मूल निवास राज्य के अनुसार होती हैं।",
+      "subtitle_bn": "অনেক সরকারি কল্যাণমূলক প্রকল্প আপনার স্থায়ী বসবাসের রাজ্যের নির্দিষ্ট।",
+      "explanation_en": "Central schemes apply across India, but state welfare programs require domicile in that specific state.",
+      "explanation_hi": "केंद्रीय योजनाएं पूरे भारत में लागू होती हैं, लेकिन राज्य योजनाएं संबंधित राज्य के निवासियों के लिए होती हैं।",
+      "explanation_bn": "কেন্দ্রীয় প্রকল্পগুলি সমগ্র ভারতে প্রযোজ্য, তবে রাজ্য কল্যাণ প্রকল্পগুলির জন্য নির্দিষ্ট রাজ্যের বাসিন্দা হওয়া প্রয়োজন।",
+      "options": [
+        {"value": "AP", "label_en": "Andhra Pradesh", "label_hi": "आंध्र प्रदेश", "label_bn": "অন্ধ্রপ্রদেশ", "spoken": ["andhra", "andhra pradesh"]},
+        {"value": "AR", "label_en": "Arunachal Pradesh", "label_hi": "अरुणाचल प्रदेश", "label_bn": "অরুণাচল প্রদেশ", "spoken": ["arunachal"]},
+        {"value": "AS", "label_en": "Assam", "label_hi": "असम", "label_bn": "অসম", "spoken": ["assam", "asom"]},
+        {"value": "BR", "label_en": "Bihar", "label_hi": "बिहार", "label_bn": "বিহার", "spoken": ["bihar"]},
+        {"value": "CT", "label_en": "Chhattisgarh", "label_hi": "छत्तीसगढ़", "label_bn": "ছত্তিশগড়", "spoken": ["chhattisgarh"]},
+        {"value": "GA", "label_en": "Goa", "label_hi": "गोवा", "label_bn": "গোয়া", "spoken": ["goa"]},
+        {"value": "GJ", "label_en": "Gujarat", "label_hi": "गुजरात", "label_bn": "গুজরাত", "spoken": ["gujarat"]},
+        {"value": "HR", "label_en": "Haryana", "label_hi": "हरियाणा", "label_bn": "হরিয়ানা", "spoken": ["haryana"]},
+        {"value": "HP", "label_en": "Himachal Pradesh", "label_hi": "हिमाचल प्रदेश", "label_bn": "হিমাচল প্রদেশ", "spoken": ["himachal"]},
+        {"value": "JH", "label_en": "Jharkhand", "label_hi": "झारखंड", "label_bn": "ঝাড়খণ্ড", "spoken": ["jharkhand"]},
+        {"value": "KA", "label_en": "Karnataka", "label_hi": "कर्नाटक", "label_bn": "কর্ণাটক", "spoken": ["karnataka"]},
+        {"value": "KL", "label_en": "Kerala", "label_hi": "केरल", "label_bn": "কেরল", "spoken": ["kerala"]},
+        {"value": "MP", "label_en": "Madhya Pradesh", "label_hi": "मध्य प्रदेश", "label_bn": "মধ্যপ্রদেশ", "spoken": ["madhya pradesh", "mp"]},
+        {"value": "MH", "label_en": "Maharashtra", "label_hi": "महाराष्ट्र", "label_bn": "মহারাষ্ট্র", "spoken": ["maharashtra", "mh"]},
+        {"value": "MN", "label_en": "Manipur", "label_hi": "मणिपुर", "label_bn": "মণিপুর", "spoken": ["manipur"]},
+        {"value": "ML", "label_en": "Meghalaya", "label_hi": "मेघालय", "label_bn": "মেঘালয়", "spoken": ["meghalaya"]},
+        {"value": "MZ", "label_en": "Mizoram", "label_hi": "मिजोरम", "label_bn": "মিজোরাম", "spoken": ["mizoram"]},
+        {"value": "NL", "label_en": "Nagaland", "label_hi": "नागालैंड", "label_bn": "নাগাল্যান্ড", "spoken": ["nagaland"]},
+        {"value": "OD", "label_en": "Odisha", "label_hi": "ओडिशा", "label_bn": "ওড়িশা", "spoken": ["odisha", "orissa"]},
+        {"value": "PB", "label_en": "Punjab", "label_hi": "पंजाब", "label_bn": "পাঞ্জাব", "spoken": ["punjab"]},
+        {"value": "RJ", "label_en": "Rajasthan", "label_hi": "राजस्थान", "label_bn": "রাজস্থান", "spoken": ["rajasthan"]},
+        {"value": "SK", "label_en": "Sikkim", "label_hi": "सिक्किम", "label_bn": "সিকিম", "spoken": ["sikkim"]},
+        {"value": "TN", "label_en": "Tamil Nadu", "label_hi": "तमिलनाडु", "label_bn": "তামিলনাড়ু", "spoken": ["tamil nadu"]},
+        {"value": "TG", "label_en": "Telangana", "label_hi": "तेलंगाना", "label_bn": "তেলেঙ্গানা", "spoken": ["telangana"]},
+        {"value": "TR", "label_en": "Tripura", "label_hi": "त्रिपुरा", "label_bn": "ত্রিপুরা", "spoken": ["tripura"]},
+        {"value": "UP", "label_en": "Uttar Pradesh", "label_hi": "उत्तर प्रदेश", "label_bn": "উত্তর প্রদেশ", "spoken": ["uttar pradesh", "up"]},
+        {"value": "UT", "label_en": "Uttarakhand", "label_hi": "उत्तराखंड", "label_bn": "উত্তরাখণ্ড", "spoken": ["uttarakhand"]},
+        {"value": "WB", "label_en": "West Bengal", "label_hi": "पश्चिम बंगाल", "label_bn": "পশ্চিমবঙ্গ", "spoken": ["west bengal", "bengal", "wb"]},
+        {"value": "AN", "label_en": "Andaman and Nicobar Islands", "label_hi": "अंडमान और निकोबार", "label_bn": "আন্দামান ও নিকোবর", "spoken": ["andaman"]},
+        {"value": "CH", "label_en": "Chandigarh", "label_hi": "चंडीगढ़", "label_bn": "চণ্ডীগড়", "spoken": ["chandigarh"]},
+        {"value": "DH", "label_en": "Dadra & Nagar Haveli and Daman & Diu", "label_hi": "दादरा नगर हवेली एवं दमन दीव", "label_bn": "দাদরা ও নগর হাভেলি এবং দমন ও দিউ", "spoken": ["daman", "diu"]},
+        {"value": "DL", "label_en": "Delhi", "label_hi": "दिल्ली", "label_bn": "দিল্লি", "spoken": ["delhi"]},
+        {"value": "JK", "label_en": "Jammu and Kashmir", "label_hi": "जम्मू और कश्मीर", "label_bn": "জম্মু ও কাশ্মীর", "spoken": ["kashmir", "jammu"]},
+        {"value": "LA", "label_en": "Ladakh", "label_hi": "लद्दाख", "label_bn": "লাদাখ", "spoken": ["ladakh"]},
+        {"value": "LD", "label_en": "Lakshadweep", "label_hi": "लक्षद्वीप", "label_bn": "লক্ষদ্বীপ", "spoken": ["lakshadweep"]},
+        {"value": "PY", "label_en": "Puducherry", "label_hi": "पुडुचेरी", "label_bn": "পুদুচেরি", "spoken": ["puducherry", "pondicherry"]},
+        {"value": "unknown", "label_en": "Other / Not sure", "label_hi": "अन्य / निश्चित नहीं", "label_bn": "অন্যান্য / নিশ্চিত নই", "spoken": ["other", "not sure", "unknown"]}
+      ]
+    },
+    {
+      "field": "occupation",
+      "type": "single_choice",
+      "priority_rank": 2,
+      "title_en": "What is your primary occupation?",
+      "title_hi": "आपका मुख्य व्यवसाय क्या है?",
+      "title_bn": "আপনার প্রধান পেশা কি?",
+      "subtitle_en": "Helps match occupation-targeted benefits (farmers, students, etc.).",
+      "subtitle_hi": "व्यवसाय-विशिष्ट लाभों की पहचान में मदद करता है।",
+      "subtitle_bn": "পেশাভিত্তিক সুবিধার সাথে মেলাতে সাহায্য করে।",
+      "options": [
+        {"value": "farmer", "label_en": "Farmer / Cultivator", "label_hi": "किसान / काश्तकार", "label_bn": "কৃষক / চাষী"},
+        {"value": "student", "label_en": "College Student", "label_hi": "कॉलेज छात्र / छात्रा", "label_bn": "কলেজ পড়ুয়া / শিক্ষার্থী"},
+        {"value": "agricultural_worker", "label_en": "Agricultural Laborer", "label_hi": "खेतिहर मजदूर", "label_bn": "কৃষি শ্রমিক"},
+        {"value": "self_employed", "label_en": "Self-employed / Small Business", "label_hi": "स्वरोजगार / छोटा व्यवसाय", "label_bn": "স্বনির্ভর / ক্ষুদ্র ব্যবসায়ী"},
+        {"value": "homemaker", "label_en": "Homemaker", "label_hi": "गृहिणी", "label_bn": "গৃহিণী"},
+        {"value": "unemployed", "label_en": "Unemployed / Looking for work", "label_hi": "बेरोजगार", "label_bn": "বেকার"},
+        {"value": "private_job", "label_en": "Private Employment", "label_hi": "निजी नौकरी", "label_bn": "বেসরকারি চাকরি"},
+        {"value": "other", "label_en": "Other", "label_hi": "अन्य", "label_bn": "অন্যান্য"}
+      ]
+    },
+    {
+      "field": "gender",
+      "type": "single_choice",
+      "priority_rank": 3,
+      "title_en": "What is your gender?",
+      "title_hi": "आपका लिंग क्या है?",
+      "title_bn": "আপনার লিঙ্গ কি?",
+      "options": [
+        {"value": "female", "label_en": "Female", "label_hi": "महिला", "label_bn": "মহিলা"},
+        {"value": "male", "label_en": "Male", "label_hi": "पुरुष", "label_bn": "পুরুষ"},
+        {"value": "transgender", "label_en": "Transgender / Other", "label_hi": "थर्ड जेंडर / अन्य", "label_bn": "রূপান্তরিত লিঙ্গ / অন্যান্য"}
+      ]
+    },
+    {
+      "field": "age",
+      "type": "number",
+      "priority_rank": 4,
+      "title_en": "What is your current age in completed years?",
+      "title_hi": "आपकी वर्तमान आयु (वर्षों में) क्या है?",
+      "title_bn": "আপনার বর্তমান বয়স কত বছর?",
+      "min": 0,
+      "max": 120
+    },
+    {
+      "field": "marital_status",
+      "type": "single_choice",
+      "priority_rank": 5,
+      "title_en": "What is your marital status?",
+      "title_hi": "आपकी वैवाहिक स्थिति क्या है?",
+      "title_bn": "আপনার বৈবাহিক অবস্থা কি?",
+      "options": [
+        {"value": "widow", "label_en": "Widow (Lost husband)", "label_hi": "विधवा (पति का निधन)", "label_bn": "বিধবা (স্বামীহারা)"},
+        {"value": "married", "label_en": "Married", "label_hi": "विवाहित", "label_bn": "বিবাহিত"},
+        {"value": "single", "label_en": "Never Married / Single", "label_hi": "अविवाहित", "label_bn": "অবিবাহিত"},
+        {"value": "divorced", "label_en": "Divorced / Deserted", "label_hi": "तलाकशुदा / परित्यक्ता", "label_bn": "তালাকপ্রাপ্ত / পরিত্যক্তা"}
+      ]
+    },
+    {
+      "field": "landholding_hectares",
+      "type": "number",
+      "priority_rank": 6,
+      "title_en": "How much cultivable agricultural land does your family own (in hectares)?",
+      "title_hi": "आपके परिवार के पास कितनी कृषि योग्य भूमि (हेक्टेयर में) है?",
+      "title_bn": "আপনার পরিবারের মালিকানাধীন আবাদযোগ্য কৃষিজমি (হেক্টরে) কত?",
+      "min": 0,
+      "max": 100
+    },
+    {
+      "field": "annual_income",
+      "type": "number",
+      "priority_rank": 7,
+      "title_en": "What is your total annual family income in Rupees (₹)?",
+      "title_hi": "आपके परिवार की कुल वार्षिक आय (रुपये में) कितनी है?",
+      "title_bn": "আপনার পরিবারের মোট বার্ষিক আয় কত টাকা (₹)?",
+      "min": 0,
+      "max": 100000000
+    },
+    {
+      "field": "bpl_card_holder",
+      "type": "boolean",
+      "priority_rank": 8,
+      "title_en": "Does your family possess a BPL (Below Poverty Line) or Antyodaya ration card?",
+      "title_hi": "क्या आपके परिवार के पास बीपीएल या अंत्योदय राशन कार्ड है?",
+      "title_bn": "আপনার পরিবারের কি বিপিএল বা অন্ত্যোদয় রেশন কার্ড আছে?",
+      "options": [
+        {"value": true, "label_en": "Yes, have BPL/Antyodaya card", "label_hi": "हाँ, बीपीएल/अंत्योदय कार्ड है", "label_bn": "হ্যাঁ, বিপিএল/অন্ত্যোদয় কার্ড আছে"},
+        {"value": false, "label_en": "No, standard ration card or none", "label_hi": "नहीं, सामान्य राशन कार्ड है या नहीं है", "label_bn": "না, সাধারণ কার্ড আছে বা নেই"}
+      ]
+    },
+    {
+      "field": "student_class12_marks_percent",
+      "type": "number",
+      "priority_rank": 9,
+      "title_en": "What was your score percentage in the Class 12 board examination?",
+      "title_hi": "12वीं बोर्ड परीक्षा में आपका प्रतिशत कितना था?",
+      "title_bn": "দ্বাদশ শ্রেণির বোর্ড পরীক্ষায় আপনার শতাংশ নম্বর কত ছিল?",
+      "min": 0,
+      "max": 100
+    },
+    {
+      "field": "enrolled_higher_education",
+      "type": "boolean",
+      "priority_rank": 10,
+      "title_en": "Are you currently enrolled in a recognised college, university, or professional course?",
+      "title_hi": "क्या आप किसी मान्यता प्राप्त कॉलेज या उच्च शिक्षण संस्थान में नामांकित हैं?",
+      "title_bn": "আপনি কি কোনো স্বীকৃত কলেজ বা বিশ্ববিদ্যালয়ে পাঠরত?",
+      "options": [
+        {"value": true, "label_en": "Yes, actively enrolled in higher education", "label_hi": "हाँ, उच्च शिक्षा में नामांकित हूँ", "label_bn": "হ্যাঁ, উচ্চশিক্ষায় পাঠরত"},
+        {"value": false, "label_en": "No", "label_hi": "नहीं", "label_bn": "না"}
+      ]
+    }
+  ]
+}

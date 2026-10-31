@@ -9,35 +9,47 @@ class RuleEvaluationResult(BaseModel):
     outcome: str = Field(..., description="'PASS', 'FAIL', 'UNKNOWN'")
     reason_en: str
     reason_hi: str
+    reason_bn: Optional[str] = ""
     is_external_unverifiable: bool = False
 
 class SchemeEvaluationResult(BaseModel):
     scheme_id: str
     scheme_name_en: str
     scheme_name_hi: str
+    scheme_name_bn: Optional[str] = ""
     level: str
+    state: Optional[str] = None
     category: str
     category_hi: Optional[str] = None
+    category_bn: Optional[str] = None
     benefit_en: str
     benefit_hi: str
+    benefit_bn: Optional[str] = ""
     status: str = Field(..., description="'ELIGIBLE', 'NOT ELIGIBLE', 'NOT SURE', 'NO CURRENT RULES'")
     deciding_reason_en: str
     deciding_reason_hi: str
+    deciding_reason_bn: Optional[str] = ""
     rule_results: List[RuleEvaluationResult] = Field(default_factory=list)
     satisfied_conditions: List[str] = Field(default_factory=list)
     unknown_conditions: List[str] = Field(default_factory=list)
     failed_conditions: List[str] = Field(default_factory=list)
     satisfied_conditions_en: List[str] = Field(default_factory=list)
     satisfied_conditions_hi: List[str] = Field(default_factory=list)
+    satisfied_conditions_bn: List[str] = Field(default_factory=list)
     unknown_conditions_en: List[str] = Field(default_factory=list)
     unknown_conditions_hi: List[str] = Field(default_factory=list)
+    unknown_conditions_bn: List[str] = Field(default_factory=list)
     failed_conditions_en: List[str] = Field(default_factory=list)
     failed_conditions_hi: List[str] = Field(default_factory=list)
+    failed_conditions_bn: List[str] = Field(default_factory=list)
     missing_fields: List[str] = Field(default_factory=list)
     last_verified_date: str
     is_stale: bool = False
     official_source_url: str
     conflicting_with: List[str] = Field(default_factory=list)
+    review_status: str = "verified" # 'draft', 'verified', 'auto_updated', 'needs_review'
+    auto_updated_at: Optional[str] = None
+    machine_translated: Dict[str, bool] = Field(default_factory=lambda: {"hi": False, "bn": False})
 
 class OverallEvaluationResponse(BaseModel):
     eligible: List[SchemeEvaluationResult] = Field(default_factory=list)
