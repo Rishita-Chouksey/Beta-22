@@ -108,7 +108,6 @@ export async function fetchDocumentDetails(docId) {
 }
 
 // ==============================================================================
-// ==============================================================================
 // Microsoft Azure AI Translator API
 // ==============================================================================
 export async function translateWithAzure(text, sourceLanguage = 'en', targetLanguage = 'hi') {
@@ -127,33 +126,6 @@ export async function translateWithAzure(text, sourceLanguage = 'en', targetLang
 export async function fetchTranslatorStatus() {
   const resp = await fetch(`${API_BASE_URL}/translate/status`);
   if (!resp.ok) throw new Error(`Fetch translator status failed: ${resp.status}`);
-  return await resp.json();
-}
-
-// ==============================================================================
-// Bhashini Integration API (Speech & Legacy Translation Fallback)
-// ==============================================================================
-export async function translateWithBhashini(text, sourceLanguage = 'en', targetLanguage = 'hi') {
-  return await translateWithAzure(text, sourceLanguage, targetLanguage);
-}
-
-export async function speechToTextBhashini(audioBase64, language = 'hi') {
-  const resp = await fetch(`${API_BASE_URL}/bhashini/speech-to-text`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ audio_base64: audioBase64, language }),
-  });
-  if (!resp.ok) throw new Error(`Bhashini STT failed: ${resp.status}`);
-  return await resp.json();
-}
-
-export async function textToSpeechBhashini(text, language = 'hi') {
-  const resp = await fetch(`${API_BASE_URL}/bhashini/text-to-speech`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, language }),
-  });
-  if (!resp.ok) throw new Error(`Bhashini TTS failed: ${resp.status}`);
   return await resp.json();
 }
 

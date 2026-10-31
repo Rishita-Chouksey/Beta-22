@@ -48,6 +48,7 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+<<<<<<< HEAD
 *.swo
 
 __pycache__/
@@ -61,3 +62,6 @@ powershell.exe
 python.cmd
 pytest.cmd
 
+=======
+*.swo
+>>>>>>> 55f100cd459214712b6b6fcf2c39f4aa659297d0

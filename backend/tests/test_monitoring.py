@@ -28,6 +28,7 @@ def setup_monitoring_db():
     conn = get_db_connection()
     seed_monitoring_sources(conn)
     seed_monitoring_demo_data(conn)
+    conn.close()
 
 # 1. Sanitization & HTML Chrome Stripping Tests
 def test_html_sanitization_removes_scripts_and_chrome():

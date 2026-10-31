@@ -41,20 +41,6 @@ class Settings(BaseModel):
     MYSCHEME_API_AUTH_MODE: str = os.getenv("MYSCHEME_API_AUTH_MODE", "api_key")
     ENABLE_MYSCHEME_INTEGRATION: bool = os.getenv("ENABLE_MYSCHEME_INTEGRATION", "false").lower() == "true"
     
-    # Bhashini Configuration (Legacy/Fallback)
-    BHASHINI_API_ENABLED: bool = os.getenv("BHASHINI_API_ENABLED", "false").lower() == "true"
-    BHASHINI_API_KEY: str = os.getenv("BHASHINI_API_KEY", "")
-    BHASHINI_INFERENCE_API_KEY: str = os.getenv("BHASHINI_INFERENCE_API_KEY", "") or os.getenv("BHASHINI_API_KEY", "")
-    BHASHINI_API_URL: str = os.getenv("BHASHINI_API_URL", "https://dhruva-api.bhashini.gov.in/services/inference/pipeline")
-    BHASHINI_USER_ID: str = os.getenv("BHASHINI_USER_ID", "")
-    BHASHINI_PIPELINE_ID: str = os.getenv("BHASHINI_PIPELINE_ID", "")
-    BHASHINI_TRANSLATION_SERVICE_ID: str = os.getenv("BHASHINI_TRANSLATION_SERVICE_ID", "")
-    BHASHINI_ASR_SERVICE_ID: str = os.getenv("BHASHINI_ASR_SERVICE_ID", "")
-    BHASHINI_TTS_SERVICE_ID: str = os.getenv("BHASHINI_TTS_SERVICE_ID", "")
-    ENABLE_BHASHINI_TRANSLATION: bool = os.getenv("ENABLE_BHASHINI_TRANSLATION", "false").lower() == "true"
-    ENABLE_BHASHINI_ASR: bool = os.getenv("ENABLE_BHASHINI_ASR", "false").lower() == "true"
-    ENABLE_BHASHINI_TTS: bool = os.getenv("ENABLE_BHASHINI_TTS", "false").lower() == "true"
-
     # Caching TTL
     TRANSLATION_CACHE_TTL_SECONDS: int = int(os.getenv("TRANSLATION_CACHE_TTL_SECONDS", "86400"))
     SCHEME_CACHE_TTL_SECONDS: int = int(os.getenv("SCHEME_CACHE_TTL_SECONDS", "3600"))

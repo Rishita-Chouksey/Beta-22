@@ -9,17 +9,17 @@ def test_integration_status_endpoint():
     assert response.status_code == 200
     data = response.json()
     
-    # Check all 6 systems are reported
+    # Check all active systems are reported
     assert "myscheme" in data
-    assert "bhashini_translation" in data
-    assert "bhashini_asr" in data
-    assert "bhashini_tts" in data
+    assert "azure_translator" in data
+    assert "voice_engine" in data
     assert "eligibility_engine" in data
     assert "document_guide" in data
 
     # Check status values
     assert data["myscheme"]["status"] in ["active", "configured_awaiting_credentials", "disabled", "failed"]
-    assert data["bhashini_translation"]["status"] in ["active", "configured_awaiting_credentials", "disabled", "failed"]
+    assert data["azure_translator"]["status"] in ["active", "configured_awaiting_credentials"]
+    assert data["voice_engine"]["status"] == "active"
     assert data["eligibility_engine"]["status"] == "active"
     assert data["document_guide"]["status"] == "active"
     assert data["document_guide"]["documents_cataloged"] >= 11

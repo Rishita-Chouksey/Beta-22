@@ -7,10 +7,9 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from .config import settings
-from .routes import eligibility, schemes, checklist, ai, voice, documents, bhashini, admin_monitoring, translator
+from .routes import eligibility, schemes, checklist, ai, documents, admin_monitoring, translator
 from .services.scheme_service import scheme_service
 from .services.myscheme_adapter import myscheme_adapter
-from .services.bhashini_adapter import bhashini_adapter
 from .services.azure_translator_service import azure_translator_service
 from .services.document_service import document_service
 from .models.api import FeedbackRequest, FeedbackResponse
@@ -43,10 +42,38 @@ class SecurityAndPrivacyMiddleware(BaseHTTPMiddleware):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+<<<<<<< HEAD
     scheme_service.load_schemes()
     logger.info(f"Loaded {len(scheme_service.get_all_schemes())} schemes into stateless catalog.")
     yield
 
+=======
+    # Initialize SQLite database and sync verified schemes
+    is_testing = bool(os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING"))
+    try:
+        if not is_testing:
+            init_db()
+            seed_schemes_from_json()
+            seed_monitoring_sources()
+            seed_monitoring_demo_data()
+    except Exception as e:
+        logger.warning(f"Database init warning: {e}")
+
+    scheme_service.load_schemes()
+    logger.info(f"Loaded {len(scheme_service.get_all_schemes())} schemes into catalog (data source: {scheme_service.get_data_source()}).")
+
+    # Start background scheduler if enabled and not in testing
+    if getattr(settings, "ENABLE_AUTOMATIC_MONITORING", True) and not is_testing:
+        monitoring_scheduler.interval_seconds = getattr(settings, "MONITORING_INTERVAL_SECONDS", 86400)
+        monitoring_scheduler.start()
+
+    yield
+
+    # Clean shutdown
+    if not is_testing:
+        monitoring_scheduler.stop()
+
+>>>>>>> 55f100cd459214712b6b6fcf2c39f4aa659297d0
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
@@ -69,16 +96,26 @@ app.include_router(eligibility.router, prefix=settings.API_PREFIX, tags=["Eligib
 app.include_router(schemes.router, prefix=settings.API_PREFIX, tags=["Schemes"])
 app.include_router(checklist.router, prefix=settings.API_PREFIX, tags=["Checklist"])
 app.include_router(ai.router, prefix=settings.API_PREFIX, tags=["AI Assistance"])
-app.include_router(voice.router, prefix=settings.API_PREFIX, tags=["Voice & Language (Legacy)"])
 app.include_router(documents.router, prefix=settings.API_PREFIX, tags=["Document Guide"])
-app.include_router(bhashini.router, prefix=settings.API_PREFIX, tags=["Bhashini Official Integration"])
 app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Azure AI Translator"])
 app.include_router(admin_monitoring.router, prefix=settings.API_PREFIX, tags=["Admin Scheme Monitoring"])
 
 @app.get("/api/integrations/status", tags=["Integration Status"])
 async def get_integrations_status():
+<<<<<<< HEAD
+=======
+    """
+    Detailed status report of all system integrations:
+    - myScheme / API Setu
+    - Microsoft Azure AI Translator
+    - Web Speech Voice Engine (ASR & TTS)
+    - Python Eligibility Engine
+    - Document Guide
+    - Scheme Intelligence & Catalogue Monitoring
+    - data.gov.in Public Catalog
+    """
+>>>>>>> 55f100cd459214712b6b6fcf2c39f4aa659297d0
     myscheme_stat = myscheme_adapter.get_status()
-    bhashini_stat = bhashini_adapter.get_status()
     azure_stat = azure_translator_service.get_status()
 
     return {
@@ -99,6 +136,7 @@ async def get_integrations_status():
             "mode": "External GitHub Actions Updater (Feature 7)"
         },
         "azure_translator": azure_stat,
+<<<<<<< HEAD
         "bhashini_translation": {
             "name": "Bhashini NMT Text Translation",
             "status": bhashini_stat["translation"],
@@ -126,6 +164,15 @@ async def get_integrations_status():
             "status": "active",
             "mode": "public_catalog_mode",
             "message": "Monitored as public discovery source; API Setu credentials optional."
+=======
+        "voice_engine": {
+            "name": "Web Speech Voice Engine",
+            "status": "active",
+            "asr": "Native browser continuous speech recognition (hi-IN & en-IN)",
+            "tts": "Native browser SpeechSynthesis with Hindi phonetic correction",
+            "privacy": "Zero voice audio recorded or sent to any third party server",
+            "supported_languages": ["hi-IN", "en-IN"]
+>>>>>>> 55f100cd459214712b6b6fcf2c39f4aa659297d0
         },
         "eligibility_engine": {
             "name": "Deterministic Python Rule Engine",

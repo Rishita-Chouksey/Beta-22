@@ -1,4 +1,3 @@
-import { textToSpeechBhashini } from './api';
 
 // YojnaSarthi Speech Service: Bilingual Hindi & English Voice Recognition & Synthesis
 // Strictly privacy-preserving: Zero voice audio recorded or stored on server.
@@ -118,8 +117,8 @@ function speakWithBrowserSynthesis(cleanText, lang = 'hi', onEnd = null) {
   window.speechSynthesis.speak(utterance);
 }
 
-// Speech Synthesis (Text-to-Speech) with Bhashini Backend & Browser Fallback
-export async function speakText(text, lang = 'hi', onEnd = null) {
+// Speech Synthesis (Text-to-Speech) using native browser SpeechSynthesis engine
+export function speakText(text, lang = 'hi', onEnd = null) {
   stopSpeaking();
 
   const cleanText = prepareTextForSpeech(text, lang);
@@ -128,29 +127,6 @@ export async function speakText(text, lang = 'hi', onEnd = null) {
     return;
   }
 
-  // 1. Attempt Bhashini official TTS backend first
-  try {
-    const bhashiniResp = await textToSpeechBhashini(cleanText, lang);
-    if (bhashiniResp && bhashiniResp.audio_base64) {
-      const audioFormat = bhashiniResp.audio_format || 'wav';
-      const audio = new Audio(`data:audio/${audioFormat};base64,${bhashiniResp.audio_base64}`);
-      currentAudio = audio;
-      audio.onended = () => {
-        currentAudio = null;
-        if (onEnd) onEnd();
-      };
-      audio.onerror = () => {
-        currentAudio = null;
-        speakWithBrowserSynthesis(cleanText, lang, onEnd);
-      };
-      await audio.play();
-      return;
-    }
-  } catch (err) {
-    // Expected when awaiting credentials; fall through to browser synthesis
-  }
-
-  // 2. Client-side SpeechSynthesis fallback
   speakWithBrowserSynthesis(cleanText, lang, onEnd);
 }
 
