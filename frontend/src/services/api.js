@@ -112,21 +112,21 @@ export async function fetchDocumentDetails(docId) {
 // Microsoft Azure AI Translator API
 // ==============================================================================
 export async function translateWithAzure(text, sourceLanguage = 'en', targetLanguage = 'hi') {
-  const resp = await fetch(${API_BASE_URL}/translate, {
+  const resp = await fetch(`${API_BASE_URL}/translate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text, sourceLanguage, targetLanguage }),
   });
   if (!resp.ok) {
     const errorData = await resp.json().catch(() => ({}));
-    throw new Error(errorData.detail || errorData.error || Azure translation failed: );
+    throw new Error(errorData.detail || errorData.error || `Azure translation failed: ${resp.status}`);
   }
   return await resp.json();
 }
 
 export async function fetchTranslatorStatus() {
-  const resp = await fetch(${API_BASE_URL}/translate/status);
-  if (!resp.ok) throw new Error(Fetch translator status failed: );
+  const resp = await fetch(`${API_BASE_URL}/translate/status`);
+  if (!resp.ok) throw new Error(`Fetch translator status failed: ${resp.status}`);
   return await resp.json();
 }
 
