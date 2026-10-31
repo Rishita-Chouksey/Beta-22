@@ -1,0 +1,88 @@
+{
+  "fields": [
+    {
+      "name": "state",
+      "type": "string",
+      "allowed_values": [
+        "AP", "AR", "AS", "BR", "CT", "GA", "GJ", "HR", "HP", "JH",
+        "KA", "KL", "MP", "MH", "MN", "ML", "MZ", "NL", "OD", "PB",
+        "RJ", "SK", "TN", "TG", "TR", "UP", "UT", "WB",
+        "AN", "CH", "DH", "DL", "JK", "LA", "LD", "PY",
+        "unknown"
+      ],
+      "default": "unknown"
+    },
+    {
+      "name": "gender",
+      "type": "string",
+      "allowed_values": ["male", "female", "transgender", "other", "unknown"]
+    },
+    {
+      "name": "age",
+      "type": "integer",
+      "min": 0,
+      "max": 125
+    },
+    {
+      "name": "marital_status",
+      "type": "string",
+      "allowed_values": ["single", "married", "widow", "divorced", "deserted", "unknown"]
+    },
+    {
+      "name": "residence_type",
+      "type": "string",
+      "allowed_values": ["rural", "urban", "unknown"]
+    },
+    {
+      "name": "category",
+      "type": "string",
+      "allowed_values": ["General", "OBC", "SC", "ST", "EWS", "unknown"]
+    },
+    {
+      "name": "occupation",
+      "type": "string",
+      "allowed_values": ["farmer", "student", "agricultural_worker", "self_employed", "unemployed", "homemaker", "private_job", "other", "unknown"]
+    },
+    {
+      "name": "annual_income",
+      "type": "number",
+      "min": 0
+    },
+    {
+      "name": "income_band",
+      "type": "string",
+      "allowed_values": ["below_1_lakh", "1_to_2.5_lakh", "2.5_to_6_lakh", "above_6_lakh", "unknown"]
+    },
+    {
+      "name": "landholding_hectares",
+      "type": "number",
+      "min": 0
+    },
+    {
+      "name": "bpl_card_holder",
+      "type": "boolean"
+    },
+    {
+      "name": "has_pucca_house",
+      "type": "boolean"
+    },
+    {
+      "name": "is_institutional_landholder",
+      "type": "boolean"
+    },
+    {
+      "name": "holds_constitutional_post",
+      "type": "boolean"
+    },
+    {
+      "name": "student_class12_marks_percent",
+      "type": "number",
+      "min": 0,
+      "max": 100
+    },
+    {
+      "name": "enrolled_higher_education",
+      "type": "boolean"
+    }
+  ]
+}

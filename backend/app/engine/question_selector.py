@@ -1,0 +1,926 @@
+from typing import List, Dict, Any, Optional
+from collections import Counter
+from pathlib import Path
+import json
+from ..models.profile import CitizenProfile
+from ..models.scheme import SchemeDefinition
+from ..models.api import NextQuestion, NextQuestionResponse, QuestionOption
+from .evaluator import evaluate_scheme
+
+FIELD_EASINESS_RANK = {
+    "state": 1,
+    "gender": 2,
+    "age": 3,
+    "marital_status": 4,
+    "residence_type": 5,
+    "occupation": 6,
+    "category": 7,
+    "annual_income": 8,
+    "bpl_card_holder": 9,
+    "has_pucca_house": 10,
+    "landholding_hectares": 11,
+    "student_class12_marks_percent": 12,
+    "enrolled_higher_education": 13,
+    "disability_status": 14,
+}
+
+EXCLUDED_QUESTION_FIELDS = {
+    "holds_constitutional_post",
+    "is_institutional_landholder",
+    "confirmed_fields",
+    "skipped_fields",
+    "income_band",
+    "disability_percent",
+}
+
+# Load from data/questions.json if available
+def _load_questions_registry() -> Dict[str, Dict[str, Any]]:
+    # Check root data/questions.json
+    candidates = [
+        Path(__file__).resolve().parent.parent.parent.parent / "data" / "questions.json",
+        Path(__file__).resolve().parent.parent / "data" / "questions.json"
+    ]
+    for p in candidates:
+        if p.exists():
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    reg = {}
+                    for q in data.get("questions", []):
+                        reg[q["field"]] = q
+                    return reg
+            except Exception:
+                pass
+    return {}
+
+_FILE_QUESTION_REGISTRY = _load_questions_registry()
+
+QUESTION_REGISTRY: Dict[str, Dict[str, Any]] = {
+    "state": {
+        "title_en": "Which state or Union Territory do you reside in?",
+        "title_hi": "आप किस राज्य या केंद्र शासित प्रदेश के मूल निवासी हैं?",
+        "title_bn": "আপনি কোন রাজ্য বা কেন্দ্রশাসিত অঞ্চলের স্থায়ী বাসিন্দা?",
+        "subtitle_en": "Government welfare schemes are often specific to your state of domicile.",
+        "subtitle_hi": "सरकारी कल्याणकारी योजनाएं आपके मूल निवास राज्य के नियमों पर आधारित होती हैं।",
+        "subtitle_bn": "সরকারি কল্যাণমূলক প্রকল্পগুলি আপনার স্থায়ী বসবাসের রাজ্যের ওপর ভিত্তি করে নির্ধারিত হয়।",
+        "explanation_en": "Central schemes apply across India, but state welfare programs require domicile in that specific state.",
+        "explanation_hi": "केंद्रीय योजनाएं पूरे भारत में लागू होती हैं, लेकिन राज्य योजनाएं संबंधित राज्य के निवासियों के लिए होती हैं।",
+        "explanation_bn": "কেন্দ্রীয় প্রকল্পগুলি সমগ্র ভারতে প্রযোজ্য, তবে রাজ্য কল্যাণ প্রকল্পগুলির জন্য নির্দিষ্ট রাজ্যের বাসিন্দা হওয়া প্রয়োজন।",
+        "type": "searchable_picker",
+        "options": [
+            {
+                "value": "AP",
+                "label_en": "Andhra Pradesh",
+                "label_hi": "आंध्र प्रदेश",
+                "label_bn": "অন্ধ্রপ্রদেশ",
+                "spoken": [
+                    "andhra",
+                    "andhra pradesh"
+                ]
+            },
+            {
+                "value": "AR",
+                "label_en": "Arunachal Pradesh",
+                "label_hi": "अरुणाचल प्रदेश",
+                "label_bn": "অরুণাচল প্রদেশ",
+                "spoken": [
+                    "arunachal"
+                ]
+            },
+            {
+                "value": "AS",
+                "label_en": "Assam",
+                "label_hi": "असम",
+                "label_bn": "অসম",
+                "spoken": [
+                    "assam",
+                    "asom"
+                ]
+            },
+            {
+                "value": "BR",
+                "label_en": "Bihar",
+                "label_hi": "बिहार",
+                "label_bn": "বিহার",
+                "spoken": [
+                    "bihar"
+                ]
+            },
+            {
+                "value": "CT",
+                "label_en": "Chhattisgarh",
+                "label_hi": "छत्तीसगढ़",
+                "label_bn": "ছত্তিশগড়",
+                "spoken": [
+                    "chhattisgarh"
+                ]
+            },
+            {
+                "value": "GA",
+                "label_en": "Goa",
+                "label_hi": "गोवा",
+                "label_bn": "গোয়া",
+                "spoken": [
+                    "goa"
+                ]
+            },
+            {
+                "value": "GJ",
+                "label_en": "Gujarat",
+                "label_hi": "गुजरात",
+                "label_bn": "গুজরাত",
+                "spoken": [
+                    "gujarat"
+                ]
+            },
+            {
+                "value": "HR",
+                "label_en": "Haryana",
+                "label_hi": "हरियाणा",
+                "label_bn": "হরিয়ানা",
+                "spoken": [
+                    "haryana"
+                ]
+            },
+            {
+                "value": "HP",
+                "label_en": "Himachal Pradesh",
+                "label_hi": "हिमाचल प्रदेश",
+                "label_bn": "হিমাচল প্রদেশ",
+                "spoken": [
+                    "himachal"
+                ]
+            },
+            {
+                "value": "JH",
+                "label_en": "Jharkhand",
+                "label_hi": "झारखंड",
+                "label_bn": "ঝাড়খণ্ড",
+                "spoken": [
+                    "jharkhand"
+                ]
+            },
+            {
+                "value": "KA",
+                "label_en": "Karnataka",
+                "label_hi": "कर्नाटक",
+                "label_bn": "কর্ণাটক",
+                "spoken": [
+                    "karnataka"
+                ]
+            },
+            {
+                "value": "KL",
+                "label_en": "Kerala",
+                "label_hi": "केरल",
+                "label_bn": "কেরল",
+                "spoken": [
+                    "kerala"
+                ]
+            },
+            {
+                "value": "MP",
+                "label_en": "Madhya Pradesh",
+                "label_hi": "मध्य प्रदेश",
+                "label_bn": "मध्यप्रदेश",
+                "spoken": [
+                    "madhya pradesh",
+                    "mp"
+                ]
+            },
+            {
+                "value": "MH",
+                "label_en": "Maharashtra",
+                "label_hi": "महाराष्ट्र",
+                "label_bn": "মহারাষ্ট্র",
+                "spoken": [
+                    "maharashtra",
+                    "mh"
+                ]
+            },
+            {
+                "value": "MN",
+                "label_en": "Manipur",
+                "label_hi": "मणिपुर",
+                "label_bn": "মণিপুর",
+                "spoken": [
+                    "manipur"
+                ]
+            },
+            {
+                "value": "ML",
+                "label_en": "Meghalaya",
+                "label_hi": "मेघालय",
+                "label_bn": "মেঘালয়",
+                "spoken": [
+                    "meghalaya"
+                ]
+            },
+            {
+                "value": "MZ",
+                "label_en": "Mizoram",
+                "label_hi": "मिजोरम",
+                "label_bn": "মিজোরাম",
+                "spoken": [
+                    "mizoram"
+                ]
+            },
+            {
+                "value": "NL",
+                "label_en": "Nagaland",
+                "label_hi": "नागालैंड",
+                "label_bn": "নাগাল্যান্ড",
+                "spoken": [
+                    "nagaland"
+                ]
+            },
+            {
+                "value": "OD",
+                "label_en": "Odisha",
+                "label_hi": "ओडिशा",
+                "label_bn": "ওড়িশা",
+                "spoken": [
+                    "odisha",
+                    "orissa"
+                ]
+            },
+            {
+                "value": "PB",
+                "label_en": "Punjab",
+                "label_hi": "पंजाब",
+                "label_bn": "পাঞ্জাব",
+                "spoken": [
+                    "punjab"
+                ]
+            },
+            {
+                "value": "RJ",
+                "label_en": "Rajasthan",
+                "label_hi": "राजस्थान",
+                "label_bn": "রাজস্থান",
+                "spoken": [
+                    "rajasthan"
+                ]
+            },
+            {
+                "value": "SK",
+                "label_en": "Sikkim",
+                "label_hi": "सिक्किम",
+                "label_bn": "সিকিম",
+                "spoken": [
+                    "sikkim"
+                ]
+            },
+            {
+                "value": "TN",
+                "label_en": "Tamil Nadu",
+                "label_hi": "तमिलनाडु",
+                "label_bn": "তামিলনাড়ু",
+                "spoken": [
+                    "tamil nadu"
+                ]
+            },
+            {
+                "value": "TG",
+                "label_en": "Telangana",
+                "label_hi": "तेलंगाना",
+                "label_bn": "তেলেঙ্গানা",
+                "spoken": [
+                    "telangana"
+                ]
+            },
+            {
+                "value": "TR",
+                "label_en": "Tripura",
+                "label_hi": "त्रिपुरा",
+                "label_bn": "ত্রিপুরা",
+                "spoken": [
+                    "tripura"
+                ]
+            },
+            {
+                "value": "UP",
+                "label_en": "Uttar Pradesh",
+                "label_hi": "उत्तर प्रदेश",
+                "label_bn": "উত্তর প্রদেশ",
+                "spoken": [
+                    "uttar pradesh",
+                    "up"
+                ]
+            },
+            {
+                "value": "UT",
+                "label_en": "Uttarakhand",
+                "label_hi": "उत्तराखंड",
+                "label_bn": "উত্তরাখণ্ড",
+                "spoken": [
+                    "uttarakhand"
+                ]
+            },
+            {
+                "value": "WB",
+                "label_en": "West Bengal",
+                "label_hi": "पश्चिम बंगाल",
+                "label_bn": "পশ্চিমবঙ্গ",
+                "spoken": [
+                    "west bengal",
+                    "bengal",
+                    "wb"
+                ]
+            },
+            {
+                "value": "AN",
+                "label_en": "Andaman and Nicobar Islands",
+                "label_hi": "अंडमान और निकोबार",
+                "label_bn": "আন্দামান ও নিকোবর",
+                "spoken": [
+                    "andaman"
+                ]
+            },
+            {
+                "value": "CH",
+                "label_en": "Chandigarh",
+                "label_hi": "चंडीगढ़",
+                "label_bn": "চণ্ডীগড়",
+                "spoken": [
+                    "chandigarh"
+                ]
+            },
+            {
+                "value": "DH",
+                "label_en": "Dadra & Nagar Haveli and Daman & Diu",
+                "label_hi": "दादरा नगर हवेली एवं दमन दीव",
+                "label_bn": "দাদরা ও নগর হাভেলি এবং দমন ও দিউ",
+                "spoken": [
+                    "daman",
+                    "diu"
+                ]
+            },
+            {
+                "value": "DL",
+                "label_en": "Delhi",
+                "label_hi": "दिल्ली",
+                "label_bn": "দিল্লি",
+                "spoken": [
+                    "delhi"
+                ]
+            },
+            {
+                "value": "JK",
+                "label_en": "Jammu and Kashmir",
+                "label_hi": "जम्मू और कश्मीर",
+                "label_bn": "জম্মু ও কাশ্মীর",
+                "spoken": [
+                    "kashmir",
+                    "jammu"
+                ]
+            },
+            {
+                "value": "LA",
+                "label_en": "Ladakh",
+                "label_hi": "लद्दाख",
+                "label_bn": "লাদাখ",
+                "spoken": [
+                    "ladakh"
+                ]
+            },
+            {
+                "value": "LD",
+                "label_en": "Lakshadweep",
+                "label_hi": "लक्षद्वीप",
+                "label_bn": "লক্ষদ্বীপ",
+                "spoken": [
+                    "lakshadweep"
+                ]
+            },
+            {
+                "value": "PY",
+                "label_en": "Puducherry",
+                "label_hi": "पुडुचेरी",
+                "label_bn": "পুদুচেরি",
+                "spoken": [
+                    "puducherry",
+                    "pondicherry"
+                ]
+            },
+            {
+                "value": "unknown",
+                "label_en": "Other / Not sure",
+                "label_hi": "अन्य / निश्चित नहीं",
+                "label_bn": "অন্যান্য / নিশ্চিত নই",
+                "spoken": [
+                    "other",
+                    "not sure",
+                    "unknown"
+                ]
+            }
+        ]
+    },
+    "occupation": {
+        "title_en": "What is your primary occupation?",
+        "title_hi": "आपका मुख्य व्यवसाय या पेशा क्या है?",
+        "title_bn": "আপনার প্রধান পেশা বা জীবিকা কি?",
+        "subtitle_en": "Helps match occupation-targeted benefits (farmers, students, daily wage workers).",
+        "subtitle_hi": "यह किसान, छात्र, श्रमिक आदि के लिए विशिष्ट सरकारी लाभों की पहचान करता है।",
+        "subtitle_bn": "এটি কৃষক, শিক্ষার্থী ও শ্রমিকদের জন্য বিশেষ সরকারি সুবিধা নির্ধারণে সাহায্য করে।",
+        "explanation_en": "Specialized welfare programs exist for farmers (PM-KISAN), college students (MMVY), and informal workers.",
+        "explanation_hi": "किसानों (पीएम-किसान), कॉलेज छात्रों (मेधावी छात्रवृत्ति) और असंगठित कामगारों के लिए विशिष्ट योजनाएं उपलब्ध हैं।",
+        "explanation_bn": "কৃষকদের জন্য (পিএম-কিষাণ), শিক্ষার্থীদের জন্য (মেধাবী স্কলারশিপ) বিশেষ প্রকল্প রয়েছে।",
+        "type": "single_choice",
+        "options": [
+            {
+                "value": "farmer",
+                "label_en": "Farmer / Cultivator",
+                "label_hi": "किसान / काश्तकार",
+                "label_bn": "কৃষক / চাষী"
+            },
+            {
+                "value": "student",
+                "label_en": "College Student",
+                "label_hi": "कॉलेज छात्र / छात्रा",
+                "label_bn": "কলেজ পড়ুয়া / শিক্ষার্থী"
+            },
+            {
+                "value": "agricultural_worker",
+                "label_en": "Agricultural Laborer",
+                "label_hi": "खेतिहर मजदूर / कृषि श्रमिक",
+                "label_bn": "কৃষি শ্রমিক / দিনমজুর"
+            },
+            {
+                "value": "self_employed",
+                "label_en": "Self-employed / Small Business",
+                "label_hi": "स्वरोजगार / छोटा व्यवसाय",
+                "label_bn": "স্বনির্ভর / ক্ষুদ্র ব্যবসায়ী"
+            },
+            {
+                "value": "homemaker",
+                "label_en": "Homemaker",
+                "label_hi": "गृहिणी",
+                "label_bn": "গৃহিণী"
+            },
+            {
+                "value": "unemployed",
+                "label_en": "Unemployed / Looking for work",
+                "label_hi": "बेरोजगार / काम की तलाश में",
+                "label_bn": "বেকার / কাজের সন্ধানী"
+            },
+            {
+                "value": "private_job",
+                "label_en": "Private Employment",
+                "label_hi": "निजी नौकरी / वेतनभोगी",
+                "label_bn": "বেসরকারি চাকরি / কর্মচারী"
+            },
+            {
+                "value": "other",
+                "label_en": "Other",
+                "label_hi": "अन्य",
+                "label_bn": "অন্যান্য"
+            }
+        ]
+    },
+    "gender": {
+        "title_en": "What is your gender?",
+        "title_hi": "आपका लिंग (Gender) क्या है?",
+        "title_bn": "আপনার লিঙ্গ (Gender) কি?",
+        "subtitle_en": "Several welfare programs (e.g. Ladli Behna, Widow Pension) specifically support women.",
+        "subtitle_hi": "कई कल्याणकारी योजनाएं (जैसे लाड़ली बहना, विधवा पेंशन) विशेष रूप से महिलाओं के लिए हैं।",
+        "subtitle_bn": "অনেক সরকারি প্রকল্প (যেমন লাডলি বহনা, বিধবা ভাতা) বিশেষভাবে মহিলাদের জন্য।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "single_choice",
+        "options": [
+            {
+                "value": "female",
+                "label_en": "Female / Woman",
+                "label_hi": "महिला / स्त्री",
+                "label_bn": "মহিলা / নারী"
+            },
+            {
+                "value": "male",
+                "label_en": "Male / Man",
+                "label_hi": "पुरुष",
+                "label_bn": "পুরুষ"
+            },
+            {
+                "value": "transgender",
+                "label_en": "Transgender / Third Gender",
+                "label_hi": "थर्ड जेंडर / अन्य",
+                "label_bn": "রূপান্তরিত লিঙ্গ / অন্যান্য"
+            }
+        ]
+    },
+    "age": {
+        "title_en": "What is your current age in completed years?",
+        "title_hi": "आपकी वर्तमान आयु (उम्र) कितने वर्ष है?",
+        "title_bn": "আপনার বর্তমান বয়স কত বছর?",
+        "subtitle_en": "Age criteria determine eligibility for youth scholarships, adult aid, or senior pensions.",
+        "subtitle_hi": "छात्रवृत्ति, युवा योजनाएं अथवा पेंशन के लिए न्यूनतम व अधिकतम आयु सीमा अनिवार्य होती है।",
+        "subtitle_bn": "বৃত্তি, যুব প্রকল্প বা বার্ধক্য ভাতার জন্য সঠিক বয়স সীমা যাচাইয়ের জন্য প্রয়োজন।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "number",
+        "min_val": 1,
+        "max_val": 120,
+        "unit": "years"
+    },
+    "marital_status": {
+        "title_en": "What is your marital status?",
+        "title_hi": "आपकी वैवाहिक स्थिति क्या है?",
+        "title_bn": "আপনার বৈবাহিক অবস্থা কি?",
+        "subtitle_en": "Helps identify specialized aid for widows, married women, or unmarried students.",
+        "subtitle_hi": "विधवा पेंशन, लाड़ली बहना अथवा छात्रवृत्ति योजनाओं के लिए यह जानकारी जरूरी है।",
+        "subtitle_bn": "বিধবা ভাতা বা লাডলি বহনার মতো প্রকল্পগুলি বৈবাহিক অবস্থার ওপর নির্ভরশীল।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "single_choice",
+        "options": [
+            {
+                "value": "married",
+                "label_en": "Married",
+                "label_hi": "विवाहित",
+                "label_bn": "বিবাহিত"
+            },
+            {
+                "value": "widow",
+                "label_en": "Widow (Husband deceased)",
+                "label_hi": "विधवा (पति का निधन)",
+                "label_bn": "বিধবা (স্বামীহারা)"
+            },
+            {
+                "value": "single",
+                "label_en": "Unmarried / Single",
+                "label_hi": "अविवाहित (कुंवारा / कुंवारी)",
+                "label_bn": "অবিবাহিত"
+            },
+            {
+                "value": "divorced",
+                "label_en": "Divorced / Deserted",
+                "label_hi": "तलाकशुदा / परित्यक्ता",
+                "label_bn": "তালাকপ্রাপ্ত / পরিত্যক্তা"
+            }
+        ]
+    },
+    "residence_type": {
+        "title_en": "Do you reside in a rural village or an urban city area?",
+        "title_hi": "आपका निवास क्षेत्र किस प्रकार का है?",
+        "title_bn": "আপনার বসবাসের এলাকা কোন ধরনের?",
+        "subtitle_en": "PMAY-G rural housing is specifically for village Gram Panchayat residents.",
+        "subtitle_hi": "पीएम आवास ग्रामीण जैसी योजनाएं विशेष रूप से ग्रामीण ग्राम पंचायत क्षेत्रों के लिए हैं।",
+        "subtitle_bn": "প্রধানমন্ত্রী গ্রামীণ আবাস যোজনা বিশেষত গ্রাম পঞ্চায়েতের বাসিন্দাদের জন্য।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "single_choice",
+        "options": [
+            {
+                "value": "rural",
+                "label_en": "Rural (Village / Gram Panchayat)",
+                "label_hi": "ग्रामीण (गांव / ग्राम पंचायत)",
+                "label_bn": "গ্রামীণ (গ্রাম / গ্রাম পঞ্চায়েত)"
+            },
+            {
+                "value": "urban",
+                "label_en": "Urban (City / Municipality / Ward)",
+                "label_hi": "शहरी (शहर / नगर पालिका / वार्ड)",
+                "label_bn": "শহুরে (শহর / পৌরসভা / ওয়ার্ড)"
+            },
+            {
+                "value": "not_sure",
+                "label_en": "Semi-urban / Not sure",
+                "label_hi": "अर्ध-शहरी / निश्चित नहीं",
+                "label_bn": "উপশহর / নিশ্চিত নই"
+            }
+        ]
+    },
+    "category": {
+        "title_en": "Which social category do you belong to?",
+        "title_hi": "आप किस सामाजिक वर्ग (श्रेणी) से संबंधित हैं?",
+        "title_bn": "আপনি কোন সামাজিক শ্রেণি (ক্যাটেগরি)-র অন্তর্গত?",
+        "subtitle_en": "Helps match affirmative benefits for SC, ST, OBC, or EWS communities.",
+        "subtitle_hi": "अनुसूचित जाति, जनजाति, अन्य पिछड़ा वर्ग अथवा ईडब्ल्यूएस हेतु विशेष योजनाओं की पहचान करता है।",
+        "subtitle_bn": "তফসিলি জাতি, উপজাতি, ওবিসি বা ইডব্লিউএস শ্রেণির বিশেষ সুবিধার জন্য।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "single_choice",
+        "options": [
+            {
+                "value": "General",
+                "label_en": "General / Unreserved",
+                "label_hi": "सामान्य (General)",
+                "label_bn": "সাধারণ (General)"
+            },
+            {
+                "value": "OBC",
+                "label_en": "Other Backward Class (OBC)",
+                "label_hi": "अन्य पिछड़ा वर्ग (OBC)",
+                "label_bn": "অন্যান্য অনগ্রসর শ্রেণি (OBC)"
+            },
+            {
+                "value": "SC",
+                "label_en": "Scheduled Caste (SC)",
+                "label_hi": "अनुसूचित जाति (SC)",
+                "label_bn": "তফসিলি জাতি (SC)"
+            },
+            {
+                "value": "ST",
+                "label_en": "Scheduled Tribe (ST)",
+                "label_hi": "अनुसूचित जनजाति (ST)",
+                "label_bn": "তফসিলি উপজাতি (ST)"
+            },
+            {
+                "value": "EWS",
+                "label_en": "Economically Weaker Section (EWS)",
+                "label_hi": "आर्थिक रूप से कमजोर वर्ग (EWS)",
+                "label_bn": "অর্থনৈতিকভাবে দুর্বল শ্রেণি (EWS)"
+            }
+        ]
+    },
+    "annual_income": {
+        "title_en": "What is your total annual family income in Rupees (₹)?",
+        "title_hi": "आपके परिवार की कुल वार्षिक आय (रुपये में) कितनी है?",
+        "title_bn": "আপনার পরিবারের মোট বার্ষিক আয় কত টাকা (₹)?",
+        "subtitle_en": "Government welfare schemes have statutory family income thresholds (e.g., ₹2.5L or ₹6L).",
+        "subtitle_hi": "सरकारी योजनाओं में अधिकतम पारिवारिक आय सीमा (जैसे ₹2.5 लाख या ₹6 लाख) निर्धारित होती है।",
+        "subtitle_bn": "সরকারি কল্যাণমূলক প্রকল্পে পারিবারিক আয়ের সর্বোচ্চ সীমা নির্ধারিত থাকে।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "number",
+        "min_val": 0,
+        "max_val": 100000000,
+        "unit": "INR"
+    },
+    "bpl_card_holder": {
+        "title_en": "Does your family possess a BPL or Antyodaya ration card?",
+        "title_hi": "क्या आपके परिवार के पास बीपीएल (BPL) अथवा अंत्योदय राशन कार्ड है?",
+        "title_bn": "আপনার পরিবারের কি বিপিএল (BPL) বা অন্ত্যোদয় রেশন কার্ড রয়েছে?",
+        "subtitle_en": "Ayushman Bharat PM-JAY and National Widow Pension require BPL status.",
+        "subtitle_hi": "आयुष्मान भारत और राष्ट्रीय पेंशन योजनाओं के लिए बीपीएल राशन कार्ड अनिवार्य है।",
+        "subtitle_bn": "আয়ুষ্মান ভারত ও জাতীয় পেনশনের জন্য বিপিএল রেশন কার্ড থাকা প্রয়োজন।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "boolean",
+        "options": [
+            {
+                "value": True,
+                "label_en": "Yes, have BPL/Antyodaya card",
+                "label_hi": "हाँ, बीपीएल/अंत्योदय कार्ड है",
+                "label_bn": "হ্যাঁ, বিপিএল/অন্ত্যোদয় কার্ড আছে"
+            },
+            {
+                "value": False,
+                "label_en": "No, standard ration card or none",
+                "label_hi": "नहीं, सामान्य राशन कार्ड है या नहीं है",
+                "label_bn": "না, সাধারণ কার্ড আছে বা নেই"
+            }
+        ]
+    },
+    "has_pucca_house": {
+        "title_en": "Does your family own a permanent pucca (concrete/brick) house?",
+        "title_hi": "क्या आपके परिवार के पास पक्का (ईंट और कंक्रीट की छत वाला) मकान है?",
+        "title_bn": "আপনার পরিবারের কি নিজস্ব পাকা (ইট ও ছাদের) বাড়ি রয়েছে?",
+        "subtitle_en": "Pradhan Mantri Awas Yojana (PMAY-G) grants are for families without a pucca house.",
+        "subtitle_hi": "प्रधानमंत्री आवास योजना (PMAY-G) कच्चे मकान अथवा बेघर परिवारों को पक्का मकान देने के लिए है।",
+        "subtitle_bn": "প্রধানমন্ত্রী গ্রামীণ আবাস যোজনা কাঁচা বাড়ি বা গৃহহীনদের পাকা বাড়ি নির্মাণের জন্য।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "boolean",
+        "options": [
+            {
+                "value": True,
+                "label_en": "Yes, we own a pucca house",
+                "label_hi": "हाँ, पक्का मकान है",
+                "label_bn": "হ্যাঁ, পাকা বাড়ি রয়েছে"
+            },
+            {
+                "value": False,
+                "label_en": "No, living in kutcha house or homeless",
+                "label_hi": "नहीं, कच्चा मकान है या अपना मकान नहीं है",
+                "label_bn": "না, কাঁচা বাড়ি রয়েছে বা কোনো পাকা বাড়ি নেই"
+            }
+        ]
+    },
+    "landholding_hectares": {
+        "title_en": "How much cultivable agricultural land does your family own (in hectares)?",
+        "title_hi": "आपके परिवार के पास कितनी कृषि योग्य भूमि (हेक्टेयर में) है?",
+        "title_bn": "আপনার পরিবারের আবাদযোগ্য কৃষিজমি (হেক্টরে) কত?",
+        "subtitle_en": "PM-KISAN requires ownership of cultivable agricultural land (1 hectare ≈ 2.47 acres).",
+        "subtitle_hi": "पीएम किसान सम्मान निधि हेतु कृषि भूमि का मालिकाना हक आवश्यक है (1 हेक्टेयर ≈ 2.47 एकड़)।",
+        "subtitle_bn": "পিএম কিষাণ প্রকল্পের জন্য কৃষিজমির মালিকানা প্রয়োজন (১ হেক্টর ≈ ২.৪৭ একর)।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "number",
+        "min_val": 0,
+        "max_val": 100,
+        "unit": "hectares"
+    },
+    "student_class12_marks_percent": {
+        "title_en": "What was your score percentage in the Class 12 board examination?",
+        "title_hi": "12वीं बोर्ड परीक्षा में आपका कुल प्रतिशत कितना था?",
+        "title_bn": "দ্বাদশ শ্রেণির বোর্ড পরীক্ষায় আপনার প্রাপ্ত শতাংশ নম্বর কত ছিল?",
+        "subtitle_en": "MMVY scholarship requires 70%+ in MP Board or 85%+ in CBSE/ICSE.",
+        "subtitle_hi": "मुख्यमंत्री मेधावी विद्यार्थी योजना (MMVY) हेतु 12वीं में MP बोर्ड से 70%+ या CBSE/ICSE से 85%+ अंक आवश्यक हैं।",
+        "subtitle_bn": "মেধাবী প্রকল্পের জন্য এমপি বোর্ডে ৭০%+ বা সিবিএসই/আইসিএসই-তে ৮৫%+ নম্বর প্রয়োজন।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "number",
+        "min_val": 0,
+        "max_val": 100,
+        "unit": "%"
+    },
+    "enrolled_higher_education": {
+        "title_en": "Are you currently enrolled in a recognised college, university, or professional course?",
+        "title_hi": "क्या आप किसी मान्यता प्राप्त कॉलेज या उच्च शिक्षण संस्थान में नामांकित हैं?",
+        "title_bn": "আপনি কি কোনো স্বীকৃত কলেজ বা বিশ্ববিদ্যালয়ে পাঠরত?",
+        "subtitle_en": "Higher education scholarships require active enrollment in degree or diploma courses.",
+        "subtitle_hi": "उच्च शिक्षा छात्रवृत्ति हेतु स्नातक या व्यावसायिक पाठ्यक्रम में सक्रिय प्रवेश आवश्यक है।",
+        "subtitle_bn": "উচ্চশিক্ষার বৃত্তির জন্য স্নাতক বা ডিপ্লোমা কোর্সে ভর্তি থাকা বাধ্যতামূলক।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "boolean",
+        "options": [
+            {
+                "value": True,
+                "label_en": "Yes, actively enrolled in higher education",
+                "label_hi": "हाँ, उच्च शिक्षा में नामांकित हूँ",
+                "label_bn": "হ্যাঁ, উচ্চশিক্ষায় পাঠরত"
+            },
+            {
+                "value": False,
+                "label_en": "No, not enrolled",
+                "label_hi": "नहीं, नामांकित नहीं हूँ",
+                "label_bn": "না, পাঠরত নই"
+            }
+        ]
+    },
+    "disability_status": {
+        "title_en": "Do you possess a certified disability (Divyangjan) certificate?",
+        "title_hi": "क्या आपके पास 40% या अधिक का दिव्यांगता (विकलांगता) प्रमाण पत्र है?",
+        "title_bn": "আপনার কি কোনো স্বীকৃত প্রতিবন্ধী (দিব্যাঙ্গ) শংসাপত্র রয়েছে?",
+        "subtitle_en": "Special pensions and reservations are provided for persons with certified disabilities.",
+        "subtitle_hi": "दिव्यांग व्यक्तियों के लिए विशेष सामाजिक सुरक्षा पेंशन और लाभ प्रदान किए जाते हैं।",
+        "subtitle_bn": "প্রতিবন্ধী ব্যক্তিদের জন্য বিশেষ সামাজিক পেনশন ও সরকারি সুবিধা রয়েছে।",
+        "explanation_en": "",
+        "explanation_hi": "",
+        "explanation_bn": "",
+        "type": "boolean",
+        "options": [
+            {
+                "value": True,
+                "label_en": "Yes, certified person with disability",
+                "label_hi": "हाँ, दिव्यांगता प्रमाण पत्र है",
+                "label_bn": "হ্যাঁ, প্রতিবন্ধী শংসাপত্র রয়েছে"
+            },
+            {
+                "value": False,
+                "label_en": "No",
+                "label_hi": "नहीं",
+                "label_bn": "না"
+            }
+        ]
+    }
+}
+
+# Override with any custom questions loaded from file
+QUESTION_REGISTRY.update(_FILE_QUESTION_REGISTRY)
+
+def select_next_question(
+    arg1: Any = None,
+    arg2: Any = None,
+    profile: Optional[CitizenProfile] = None,
+    schemes: Optional[List[SchemeDefinition]] = None,
+    current_step: Optional[int] = None,
+    max_questions_budget: int = 8
+) -> NextQuestionResponse:
+    """
+    Selects the single most impactful next question based on information gain.
+    Ensures early state filtering for state-specific schemes.
+    """
+    if isinstance(arg1, CitizenProfile):
+        profile = arg1
+        if isinstance(arg2, list):
+            schemes = arg2
+    elif isinstance(arg1, list):
+        schemes = arg1
+        if isinstance(arg2, CitizenProfile):
+            profile = arg2
+
+    if profile is None:
+        profile = CitizenProfile()
+    if schemes is None:
+        from ..services.scheme_service import scheme_service
+        schemes = scheme_service.get_all_schemes()
+
+    current_answered = [f for f, v in profile.model_dump().items() if v is not None and f not in ["confirmed_fields", "skipped_fields"]]
+    current_step = current_step if current_step is not None else (len(current_answered) + 1)
+
+    if current_step > max_questions_budget:
+        return NextQuestionResponse(
+            has_more=False,
+            question=None,
+            resolved_message_en=f"Reached optimal question limit ({max_questions_budget}). Ready for evaluation.",
+            resolved_message_hi=f"अधिकतम प्रश्न सीमा ({max_questions_budget}) पूरी हुई। पात्रता मूल्यांकन तैयार है।",
+            resolved_message_bn=f"সর্বোচ্চ প্রশ্নের সীমা ({max_questions_budget}) পূর্ণ হয়েছে। মূল্যায়নের জন্য প্রস্তুত।"
+        )
+
+    # 1. Identify which schemes are currently UNDECIDED (status NOT SURE)
+    undecided_schemes: List[SchemeDefinition] = []
+    for s in schemes:
+        review_status = getattr(s, "review_status", "verified")
+        if review_status not in ["verified", "auto_updated"]:
+            continue
+        eval_res = evaluate_scheme(s, profile)
+        if eval_res.status == "NOT SURE":
+            undecided_schemes.append(s)
+
+    if not undecided_schemes:
+        return NextQuestionResponse(
+            has_more=False,
+            question=None,
+            resolved_message_en="All official government scheme rules have been deterministically resolved.",
+            resolved_message_hi="सभी आधिकारिक सरकारी योजनाओं के नियमों का निश्चित समाधान हो चुका है।",
+            resolved_message_bn="সমস্ত সরকারি প্রকল্পের নিয়মের সমাধান হয়েছে।"
+        )
+
+    # 2. Count frequency of missing/unanswered fields across remaining undecided schemes
+    field_counts = Counter()
+    for s in undecided_schemes:
+        eval_res = evaluate_scheme(s, profile)
+        for missing_f in eval_res.missing_fields:
+            if missing_f in profile.skipped_fields or missing_f in EXCLUDED_QUESTION_FIELDS:
+                continue
+            curr_val = getattr(profile, missing_f, None)
+            if curr_val is None or not profile.is_field_confirmed(missing_f):
+                field_counts[missing_f] += 1
+
+    unanswered_fields = list(field_counts.keys())
+    if not unanswered_fields:
+        return NextQuestionResponse(
+            has_more=False,
+            question=None,
+            resolved_message_en="No further questions can alter the evaluation results.",
+            resolved_message_hi="कोई अन्य प्रश्न परिणाम को नहीं बदल सकता।",
+            resolved_message_bn="অন্য কোনো প্রশ্ন ফলাফল পরিবর্তন করতে পারবে না।"
+        )
+
+    # Sort by: 1) Frequency (descending), 2) Easiness rank (ascending)
+    def sort_key(f: str):
+        count = field_counts[f]
+        easiness = FIELD_EASINESS_RANK.get(f, 99)
+        return (-count, easiness)
+
+    best_field = sorted(unanswered_fields, key=sort_key)[0]
+    
+    q_data = QUESTION_REGISTRY.get(best_field)
+    if not q_data:
+        q_data = {
+            "title_en": f"Please provide your {best_field.replace('_', ' ')}",
+            "title_hi": f"कृपया अपना {best_field.replace('_', ' ')} बताएं",
+            "title_bn": f"অনুগ্রহ করে আপনার {best_field.replace('_', ' ')} প্রদান করুন",
+            "subtitle_en": "Required to confirm scheme eligibility.",
+            "subtitle_hi": "योजना पात्रता की पुष्टि के लिए आवश्यक।",
+            "subtitle_bn": "প্রকল্পের যোগ্যতা নিশ্চিত করতে প্রয়োজন।",
+            "type": "single_choice",
+            "options": None
+        }
+
+    options_list = None
+    if q_data.get("options"):
+        options_list = [QuestionOption(**opt) for opt in q_data["options"]]
+
+    question = NextQuestion(
+        field=best_field,
+        title_en=q_data["title_en"],
+        title_hi=q_data["title_hi"],
+        title_bn=q_data.get("title_bn", ""),
+        subtitle_en=q_data.get("subtitle_en"),
+        subtitle_hi=q_data.get("subtitle_hi"),
+        subtitle_bn=q_data.get("subtitle_bn"),
+        explanation_en=q_data.get("explanation_en"),
+        explanation_hi=q_data.get("explanation_hi"),
+        explanation_bn=q_data.get("explanation_bn"),
+        examples_en=q_data.get("examples_en"),
+        examples_hi=q_data.get("examples_hi"),
+        examples_bn=q_data.get("examples_bn"),
+        type=q_data["type"],
+        options=options_list,
+        min_val=q_data.get("min_val"),
+        max_val=q_data.get("max_val"),
+        unit=q_data.get("unit"),
+        progress_index=current_step,
+        total_estimated=min(8, max(current_step, len(unanswered_fields) + current_step - 1))
+    )
+
+    return NextQuestionResponse(
+        has_more=True,
+        question=question
+    )

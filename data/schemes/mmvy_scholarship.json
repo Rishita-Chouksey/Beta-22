@@ -1,0 +1,194 @@
+{
+  "id": "mmvy_scholarship",
+  "name_en": "Mukhyamantri Medhavi Vidyarthi Yojana (MMVY)",
+  "name_hi": "मुख्यमंत्री मेधावी विद्यार्थी योजना (MMVY)",
+  "name_bn": "মুখ্যমন্ত্রী মেধাবী বিদ্যার্থী যোজনা",
+  "level": "state",
+  "state": "MP",
+  "applicable_states": ["MP"],
+  "category": "Education",
+  "personas": ["student"],
+  "benefit_en": "100% academic tuition fee coverage for undergraduate courses in Engineering, Medical, Law, Management and Degree colleges.",
+  "benefit_hi": "इंजीनियरिंग, मेडिकल, लॉ, प्रबंधन और डिग्री कॉलेजों में स्नातक पाठ्यक्रमों के लिए 100% शैक्षणिक शिक्षण शुल्क का भुगतान।",
+  "benefit_bn": "ইঞ্জিনিয়ারিং, মেডিকেল, আইন ইত্যাদিতে ১০০% টিউশন ফি পরিশোধ।",
+  "description_en": "Flagship Madhya Pradesh state scholarship enabling talented meritorious students to pursue higher education regardless of financial constraints.",
+  "description_hi": "मध्य प्रदेश सरकार की प्रमुख छात्रवृत्ति योजना जो मेधावी छात्रों को वित्तीय बाधाओं के बिना उच्च शिक्षा प्राप्त करने में सक्षम बनाती है।",
+  "description_bn": "মধ্যপ্রদেশ সরকারের প্রধান ছাত্রবৃত্তি প্রকল্প যা মেধাবী শিক্ষার্থীদের আর্থিক সহায়তা প্রদান করে।",
+  "review_status": "verified",
+  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "auto_update": null,
+  "machine_translated": {
+    "hi": false,
+    "bn": true
+  },
+  "tracked": [
+    {
+      "rule_id": "income_limit",
+      "extractor": "income_limit",
+      "kind": "amount_inr"
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "occupation_student",
+      "field": "occupation",
+      "operator": "eq",
+      "value": "student",
+      "description_en": "Applicant must be an active student pursuing higher education.",
+      "description_hi": "आवेदक उच्च शिक्षा प्राप्त करने वाला एक सक्रिय छात्र होना चाहिए।",
+      "description_bn": "আবেদনকারীকে একজন সক্রিয় শিক্ষার্থী হতে হবে।",
+      "why_template": {
+        "en": "Applicant occupation must be {value}.",
+        "hi": "आवेदक का व्यवसाय {value} होना चाहिए।",
+        "bn": "আবেদনকারীর পেশা {value} হতে হবে।"
+      }
+    },
+    {
+      "rule_id": "marital_status_single",
+      "field": "marital_status",
+      "operator": "eq",
+      "value": "single",
+      "description_en": "Applicant must be an unmarried dependent student. Adult widows and married independent heads of household are not eligible for this school-leaver youth scholarship (refer to Ladli Behna or Widow Pension for social security schemes).",
+      "description_hi": "आवेदक अविवाहित आश्रित छात्र होना चाहिए। वयस्क विधवाएं और विवाहित परिवार प्रमुख इस छात्रवृत्ति के लिए पात्र नहीं हैं (सामाजिक सुरक्षा हेतु लाड़ली बहना या विधवा पेंशन देखें)।",
+      "description_bn": "আবেদনকারীকে অবিবাহিত নির্ভরশীল শিক্ষার্থী হতে হবে।",
+      "why_template": {
+        "en": "Marital status must be {value}.",
+        "hi": "वैवाहिक स्थिति {value} होनी चाहिए।",
+        "bn": "বৈবাহিক অবস্থা {value} হতে হবে।"
+      }
+    },
+    {
+      "rule_id": "higher_edu",
+      "field": "enrolled_higher_education",
+      "operator": "eq",
+      "value": true,
+      "description_en": "Must have confirmed admission in a recognised undergraduate degree, engineering, medical or diploma course.",
+      "description_hi": "मान्यता प्राप्त स्नातक डिग्री, इंजीनियरिंग, मेडिकल या डिप्लोमा पाठ्यक्रम में प्रवेश की पुष्टि होनी चाहिए।",
+      "description_bn": "স্বীকৃত স্নাতক ডিগ্রিতে ভর্তির নিশ্চিতকরণ থাকতে হবে।",
+      "why_template": {
+        "en": "Enrolled in higher education status must be {value}.",
+        "hi": "उच्च शिक्षा में नामांकन स्थिति {value} होनी चाहिए।",
+        "bn": "উচ্চশিক্ষায় ভর্তির স্থিতি {value} হতে হবে।"
+      }
+    },
+    {
+      "rule_id": "marks_12th",
+      "field": "student_class12_marks_percent",
+      "operator": "gte",
+      "value": 70.0,
+      "description_en": "Secured 70% or above in MP Board, or 85% or above in CBSE/ICSE Class 12 examination.",
+      "description_hi": "एमपी बोर्ड में 70% या अधिक, या सीबीएसई/आईसीएसई 12वीं में 85% या अधिक अंक प्राप्त किए हों।",
+      "description_bn": "দ্বাদশ শ্রেণির পরীক্ষায় অন্তত ৭০% নম্বর পেতে হবে।",
+      "why_template": {
+        "en": "Class 12 board marks must be at least {value}%.",
+        "hi": "12वीं बोर्ड में कम से कम {value}% अंक होने चाहिए।",
+        "bn": "দ্বাদশ শ্রেণির পরীক্ষায় অন্তত {value}% নম্বর হতে হবে।"
+      }
+    },
+    {
+      "rule_id": "income_limit",
+      "field": "annual_income",
+      "operator": "lte",
+      "value": 600000.0,
+      "description_en": "Total parents'/family annual income must not exceed ₹6,00,000.",
+      "description_hi": "माता-पिता/परिवार की कुल वार्षिक आय ₹6,00,000 से अधिक नहीं होनी चाहिए।",
+      "description_bn": "পারিবারিক বার্ষিক আয় ₹৬,০০,০০০ এর বেশি হওয়া যাবে না।",
+      "why_template": {
+        "en": "Total family annual income must not exceed ₹{value}.",
+        "hi": "परिवार की कुल वार्षिक आय ₹{value} से अधिक नहीं होनी चाहिए।",
+        "bn": "পারিবারিক বার্ষিক আয় ₹{value} এর বেশি হওয়া যাবে না।"
+      }
+    }
+  ],
+  "restrictions": [
+    "Applicant must hold a valid Madhya Pradesh resident domicile certificate.",
+    "Applicant must be an unmarried dependent youth taking direct admission into undergraduate studies.",
+    "Students receiving any other complete state/central fee reimbursement scholarship cannot duplicate benefits."
+  ],
+  "required_documents": [
+    {
+      "id": "aadhaar",
+      "name_en": "Aadhaar Card",
+      "name_hi": "आधार कार्ड",
+      "name_bn": "আধার কার্ড",
+      "purpose_en": "Identity and age verification.",
+      "purpose_hi": "पहचान और आयु सत्यापन।",
+      "purpose_bn": "পরিচয় ও বয়স যাচাই।",
+      "how_to_get_en": "Available from UIDAI portal or Aadhaar centers.",
+      "how_to_get_hi": "यूआईडीएआई पोर्टल या आधार केंद्रों से प्राप्त करें।",
+      "how_to_get_bn": "UIDAI থেকে সংগৃহীত।",
+      "online_url": "https://myaadhaar.uidai.gov.in/",
+      "offline_office": "Aadhaar Enrollment Center"
+    },
+    {
+      "id": "mp_domicile",
+      "name_en": "MP Resident Domicile Certificate (Mool Niwas Praman Patra)",
+      "name_hi": "मध्य प्रदेश मूल निवासी प्रमाण पत्र",
+      "name_bn": "মধ্যপ্রদেশ স্থায়ী বাসিন্দা শংসাপত্র",
+      "purpose_en": "Proof of permanent Madhya Pradesh residency.",
+      "purpose_hi": "मध्य प्रदेश में स्थायी निवास का प्रमाण।",
+      "purpose_bn": "স্থায়ী বসবাসের প্রমাণ।",
+      "how_to_get_en": "Apply via MP Lok Seva Kendra (MP e-District) or visit Tehsil/Lok Seva Kendra.",
+      "how_to_get_hi": "एमपी ई-डिस्ट्रिक्ट (lokseva.gov.in) पर ऑनलाइन आवेदन करें या लोक सेवा केंद्र जाएं।",
+      "how_to_get_bn": "লোক সেবা কেন্দ্র থেকে আবেদন করুন।",
+      "online_url": "http://mpedistrict.gov.in/",
+      "offline_office": "Tehsil Office / Lok Seva Kendra"
+    },
+    {
+      "id": "income_cert",
+      "name_en": "Income Certificate (Under ₹6 Lakhs)",
+      "name_hi": "सक्षम प्राधिकारी द्वारा जारी आय प्रमाण पत्र (₹6 लाख से कम)",
+      "name_bn": "আয় শংসাপত্র (₹৬ লক্ষের কম)",
+      "purpose_en": "To verify that parents' annual income is below ₹6 Lakhs.",
+      "purpose_hi": "यह सत्यापित करने के लिए कि वार्षिक आय ₹6 लाख से कम है।",
+      "purpose_bn": "আয় ₹৬ লক্ষের কম তা প্রমাণ করার জন্য।",
+      "how_to_get_en": "Issued by Tehsildar/Sub-Divisional Magistrate (SDM) through MP Lok Seva Kendra.",
+      "how_to_get_hi": "तहसीलदार/एसडीएम द्वारा लोक सेवा केंद्र के माध्यम से जारी।",
+      "how_to_get_bn": "তহশিলদার দ্বারা জারি।",
+      "online_url": "http://mpedistrict.gov.in/",
+      "offline_office": "Tehsil / Lok Seva Kendra"
+    },
+    {
+      "id": "marksheet_12th",
+      "name_en": "Class 12th Marks Sheet",
+      "name_hi": "12वीं कक्षा की अंकसूची",
+      "name_bn": "দ্বাদশ শ্রেণির মার্কশিট",
+      "purpose_en": "Proof of securing qualifying merit percentage (>=70% MPBSE / >=85% CBSE).",
+      "purpose_hi": "पात्रता प्रतिशत (>=70% एमपी बोर्ड / >=85% सीबीएसई) का प्रमाण।",
+      "purpose_bn": "মেধা শতাংশের প্রমাণ।",
+      "how_to_get_en": "Original marksheet issued by educational board or DigiLocker verified copy.",
+      "how_to_get_hi": "संबंधित शिक्षा बोर्ड द्वारा जारी मूल अंकसूची या डिजिलॉकर प्रमाणित प्रति।",
+      "how_to_get_bn": "ডিজিলকার থেকে সংগৃহীত।",
+      "online_url": "https://www.digilocker.gov.in/",
+      "offline_office": "School / Board Office"
+    },
+    {
+      "id": "admission_fee_receipt",
+      "name_en": "College Admission Allotment Letter & Fee Receipt",
+      "name_hi": "कॉलेज प्रवेश आवंटन पत्र एवं शुल्क रसीद",
+      "name_bn": "কলেজ ভর্তি ফি রসিদ",
+      "purpose_en": "Verification of admission in an eligible course/institute.",
+      "purpose_hi": "पात्र पाठ्यक्रम/संस्थान में प्रवेश का प्रमाण।",
+      "purpose_bn": "যোগ্য কোর্সে ভর্তির প্রমাণ।",
+      "how_to_get_en": "Issued by college registrar or central counseling authority (e.g. DTE, NEET, CLAT).",
+      "how_to_get_hi": "कॉलेज रजिस्ट्रार या केंद्रीय काउंसलिंग प्राधिकरण द्वारा जारी।",
+      "how_to_get_bn": "কলেজ প্রশাসনিক দপ্তর দ্বারা জারি।",
+      "online_url": null,
+      "offline_office": "College Administrative Office"
+    }
+  ],
+  "application_procedure": [
+    "Step 1: Visit the MP Scholarship Portal 2.0 (scholarshipportal.mp.nic.in).",
+    "Step 2: Register with your Samagra ID and Aadhaar number.",
+    "Step 3: Click on 'MMVY Application' and enter Class 12 roll number and passing year.",
+    "Step 4: Upload your MP Domicile Certificate, Income Certificate and College Allotment letter.",
+    "Step 5: Verify institute code and fee structure with your college nodal officer.",
+    "Step 6: Submit application online and submit hardcopy along with documents to your college."
+  ],
+  "official_source_url": "http://scholarshipportal.mp.nic.in/MedhaviChhatra/Default.aspx",
+  "last_verified_date": "2026-10-15",
+  "max_allowed_age_days": 180,
+  "verification_status": "verified",
+  "conflicting_schemes": [],
+  "helpline": "0755-2660063 / 181"
+}

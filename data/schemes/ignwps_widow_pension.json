@@ -1,0 +1,164 @@
+{
+  "id": "ignwps_widow_pension",
+  "name_en": "Indira Gandhi National Widow Pension Scheme (IGNWPS)",
+  "name_hi": "इंदिरा गांधी राष्ट्रीय विधवा पेंशन योजना (IGNWPS)",
+  "name_bn": "ইন্দিরা গান্ধী জাতীয় বিধবা পেনশন যোজনা",
+  "level": "central",
+  "state": null,
+  "applicable_states": ["ALL"],
+  "category": "Social Security",
+  "personas": ["widow"],
+  "benefit_en": "Monthly pension assistance (central + state matching contribution, typically ₹600 - ₹1,500/month depending on state).",
+  "benefit_hi": "मासिक पेंशन सहायता (केंद्र + राज्य का संयुक्त अंशदान, राज्य के अनुसार ₹600 से ₹1,500/माह)।",
+  "benefit_bn": "প্রতি মাসে পেনশন সহায়তা (কেন্দ্র ও রাজ্যের যৌথ অনুদান, সাধারণতঃ ₹৬০০ থেকে ₹১,৫০০/মাস)।",
+  "description_en": "National Social Assistance Programme component providing regular monthly financial support to destitute widows living below the poverty line.",
+  "description_hi": "गरीबी रेखा से नीचे जीवन यापन करने वाली निराश्रित विधवा महिलाओं को नियमित वित्तीय सहायता प्रदान करने वाली राष्ट्रीय सामाजिक सहायता कार्यक्रम योजना।",
+  "description_bn": "দারিদ্র্যসীমার নিচে বসবাসকারী বিধবা মহিলাদের নিয়মিত আর্থিক সহায়তা প্রদানকারী জাতীয় সামাজিক সহায়তা কর্মসূচি।",
+  "review_status": "verified",
+  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "auto_update": null,
+  "machine_translated": {
+    "hi": false,
+    "bn": true
+  },
+  "tracked": [
+    {
+      "rule_id": "min_age",
+      "extractor": "age_range",
+      "kind": "age_min"
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "marital_status",
+      "field": "marital_status",
+      "operator": "eq",
+      "value": "widow",
+      "description_en": "Applicant must be a widow.",
+      "description_hi": "आवेदिका विधवा महिला होनी चाहिए।",
+      "description_bn": "আবেদনকারীকে একজন বিধবা মহিলা হতে হবে।",
+      "why_template": {
+        "en": "Applicant marital status must be {value}.",
+        "hi": "आवेदक की वैवाहिक स्थिति {value} होनी चाहिए।",
+        "bn": "আবেদনকারীর বৈবাহিক অবস্থা {value} হতে হবে।"
+      }
+    },
+    {
+      "rule_id": "gender",
+      "field": "gender",
+      "operator": "eq",
+      "value": "female",
+      "description_en": "Applicant must be female.",
+      "description_hi": "आवेदिका महिला होनी चाहिए।",
+      "description_bn": "আবেদনকারীকে মহিলা হতে হবে।",
+      "why_template": {
+        "en": "Applicant gender must be {value}.",
+        "hi": "आवेदक का लिंग {value} होना चाहिए।",
+        "bn": "আবেদনকারীর লিঙ্গ {value} হতে হবে।"
+      }
+    },
+    {
+      "rule_id": "min_age",
+      "field": "age",
+      "operator": "between",
+      "value": [40, 79],
+      "description_en": "Applicant must be aged between 40 and 79 years.",
+      "description_hi": "आवेदिका की आयु 40 से 79 वर्ष के बीच होनी चाहिए।",
+      "description_bn": "আবেদনকারীর বয়স ৪০ থেকে ৭৯ বছরের মধ্যে হতে হবে।",
+      "why_template": {
+        "en": "Applicant age must be between {value} years.",
+        "hi": "आवेदक की आयु {value} वर्ष के बीच होनी चाहिए।",
+        "bn": "আবেদনকারীর বয়স {value} বছরের মধ্যে হতে হবে।"
+      }
+    },
+    {
+      "rule_id": "bpl_card",
+      "field": "bpl_card_holder",
+      "operator": "eq",
+      "value": true,
+      "description_en": "Household must belong to Below Poverty Line (BPL) as per central/state norms.",
+      "description_hi": "परिवार गरीबी रेखा से नीचे (BPL) की श्रेणी में होना चाहिए।",
+      "description_bn": "পরিবারকে দারিদ্র্যসীমার নিচে (BPL) থাকতে হবে।",
+      "why_template": {
+        "en": "Applicant BPL card status must be {value}.",
+        "hi": "आवेदक का बीपीएल कार्ड {value} होना चाहिए।",
+        "bn": "আবেদনকারীর বিপিএল কার্ড স্থিতি {value} হতে হবে।"
+      }
+    }
+  ],
+  "restrictions": [
+    "Remarriage leads to discontinuation of benefits.",
+    "Applicant must not be receiving any regular government service pension."
+  ],
+  "required_documents": [
+    {
+      "id": "aadhaar",
+      "name_en": "Aadhaar Card",
+      "name_hi": "आधार कार्ड",
+      "name_bn": "আধার কার্ড",
+      "purpose_en": "Identity and age verification.",
+      "purpose_hi": "पहचान और आयु सत्यापन।",
+      "purpose_bn": "পরিচয় ও বয়স যাচাই।",
+      "how_to_get_en": "Issued by UIDAI.",
+      "how_to_get_hi": "UIDAI द्वारा जारी।",
+      "how_to_get_bn": "UIDAI দ্বারা জারি।",
+      "online_url": "https://myaadhaar.uidai.gov.in/",
+      "offline_office": "Aadhaar Seva Kendra / Post Office"
+    },
+    {
+      "id": "death_certificate_husband",
+      "name_en": "Husband's Death Certificate",
+      "name_hi": "पति का मृत्यु प्रमाण पत्र",
+      "name_bn": "স্বামীর মৃত্যু শংসাপত্র",
+      "purpose_en": "Official civil registration proof of widow status.",
+      "purpose_hi": "विधवा स्थिति का आधिकारिक नागरिक पंजीकरण प्रमाण।",
+      "purpose_bn": "বিধবা অবস্থার সরকারি প্রমাণ।",
+      "how_to_get_en": "Obtained from Municipal Corporation, Gram Panchayat or Registrar of Births and Deaths.",
+      "how_to_get_hi": "नगर निगम, ग्राम पंचायत या जन्म-मृत्यु रजिस्ट्रार कार्यालय से प्राप्त करें।",
+      "how_to_get_bn": "পৌরসভা বা গ্রাম পঞ্চায়েতের জন্ম-মৃত্যু নিবন্ধক থেকে সংগ্রহ করুন।",
+      "online_url": "https://crsorgi.gov.in/",
+      "offline_office": "Gram Panchayat Office / Municipal Ward Office"
+    },
+    {
+      "id": "bpl_ration_card",
+      "name_en": "BPL Ration Card / BPL Survey Number",
+      "name_hi": "बीपीएल राशन कार्ड / बीपीएल सर्वे क्रमांक",
+      "name_bn": "বিপিএল রেশন কার্ড",
+      "purpose_en": "Evidence of living below poverty line.",
+      "purpose_hi": "गरीबी रेखा से नीचे होने का प्रमाण।",
+      "purpose_bn": "দারিদ্র্যসীমার নিচে বসবাসের প্রমাণ।",
+      "how_to_get_en": "Issued by Food & Civil Supplies Department of respective state.",
+      "how_to_get_hi": "संबंधित राज्य के खाद्य एवं नागरिक आपूर्ति विभाग द्वारा जारी।",
+      "how_to_get_bn": "রাজ্যের খাদ্য ও সরবরাহ দপ্তর দ্বারা জারি।",
+      "online_url": null,
+      "offline_office": "Block Development Office (BDO) / Food Office"
+    },
+    {
+      "id": "bank_passbook",
+      "name_en": "Bank / Post Office Savings Account Passbook",
+      "name_hi": "बैंक / डाकघर बचत खाता पासबुक",
+      "name_bn": "ব্যাঙ্ক পাসবুক",
+      "purpose_en": "Direct DBT credit of monthly pension.",
+      "purpose_hi": "मासिक पेंशन के सीधे डीबीटी भुगतान के लिए।",
+      "purpose_bn": "মাসিক পেনশনের সরাসরি ডিবিটি জমা করার জন্য।",
+      "how_to_get_en": "Single account in applicant's name with Aadhaar seeding.",
+      "how_to_get_hi": "आवेदिका के नाम पर आधार से जुड़ा एकल बैंक खाता।",
+      "how_to_get_bn": "আবেদনকারীর নামে আধার সংযুক্ত ব্যাঙ্ক অ্যাকাউন্ট।",
+      "online_url": null,
+      "offline_office": "Local Bank Branch / Post Office"
+    }
+  ],
+  "application_procedure": [
+    "Step 1: Obtain Form from Gram Panchayat / Municipal Ward Office or download from nsap.nic.in.",
+    "Step 2: Attach copies of Aadhaar, husband's death certificate, BPL card and bank passbook.",
+    "Step 3: Submit application to Block Development Officer (BDO) in rural areas or Sub-Divisional Magistrate (SDM) / Municipal Commissioner in urban areas.",
+    "Step 4: Verification is conducted by Gram Sevak / Ward Inspector.",
+    "Step 5: Sanction order issued and monthly DBT pension commences."
+  ],
+  "official_source_url": "https://nsap.nic.in/",
+  "last_verified_date": "2026-10-15",
+  "max_allowed_age_days": 180,
+  "verification_status": "verified",
+  "conflicting_schemes": [],
+  "helpline": "14445 / 011-23381669"
+}
