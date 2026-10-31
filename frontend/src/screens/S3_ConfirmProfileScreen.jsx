@@ -108,7 +108,7 @@ export default function S3_ConfirmProfileScreen() {
               type="number"
               value={editableProfile.age !== undefined && editableProfile.age !== null ? editableProfile.age : ''}
               onChange={(e) => handleFieldChange('age', e.target.value ? parseInt(e.target.value) : null)}
-              placeholder="उदा. 48"
+              placeholder={language === 'hi' ? 'उदा. 48' : 'e.g. 48'}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-slate-50/50"
             />
           </div>
@@ -126,7 +126,7 @@ export default function S3_ConfirmProfileScreen() {
               <option value="">{language === 'hi' ? '-- चयन करें --' : '-- Select --'}</option>
               <option value="male">{language === 'hi' ? 'पुरुष (Male)' : 'Male'}</option>
               <option value="female">{language === 'hi' ? 'महिला (Female)' : 'Female'}</option>
-              <option value="transgender">{language === 'hi' ? 'ट्रांसजेंडर' : 'Transgender'}</option>
+              <option value="transgender">{language === 'hi' ? 'ट्रांसजेंडर (Transgender)' : 'Transgender'}</option>
             </select>
           </div>
 
@@ -144,7 +144,7 @@ export default function S3_ConfirmProfileScreen() {
               <option value="widow">{language === 'hi' ? 'विधवा (Widow)' : 'Widow'}</option>
               <option value="married">{language === 'hi' ? 'विवाहित (Married)' : 'Married'}</option>
               <option value="single">{language === 'hi' ? 'अविवाहित (Single)' : 'Single'}</option>
-              <option value="divorced">{language === 'hi' ? 'तलाकशुदा / परित्यक्ता' : 'Divorced'}</option>
+              <option value="divorced">{language === 'hi' ? 'तलाकशुदा / परित्यक्ता' : 'Divorced / Deserted'}</option>
             </select>
           </div>
 
@@ -159,12 +159,12 @@ export default function S3_ConfirmProfileScreen() {
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-white"
             >
               <option value="">{language === 'hi' ? '-- चयन करें --' : '-- Select --'}</option>
-              <option value="Madhya Pradesh">Madhya Pradesh (मध्य प्रदेश)</option>
-              <option value="Maharashtra">Maharashtra (महाराष्ट्र)</option>
-              <option value="Uttar Pradesh">Uttar Pradesh</option>
-              <option value="Rajasthan">Rajasthan</option>
-              <option value="Bihar">Bihar</option>
-              <option value="Other">Other State / UT</option>
+              <option value="Madhya Pradesh">{language === 'hi' ? 'मध्य प्रदेश (Madhya Pradesh)' : 'Madhya Pradesh'}</option>
+              <option value="Maharashtra">{language === 'hi' ? 'महाराष्ट्र (Maharashtra)' : 'Maharashtra'}</option>
+              <option value="Uttar Pradesh">{language === 'hi' ? 'उत्तर प्रदेश (Uttar Pradesh)' : 'Uttar Pradesh'}</option>
+              <option value="Rajasthan">{language === 'hi' ? 'राजस्थान (Rajasthan)' : 'Rajasthan'}</option>
+              <option value="Bihar">{language === 'hi' ? 'बिहार (Bihar)' : 'Bihar'}</option>
+              <option value="Other">{language === 'hi' ? 'अन्य राज्य / केंद्र शासित प्रदेश' : 'Other State / UT'}</option>
             </select>
           </div>
 
@@ -181,7 +181,7 @@ export default function S3_ConfirmProfileScreen() {
               <option value="">{language === 'hi' ? '-- चयन करें --' : '-- Select --'}</option>
               <option value="farmer">{language === 'hi' ? 'किसान (Farmer)' : 'Farmer'}</option>
               <option value="student">{language === 'hi' ? 'छात्र (Student)' : 'Student'}</option>
-              <option value="agricultural_worker">{language === 'hi' ? 'खेतिहर मजदूर' : 'Agri Laborer'}</option>
+              <option value="agricultural_worker">{language === 'hi' ? 'खेतिहर मजदूर' : 'Agricultural Worker'}</option>
               <option value="homemaker">{language === 'hi' ? 'गृहिणी (Homemaker)' : 'Homemaker'}</option>
               <option value="self_employed">{language === 'hi' ? 'स्व-रोजगार' : 'Self Employed'}</option>
               <option value="unemployed">{language === 'hi' ? 'बेरोजगार' : 'Unemployed'}</option>
@@ -197,7 +197,7 @@ export default function S3_ConfirmProfileScreen() {
               type="number"
               value={editableProfile.annual_income !== undefined && editableProfile.annual_income !== null ? editableProfile.annual_income : ''}
               onChange={(e) => handleFieldChange('annual_income', e.target.value ? parseFloat(e.target.value) : null)}
-              placeholder="₹ 65,000"
+              placeholder={language === 'hi' ? '₹ 65,000' : 'e.g. ₹65,000'}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-slate-50/50"
             />
           </div>
@@ -212,7 +212,7 @@ export default function S3_ConfirmProfileScreen() {
               step="0.1"
               value={editableProfile.landholding_hectares !== undefined && editableProfile.landholding_hectares !== null ? editableProfile.landholding_hectares : ''}
               onChange={(e) => handleFieldChange('landholding_hectares', e.target.value !== '' ? parseFloat(e.target.value) : null)}
-              placeholder="1.5 (हेक्टेयर)"
+              placeholder={language === 'hi' ? '1.5 (हेक्टेयर)' : '1.5 (Hectares)'}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-slate-50/50"
             />
           </div>
@@ -227,7 +227,7 @@ export default function S3_ConfirmProfileScreen() {
               step="0.5"
               value={editableProfile.student_class12_marks_percent !== undefined && editableProfile.student_class12_marks_percent !== null ? editableProfile.student_class12_marks_percent : ''}
               onChange={(e) => handleFieldChange('student_class12_marks_percent', e.target.value !== '' ? parseFloat(e.target.value) : null)}
-              placeholder="86 %"
+              placeholder={language === 'hi' ? '86 %' : '86 %'}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-slate-50/50"
             />
           </div>

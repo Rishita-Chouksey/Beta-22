@@ -254,7 +254,7 @@ export default function S4_ResultsScreen() {
                           {scheme.level === 'central' ? t('central_scheme') : t('state_scheme')}
                         </span>
                         <span className="text-xs font-semibold text-slate-500">
-                          {scheme.category}
+                          {language === 'hi' ? (scheme.category_hi || scheme.category) : scheme.category}
                         </span>
                       </div>
 
@@ -282,47 +282,55 @@ export default function S4_ResultsScreen() {
                       </p>
                     </div>
 
-                    {/* Satisfied / Unknown / Failed Conditions Breakdown (Requirement 6) */}
-                    <div className="space-y-2 pt-1 border-t border-slate-100 text-xs">
-                      {scheme.satisfied_conditions && scheme.satisfied_conditions.length > 0 && (
-                        <div className="space-y-1">
-                          <span className="font-bold text-emerald-800 text-[11px] block">
-                            ✓ {t('satisfied_conditions_label')}:
-                          </span>
-                          <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
-                            {scheme.satisfied_conditions.map((sc, sIdx) => (
-                              <li key={sIdx}>{sc}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                    {/* Satisfied / Unknown / Failed Conditions Breakdown */}
+                    {(() => {
+                      const satList = language === 'hi' ? (scheme.satisfied_conditions_hi || scheme.satisfied_conditions) : (scheme.satisfied_conditions_en || scheme.satisfied_conditions);
+                      const unkList = language === 'hi' ? (scheme.unknown_conditions_hi || scheme.unknown_conditions) : (scheme.unknown_conditions_en || scheme.unknown_conditions);
+                      const failList = language === 'hi' ? (scheme.failed_conditions_hi || scheme.failed_conditions) : (scheme.failed_conditions_en || scheme.failed_conditions);
 
-                      {scheme.unknown_conditions && scheme.unknown_conditions.length > 0 && (
-                        <div className="space-y-1">
-                          <span className="font-bold text-amber-800 text-[11px] block">
-                            ? {t('unknown_conditions_label')}:
-                          </span>
-                          <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
-                            {scheme.unknown_conditions.map((uc, uIdx) => (
-                              <li key={uIdx}>{uc}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      return (
+                        <div className="space-y-2 pt-1 border-t border-slate-100 text-xs">
+                          {satList && satList.length > 0 && (
+                            <div className="space-y-1">
+                              <span className="font-bold text-emerald-800 text-[11px] block">
+                                ✓ {t('satisfied_conditions_label')}:
+                              </span>
+                              <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                                {satList.map((sc, sIdx) => (
+                                  <li key={sIdx}>{sc}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
 
-                      {scheme.failed_conditions && scheme.failed_conditions.length > 0 && (
-                        <div className="space-y-1">
-                          <span className="font-bold text-rose-800 text-[11px] block">
-                            ✗ {t('failed_conditions_label')}:
-                          </span>
-                          <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
-                            {scheme.failed_conditions.map((fc, fIdx) => (
-                              <li key={fIdx}>{fc}</li>
-                            ))}
-                          </ul>
+                          {unkList && unkList.length > 0 && (
+                            <div className="space-y-1">
+                              <span className="font-bold text-amber-800 text-[11px] block">
+                                ? {t('unknown_conditions_label')}:
+                              </span>
+                              <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                                {unkList.map((uc, uIdx) => (
+                                  <li key={uIdx}>{uc}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {failList && failList.length > 0 && (
+                            <div className="space-y-1">
+                              <span className="font-bold text-rose-800 text-[11px] block">
+                                ✗ {t('failed_conditions_label')}:
+                              </span>
+                              <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                                {failList.map((fc, fIdx) => (
+                                  <li key={fIdx}>{fc}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Card Footer: Metadata and Action Button */}

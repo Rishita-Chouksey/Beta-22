@@ -140,3 +140,130 @@ def test_chat_helpdesk_profile_eligibility_query():
     # Must note MMVY ineligibility
     assert "MMVY" in reply
 
+def test_chat_helpdesk_widow_schemes_discovery():
+    # User asks "Are there any government schemes for widows?"
+    payload = {
+        "message": "Are there any government schemes for widows?",
+        "language": "en",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "Ladli Behna" in reply or "Widow" in reply or "Sanjay Gandhi" in reply
+
+def test_chat_helpdesk_student_financial_assistance():
+    # User asks "I am a college student. What financial assistance can I get?"
+    payload = {
+        "message": "I am a college student. What financial assistance can I get?",
+        "language": "en",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "MMVY" in reply or "scholarship" in reply.lower()
+
+def test_chat_helpdesk_farmer_schemes_discovery():
+    # User asks "Which schemes are available for farmers?"
+    payload = {
+        "message": "Which schemes are available for farmers?",
+        "language": "en",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "PM-KISAN" in reply or "PMAY" in reply or "farmer" in reply.lower()
+
+def test_chat_helpdesk_income_limit_query():
+    # User asks "Can I apply if my family income is ₹3 lakh?"
+    payload = {
+        "message": "Can I apply if my family income is ₹3 lakh?",
+        "language": "en",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "MMVY" in reply and "6,00,000" in reply
+
+def test_chat_helpdesk_dual_scholarship_restriction():
+    # User asks "Can I receive two scholarships simultaneously?"
+    payload = {
+        "message": "Can I receive two scholarships simultaneously?",
+        "language": "en",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "NO" in reply or "not draw" in reply.lower() or "cannot" in reply.lower()
+
+def test_chat_helpdesk_income_certificate_document():
+    # User asks "How can I get an income certificate?"
+    payload = {
+        "message": "How can I get an income certificate?",
+        "language": "en",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "Income Certificate" in reply or "mpedistrict" in reply or "Tehsildar" in reply
+
+def test_chat_helpdesk_bank_passbook_compulsory():
+    # User asks "Is a bank passbook compulsory?"
+    payload = {
+        "message": "Is a bank passbook compulsory?",
+        "language": "en",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "Passbook" in reply or "DBT" in reply or "NPCI" in reply
+
+def test_chat_helpdesk_hindi_manual_question():
+    # User asks in Hindi "क्या दो छात्रवृत्ति एक साथ मिल सकती हैं?"
+    payload = {
+        "message": "क्या दो छात्रवृत्ति एक साथ मिल सकती हैं?",
+        "language": "hi",
+        "history": []
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    reply = data["reply"]
+    assert "नहीं" in reply and "छात्रवृत्ति" in reply
+
+def test_feedback_api():
+    # Citizen submits anonymous feedback
+    payload = {
+        "scheme_id": "mmvy_scholarship",
+        "rating": 5,
+        "is_helpful": True,
+        "comment": "Very clear and helpful guidance on MMVY.",
+        "language": "en"
+    }
+    response = client.post("/api/feedback", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+
+def test_security_headers_and_database_status():
+    response = client.get("/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["database"] == "connected"
+    assert response.headers.get("x-content-type-options") == "nosniff"
+    assert response.headers.get("x-frame-options") == "DENY"
+
+

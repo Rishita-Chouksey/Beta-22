@@ -269,7 +269,11 @@ export default function S0_StartScreen() {
           {rulesStatus && (
             <div className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 self-start sm:self-auto">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="font-semibold">{rulesStatus.verified_schemes} Verified Schemes Active</span>
+              <span className="font-semibold">
+                {language === 'hi'
+                  ? `${rulesStatus.verified_schemes} सत्यापित सरकारी योजनाएं सक्रिय`
+                  : `${rulesStatus.verified_schemes} Verified Schemes Active`}
+              </span>
             </div>
           )}
         </div>
@@ -283,7 +287,7 @@ export default function S0_StartScreen() {
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-2xl">🌾</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                Farmer
+                {language === 'hi' ? 'किसान' : 'Farmer'}
               </span>
             </div>
             <h4 className="font-bold text-slate-900 text-sm group-hover:text-emerald-800 transition-colors">
@@ -306,7 +310,7 @@ export default function S0_StartScreen() {
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-2xl">👩</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
-                Widow
+                {language === 'hi' ? 'विधवा' : 'Widow'}
               </span>
             </div>
             <h4 className="font-bold text-slate-900 text-sm group-hover:text-rose-800 transition-colors">
@@ -329,7 +333,7 @@ export default function S0_StartScreen() {
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-2xl">🎓</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
-                Student
+                {language === 'hi' ? 'विद्यार्थी' : 'Student'}
               </span>
             </div>
             <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-800 transition-colors">
@@ -353,7 +357,9 @@ export default function S0_StartScreen() {
           <h5 className="font-bold text-xs text-slate-900">
             {language === 'hi' ? 'द्विभाषी सहायता' : 'Bilingual Support'}
           </h5>
-          <p className="text-[11px] text-slate-500">हिन्दी और English</p>
+          <p className="text-[11px] text-slate-500">
+            {language === 'hi' ? 'हिन्दी और अंग्रेजी' : 'Hindi & English'}
+          </p>
         </div>
 
         <div className="p-4 bg-white border border-slate-200/80 rounded-xl space-y-1 text-center">
@@ -361,7 +367,9 @@ export default function S0_StartScreen() {
           <h5 className="font-bold text-xs text-slate-900">
             {language === 'hi' ? 'आधिकारिक स्रोत' : 'Official Sources'}
           </h5>
-          <p className="text-[11px] text-slate-500">Verified Guidelines</p>
+          <p className="text-[11px] text-slate-500">
+            {language === 'hi' ? 'सत्यापित नियम' : 'Verified Guidelines'}
+          </p>
         </div>
 
         <div className="p-4 bg-white border border-slate-200/80 rounded-xl space-y-1 text-center">
@@ -369,7 +377,9 @@ export default function S0_StartScreen() {
           <h5 className="font-bold text-xs text-slate-900">
             {language === 'hi' ? 'दस्तावेज़ चेकलिस्ट' : 'Document Checklist'}
           </h5>
-          <p className="text-[11px] text-slate-500">De-duplicated & Print</p>
+          <p className="text-[11px] text-slate-500">
+            {language === 'hi' ? 'एकीकृत एवं प्रिंट' : 'De-duplicated & Print'}
+          </p>
         </div>
 
         <div className="p-4 bg-white border border-slate-200/80 rounded-xl space-y-1 text-center">
@@ -377,7 +387,9 @@ export default function S0_StartScreen() {
           <h5 className="font-bold text-xs text-slate-900">
             {language === 'hi' ? 'गोपनीयता की गारंटी' : 'Privacy Guarantee'}
           </h5>
-          <p className="text-[11px] text-slate-500">Zero Data Retention</p>
+          <p className="text-[11px] text-slate-500">
+            {language === 'hi' ? 'शून्य डेटा संचयन' : 'Zero Data Retention'}
+          </p>
         </div>
       </section>
     </div>

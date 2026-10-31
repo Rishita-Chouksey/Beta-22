@@ -108,3 +108,14 @@ class RulesStatusResponse(BaseModel):
     stale_schemes: int
     unverified_schemes: int
     schemes_summary: List[Dict[str, Any]]
+
+class FeedbackRequest(BaseModel):
+    scheme_id: Optional[str] = None
+    rating: int = Field(5, ge=1, le=5)
+    is_helpful: bool = True
+    comment: Optional[str] = None
+    language: str = "hi"
+
+class FeedbackResponse(BaseModel):
+    success: bool
+    message: str

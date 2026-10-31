@@ -41,15 +41,19 @@ export default function ChatbotDrawer() {
   }, [language]);
 
   const quickPrompts = language === 'hi' ? [
-    { label: 'MMVY छात्रवृत्ति क्या है?', text: 'MMVY क्या है और इसके लिए क्या पात्रता है?' },
-    { label: 'विधवा पेंशन नियम', text: 'विधवा पेंशन के लिए कौन से नियम और दस्तावेज़ चाहिए?' },
-    { label: 'लाड़ली बहना योजना', text: 'लाड़ली बहना योजना की पात्रता और लाभ क्या हैं?' },
-    { label: 'पीएम किसान पात्रता', text: 'पीएम किसान सम्मान निधि के नियम क्या हैं?' }
+    { label: '🎓 MMVY छात्रवृत्ति क्या है?', text: 'MMVY क्या है और इसके लिए क्या पात्रता है?' },
+    { label: '👩 विधवाओं हेतु योजनाएं', text: 'विधवा महिलाओं के लिए कौन-कौन सी सरकारी योजनाएं उपलब्ध हैं?' },
+    { label: '🌾 किसानों हेतु योजनाएं', text: 'किसानों के लिए कौन सी कल्याणकारी योजनाएं उपलब्ध हैं?' },
+    { label: '📑 आय प्रमाण पत्र कैसे बनवाएं?', text: 'आय प्रमाण पत्र कैसे और कहाँ से बनवाएं?' },
+    { label: '💰 क्या 2 छात्रवृत्ति एक साथ मिल सकती हैं?', text: 'क्या दो छात्रवृत्तियां एक साथ मिल सकती हैं?' },
+    { label: '🌸 लाड़ली बहना योजना', text: 'लाड़ली बहना योजना की पात्रता और लाभ क्या हैं?' }
   ] : [
-    { label: 'What is MMVY?', text: 'What is MMVY and who is eligible?' },
-    { label: 'Widow Pension Rules', text: 'What are the rules and required documents for Widow Pension?' },
-    { label: 'Ladli Behna Yojana', text: 'What is Ladli Behna Yojana and its benefits?' },
-    { label: 'PM Kisan Eligibility', text: 'What are the eligibility criteria for PM-KISAN?' }
+    { label: '🎓 What is MMVY?', text: 'What is MMVY and who is eligible?' },
+    { label: '👩 Schemes for Widows', text: 'Are there any government schemes for widows?' },
+    { label: '🌾 Schemes for Farmers', text: 'Which schemes are available for farmers?' },
+    { label: '📑 How to get Income Cert?', text: 'How can I get an income certificate?' },
+    { label: '💰 Two scholarships at once?', text: 'Can I receive two scholarships simultaneously?' },
+    { label: '🌸 Ladli Behna Yojana', text: 'What is Ladli Behna Yojana and its benefits?' }
   ];
 
   const sendMessageWithText = async (textToSend) => {
@@ -203,13 +207,19 @@ export default function ChatbotDrawer() {
               ))}
 
               {isLoading && (
-                <div className="flex gap-2.5 justify-start">
-                  <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs flex-shrink-0">
+                <div className="flex gap-2.5 justify-start items-center">
+                  <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs flex-shrink-0 border border-teal-500/30">
                     🏛️
                   </div>
-                  <div className="bg-white border border-slate-200 rounded-2xl px-4 py-3 text-xs text-slate-500 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-teal-600 animate-ping" />
-                    <span>{language === 'hi' ? 'सत्यापित नियमों से उत्तर खोजा जा रहा है...' : 'Verifying official rules...'}</span>
+                  <div className="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-xs text-slate-600 flex items-center gap-2 shadow-2xs">
+                    <span className="font-semibold text-slate-700">
+                      {language === 'hi' ? 'उत्तर तैयार हो रहा है' : 'YojnaSarthi is typing'}
+                    </span>
+                    <div className="flex items-center gap-1 pl-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-600 typing-dot-1" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-600 typing-dot-2" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-600 typing-dot-3" />
+                    </div>
                   </div>
                 </div>
               )}

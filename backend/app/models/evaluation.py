@@ -17,6 +17,7 @@ class SchemeEvaluationResult(BaseModel):
     scheme_name_hi: str
     level: str
     category: str
+    category_hi: Optional[str] = None
     benefit_en: str
     benefit_hi: str
     status: str = Field(..., description="'ELIGIBLE', 'NOT ELIGIBLE', 'NOT SURE', 'NO CURRENT RULES'")
@@ -26,6 +27,12 @@ class SchemeEvaluationResult(BaseModel):
     satisfied_conditions: List[str] = Field(default_factory=list)
     unknown_conditions: List[str] = Field(default_factory=list)
     failed_conditions: List[str] = Field(default_factory=list)
+    satisfied_conditions_en: List[str] = Field(default_factory=list)
+    satisfied_conditions_hi: List[str] = Field(default_factory=list)
+    unknown_conditions_en: List[str] = Field(default_factory=list)
+    unknown_conditions_hi: List[str] = Field(default_factory=list)
+    failed_conditions_en: List[str] = Field(default_factory=list)
+    failed_conditions_hi: List[str] = Field(default_factory=list)
     missing_fields: List[str] = Field(default_factory=list)
     last_verified_date: str
     is_stale: bool = False

@@ -24,7 +24,7 @@ export default function Header() {
                 {t('app_name')}
               </span>
               <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-semibold tracking-wider uppercase rounded-full bg-blue-950/80 text-blue-300 border border-blue-800">
-                Official Assistant
+                {t('official_assistant')}
               </span>
             </div>
             <p className="text-xs text-slate-400 font-normal leading-tight hidden xs:block">

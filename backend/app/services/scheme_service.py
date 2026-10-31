@@ -15,8 +15,27 @@ class SchemeService:
         self.load_schemes()
 
     def load_schemes(self) -> None:
-        """Reads and validates all .json files in the schemes directory."""
+        """Loads and validates all scheme definitions from database or JSON files."""
         self._cache.clear()
+        
+        # Try loading from persistent SQLite database first
+        try:
+            from ..db.repository import SchemeRepository
+            db_schemes = SchemeRepository.get_all_schemes()
+            if db_schemes:
+                for s_data in db_schemes:
+                    try:
+                        scheme = SchemeDefinition(**s_data)
+                        self._cache[scheme.id] = scheme
+                    except Exception as err:
+                        logger.warning(f"Error parsing DB scheme {s_data.get('id')}: {err}")
+                if self._cache:
+                    logger.info(f"Loaded {len(self._cache)} schemes from SQLite database.")
+                    return
+        except Exception as e:
+            logger.info(f"DB load fallback to JSON: {e}")
+
+        # Fallback to direct JSON files in schemes_dir
         if not self.schemes_dir.exists():
             logger.warning(f"Schemes directory {self.schemes_dir} does not exist.")
             return

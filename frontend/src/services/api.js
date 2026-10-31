@@ -77,3 +77,13 @@ export async function fetchRulesStatus() {
   if (!resp.ok) throw new Error(`Rules status failed: ${resp.status}`);
   return await resp.json();
 }
+
+export async function submitFeedback(schemeId = null, rating = 5, isHelpful = true, comment = '', language = 'hi') {
+  const resp = await fetch(`${API_BASE_URL}/feedback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ scheme_id: schemeId, rating, is_helpful: isHelpful, comment, language }),
+  });
+  if (!resp.ok) throw new Error(`Feedback failed: ${resp.status}`);
+  return await resp.json();
+}

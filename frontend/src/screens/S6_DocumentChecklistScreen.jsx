@@ -348,8 +348,15 @@ export default function S6_DocumentChecklistScreen() {
               </p>
             </div>
             <div className="text-right text-xs text-slate-500 space-y-0.5">
-              <p>दिनांक: {new Date().toLocaleDateString('en-IN')}</p>
-              <p>आधिकारिक सत्यापन मार्गदर्शिका • सत्यापित नियम</p>
+              <p>
+                {language === 'hi' ? 'दिनांक: ' : 'Date: '}
+                {new Date().toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-IN')}
+              </p>
+              <p>
+                {language === 'hi'
+                  ? 'आधिकारिक सत्यापन मार्गदर्शिका • सत्यापित नियम'
+                  : 'Official Verification Guide • Verified Rules'}
+              </p>
             </div>
           </div>
         </div>

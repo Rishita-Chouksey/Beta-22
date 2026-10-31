@@ -93,7 +93,23 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
     satisfied_conditions: List[str] = []
     unknown_conditions: List[str] = []
     failed_conditions: List[str] = []
+    satisfied_conditions_en: List[str] = []
+    satisfied_conditions_hi: List[str] = []
+    unknown_conditions_en: List[str] = []
+    unknown_conditions_hi: List[str] = []
+    failed_conditions_en: List[str] = []
+    failed_conditions_hi: List[str] = []
     
+    category_hi_map = {
+        "Education": "शिक्षा (Education)",
+        "Agriculture": "कृषि (Agriculture)",
+        "Social Security": "सामाजिक सुरक्षा (Social Security)",
+        "Housing": "आवास (Housing)",
+        "Health": "स्वास्थ्य (Health)",
+        "Financial Assistance": "वित्तीय सहायता"
+    }
+    cat_hi = category_hi_map.get(scheme.category, scheme.category)
+
     if "ALL" not in scheme.applicable_states:
         if profile.state is None:
             state_res = RuleEvaluationResult(
@@ -108,6 +124,8 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
             rule_results.append(state_res)
             missing_fields.append("state")
             unknown_conditions.append(state_res.reason_en)
+            unknown_conditions_en.append(state_res.reason_en)
+            unknown_conditions_hi.append(state_res.reason_hi)
         elif profile.state not in scheme.applicable_states:
             state_res = RuleEvaluationResult(
                 field="state",
@@ -120,12 +138,15 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
             )
             rule_results.append(state_res)
             failed_conditions.append(state_res.reason_en)
+            failed_conditions_en.append(state_res.reason_en)
+            failed_conditions_hi.append(state_res.reason_hi)
             return SchemeEvaluationResult(
                 scheme_id=scheme.id,
                 scheme_name_en=scheme.name_en,
                 scheme_name_hi=scheme.name_hi,
                 level=scheme.level,
                 category=scheme.category,
+                category_hi=cat_hi,
                 benefit_en=scheme.benefit_en,
                 benefit_hi=scheme.benefit_hi,
                 status="NOT ELIGIBLE",
@@ -135,6 +156,12 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
                 satisfied_conditions=satisfied_conditions,
                 unknown_conditions=unknown_conditions,
                 failed_conditions=failed_conditions,
+                satisfied_conditions_en=satisfied_conditions_en,
+                satisfied_conditions_hi=satisfied_conditions_hi,
+                unknown_conditions_en=unknown_conditions_en,
+                unknown_conditions_hi=unknown_conditions_hi,
+                failed_conditions_en=failed_conditions_en,
+                failed_conditions_hi=failed_conditions_hi,
                 missing_fields=[],
                 last_verified_date=scheme.last_verified_date,
                 is_stale=False,
@@ -152,6 +179,8 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
             )
             rule_results.append(state_res)
             satisfied_conditions.append(state_res.reason_en)
+            satisfied_conditions_en.append(state_res.reason_en)
+            satisfied_conditions_hi.append(state_res.reason_hi)
 
     # 3. Evaluate each rule in the scheme
     has_fail = False
@@ -168,12 +197,16 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
         if res.outcome == "FAIL":
             has_fail = True
             failed_conditions.append(res.reason_en)
+            failed_conditions_en.append(res.reason_en)
+            failed_conditions_hi.append(res.reason_hi)
             if not first_fail_reason_en:
                 first_fail_reason_en = res.reason_en
                 first_fail_reason_hi = res.reason_hi
         elif res.outcome == "UNKNOWN":
             has_unknown = True
             unknown_conditions.append(res.reason_en)
+            unknown_conditions_en.append(res.reason_en)
+            unknown_conditions_hi.append(res.reason_hi)
             if res.field not in missing_fields and getattr(profile, res.field, None) is None:
                 missing_fields.append(res.field)
             if not first_unknown_reason_en:
@@ -181,6 +214,8 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
                 first_unknown_reason_hi = res.reason_hi
         elif res.outcome == "PASS":
             satisfied_conditions.append(res.reason_en)
+            satisfied_conditions_en.append(res.reason_en)
+            satisfied_conditions_hi.append(res.reason_hi)
 
     # 4. Synthesize scheme outcome
     if has_fail:
@@ -190,6 +225,7 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
             scheme_name_hi=scheme.name_hi,
             level=scheme.level,
             category=scheme.category,
+            category_hi=cat_hi,
             benefit_en=scheme.benefit_en,
             benefit_hi=scheme.benefit_hi,
             status="NOT ELIGIBLE",
@@ -199,6 +235,12 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
             satisfied_conditions=satisfied_conditions,
             unknown_conditions=unknown_conditions,
             failed_conditions=failed_conditions,
+            satisfied_conditions_en=satisfied_conditions_en,
+            satisfied_conditions_hi=satisfied_conditions_hi,
+            unknown_conditions_en=unknown_conditions_en,
+            unknown_conditions_hi=unknown_conditions_hi,
+            failed_conditions_en=failed_conditions_en,
+            failed_conditions_hi=failed_conditions_hi,
             missing_fields=missing_fields,
             last_verified_date=scheme.last_verified_date,
             is_stale=False,
@@ -211,6 +253,7 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
             scheme_name_hi=scheme.name_hi,
             level=scheme.level,
             category=scheme.category,
+            category_hi=cat_hi,
             benefit_en=scheme.benefit_en,
             benefit_hi=scheme.benefit_hi,
             status="NOT SURE",
@@ -220,6 +263,12 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
             satisfied_conditions=satisfied_conditions,
             unknown_conditions=unknown_conditions,
             failed_conditions=failed_conditions,
+            satisfied_conditions_en=satisfied_conditions_en,
+            satisfied_conditions_hi=satisfied_conditions_hi,
+            unknown_conditions_en=unknown_conditions_en,
+            unknown_conditions_hi=unknown_conditions_hi,
+            failed_conditions_en=failed_conditions_en,
+            failed_conditions_hi=failed_conditions_hi,
             missing_fields=missing_fields,
             last_verified_date=scheme.last_verified_date,
             is_stale=False,
@@ -233,6 +282,7 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
             scheme_name_hi=scheme.name_hi,
             level=scheme.level,
             category=scheme.category,
+            category_hi=cat_hi,
             benefit_en=scheme.benefit_en,
             benefit_hi=scheme.benefit_hi,
             status="ELIGIBLE",
@@ -242,6 +292,12 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
             satisfied_conditions=satisfied_conditions,
             unknown_conditions=[],
             failed_conditions=[],
+            satisfied_conditions_en=satisfied_conditions_en,
+            satisfied_conditions_hi=satisfied_conditions_hi,
+            unknown_conditions_en=[],
+            unknown_conditions_hi=[],
+            failed_conditions_en=[],
+            failed_conditions_hi=[],
             missing_fields=[],
             last_verified_date=scheme.last_verified_date,
             is_stale=False,

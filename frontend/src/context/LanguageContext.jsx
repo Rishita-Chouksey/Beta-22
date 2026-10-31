@@ -13,11 +13,20 @@ export function LanguageProvider({ children }) {
     return translations[key] || enTranslations[key] || key;
   };
 
-  const getBilingualText = (obj, fieldBase) => {
-    if (!obj) return '';
-    const localized = obj[`${fieldBase}_${language}`];
-    if (localized) return localized;
-    return obj[`${fieldBase}_en`] || obj[`${fieldBase}_hi`] || '';
+  const getBilingualText = (arg1, arg2) => {
+    if (!arg1 && !arg2) return '';
+    // If called as getBilingualText(obj, 'fieldName')
+    if (typeof arg1 === 'object' && arg1 !== null) {
+      const fieldBase = arg2;
+      const localized = arg1[`${fieldBase}_${language}`];
+      if (localized) return localized;
+      return arg1[`${fieldBase}_${language === 'hi' ? 'hi' : 'en'}`] || arg1[`${fieldBase}_en`] || arg1[`${fieldBase}_hi`] || '';
+    }
+    // If called as getBilingualText(text_en, text_hi)
+    if (typeof arg1 === 'string' && typeof arg2 === 'string') {
+      return language === 'hi' ? arg2 : arg1;
+    }
+    return String(arg1 || arg2 || '');
   };
 
   return (
