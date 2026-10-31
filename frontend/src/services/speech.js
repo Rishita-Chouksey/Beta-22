@@ -1,8 +1,7 @@
-
-// YojnaSarthi Speech Service: Bilingual Hindi & English Voice Recognition & Synthesis
+// YojnaSarthi Speech Service: Multilingual (Hindi, English, Marathi, Bengali) Voice Recognition & Synthesis
 // Strictly privacy-preserving: Zero voice audio recorded or stored on server.
 
-// Phonetic acronym map for natural Hindi pronunciation
+// Phonetic acronym map for natural Indian language pronunciation
 const HINDI_PHONETIC_REPLACEMENTS = [
   [/\bMMVY\b/gi, 'एम.एम.वी.वाई.'],
   [/\bPM-KISAN\b/gi, 'पीएम किसान'],
@@ -25,7 +24,7 @@ const HINDI_PHONETIC_REPLACEMENTS = [
 function prepareTextForSpeech(text, lang) {
   if (!text) return '';
   let prepared = text;
-  if (lang === 'hi') {
+  if (lang === 'hi' || lang === 'mr') {
     for (const [pattern, replacement] of HINDI_PHONETIC_REPLACEMENTS) {
       prepared = prepared.replace(pattern, replacement);
     }
@@ -33,6 +32,13 @@ function prepareTextForSpeech(text, lang) {
   // Remove markdown bold asterisks and bullets
   prepared = prepared.replace(/[*#_~`]/g, '').replace(/•/g, ', ');
   return prepared;
+}
+
+export function getLocaleCode(lang) {
+  if (lang === 'mr') return 'mr-IN';
+  if (lang === 'bn') return 'bn-IN';
+  if (lang === 'en') return 'en-IN';
+  return 'hi-IN';
 }
 
 // Global voice cache
@@ -48,8 +54,28 @@ export function getBestVoice(lang = 'hi') {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
   const voices = cachedVoices.length > 0 ? cachedVoices : window.speechSynthesis.getVoices();
 
-  if (lang === 'hi') {
-    // 1. Search for hi-IN or Hindi named voices
+  if (lang === 'mr') {
+    const marathiVoice = voices.find(
+      (v) =>
+        v.lang.toLowerCase() === 'mr-in' ||
+        v.lang.toLowerCase().startsWith('mr') ||
+        v.name.toLowerCase().includes('marathi') ||
+        v.name.toLowerCase().includes('मराठी')
+    );
+    if (marathiVoice) return marathiVoice;
+    // Graceful fallback to Indian Hindi voice if Marathi OS pack not installed
+    const hiFallback = voices.find((v) => v.lang.toLowerCase().startsWith('hi'));
+    if (hiFallback) return hiFallback;
+  } else if (lang === 'bn') {
+    const bengaliVoice = voices.find(
+      (v) =>
+        v.lang.toLowerCase() === 'bn-in' ||
+        v.lang.toLowerCase().startsWith('bn') ||
+        v.name.toLowerCase().includes('bengali') ||
+        v.name.toLowerCase().includes('বাংলা')
+    );
+    if (bengaliVoice) return bengaliVoice;
+  } else if (lang === 'hi') {
     const hindiVoice = voices.find(
       (v) =>
         v.lang.toLowerCase() === 'hi-in' ||
@@ -62,7 +88,7 @@ export function getBestVoice(lang = 'hi') {
     );
     if (hindiVoice) return hindiVoice;
   } else {
-    // 1. Search for en-IN first, then general en
+    // Search for en-IN first, then general en
     const indianEnglish = voices.find(
       (v) =>
         v.lang.toLowerCase() === 'en-in' ||
@@ -91,8 +117,8 @@ function speakWithBrowserSynthesis(cleanText, lang = 'hi', onEnd = null) {
   window.speechSynthesis.cancel();
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
-  utterance.rate = lang === 'hi' ? 0.90 : 0.95; // Slightly measured rate for maximum rural clarity
+  utterance.lang = getLocaleCode(lang);
+  utterance.rate = lang === 'en' ? 0.95 : 0.90; // Slightly measured rate for maximum clarity
   utterance.pitch = 1.0;
 
   const bestVoice = getBestVoice(lang);
@@ -167,7 +193,7 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
 
   const initRecognition = () => {
     recognition = new SpeechRecognition();
-    recognition.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
+    recognition.lang = getLocaleCode(language);
     recognition.continuous = true; // DO NOT auto-stop on silence!
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;

@@ -108,15 +108,9 @@ export async function fetchDocumentDetails(docId) {
 }
 
 // ==============================================================================
-<<<<<<< HEAD
 // Indic Language Translation API (Sarvam AI / Azure / Local Fallback)
 // ==============================================================================
 export async function translateText(text, sourceLanguage = 'en', targetLanguage = 'hi') {
-=======
-// Microsoft Azure AI Translator API
-// ==============================================================================
-export async function translateWithAzure(text, sourceLanguage = 'en', targetLanguage = 'hi') {
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
   const resp = await fetch(`${API_BASE_URL}/translate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

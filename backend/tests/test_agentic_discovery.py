@@ -127,7 +127,11 @@ def test_html_content_extraction():
 
 # 3. PDF Content Extraction with Controlled In-Memory Test Fixture
 def test_pdf_content_extraction_controlled_fixture():
-    import fitz  # PyMuPDF
+    try:
+        import fitz
+    except ImportError:
+        import pytest
+        pytest.skip("PyMuPDF (fitz) is not installed in test environment")
 
     # Create an in-memory test PDF using PyMuPDF
     doc = fitz.open()
@@ -452,8 +456,9 @@ def test_monitoring_pipeline_review_publish_and_history(monkeypatch):
 
 # 10. API Endpoints Live Check
 def test_agent_api_endpoints():
+    headers = {"X-Admin-Key": "yojnasarthi-admin-secret-2026"}
     # Status
-    resp_stat = client.get("/api/agents/status")
+    resp_stat = client.get("/api/agents/status", headers=headers)
     assert resp_stat.status_code == 200
     data_stat = resp_stat.json()
     assert data_stat["success"] is True
@@ -461,22 +466,22 @@ def test_agent_api_endpoints():
     assert "policy_review_gate" in data_stat["agents"]
 
     # Runs
-    resp_runs = client.get("/api/agents/runs")
+    resp_runs = client.get("/api/agents/runs", headers=headers)
     assert resp_runs.status_code == 200
     assert resp_runs.json()["success"] is True
 
     # Sources
-    resp_src = client.get("/api/sources")
+    resp_src = client.get("/api/sources", headers=headers)
     assert resp_src.status_code == 200
     assert resp_src.json()["success"] is True
 
     # Updates
-    resp_upd = client.get("/api/updates")
+    resp_upd = client.get("/api/updates", headers=headers)
     assert resp_upd.status_code == 200
     assert resp_upd.json()["success"] is True
 
     # Monitoring Status Overview
-    resp_ov = client.get("/api/monitoring/status")
+    resp_ov = client.get("/api/monitoring/status", headers=headers)
     assert resp_ov.status_code == 200
     assert resp_ov.json()["success"] is True
     assert "total_discovered_sources" in resp_ov.json()["overview"]

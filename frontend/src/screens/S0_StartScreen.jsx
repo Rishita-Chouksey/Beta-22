@@ -236,10 +236,10 @@ export default function S0_StartScreen() {
             </div>
           </div>
 
-          {/* Action Card 2: Speak or Type (Free-text / Voice) */}
+          {/* Action Card 2: Two-Way Voice Conversational AI Chatbot */}
           <div
             onClick={() => setCurrentScreen('S2')}
-            className="group relative bg-white border-2 border-teal-200 hover:border-teal-600 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+            className="group relative bg-gradient-to-br from-white via-teal-50/20 to-emerald-50/30 border-2 border-teal-300 hover:border-teal-600 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between"
             role="button"
             tabIndex={0}
           >
@@ -249,13 +249,13 @@ export default function S0_StartScreen() {
                   <Mic className="w-7 h-7" />
                 </div>
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
-                  {language === 'hi' ? 'आवाज़ या विवरण' : 'Voice or Text'}
+                  {language === 'hi' ? '🎙️ दो-तरफ़ा आवाज़ एआई' : '🎙️ Two-Way Voice AI'}
                 </span>
               </div>
 
               <div className="space-y-2">
                 <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-teal-700 transition-colors">
-                  {language === 'hi' ? '२. अपने बारे में बोलकर या लिखकर बताएं' : '2. Tell Us About Yourself'}
+                  {language === 'hi' ? '२. दो-तरफ़ा एआई आवाज़ सहायक (Voice Model)' : '2. Talk to Two-Way Voice AI Model'}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {language === 'hi'

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import enTranslations from '../translations/en.json';
 import hiTranslations from '../translations/hi.json';
 import bnTranslations from '../translations/bn.json';
+import mrTranslations from '../translations/mr.json';
 import { translateWithAzure } from '../services/api';
 
 const LanguageContext = createContext();
@@ -10,11 +11,13 @@ const translationsMap = {
   hi: hiTranslations,
   en: enTranslations,
   bn: bnTranslations,
+  mr: mrTranslations,
 };
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'hi', label: 'हिन्दी', nativeName: 'हिन्दी' },
   { code: 'en', label: 'English', nativeName: 'English' },
+  { code: 'mr', label: 'मराठी', nativeName: 'मराठी' },
   { code: 'bn', label: 'বাংলা', nativeName: 'বাংলা' },
 ];
 
@@ -41,7 +44,7 @@ export function LanguageProvider({ children }) {
     }
     // If called as getBilingualText(text_en, text_hi)
     if (typeof arg1 === 'string' && typeof arg2 === 'string') {
-      if (language === 'hi') return arg2;
+      if (language === 'hi' || language === 'mr') return arg2 || arg1;
       if (language === 'en') return arg1;
       // Bengali defaults to Hindi if available or English
       return arg2 || arg1;

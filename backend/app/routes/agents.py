@@ -1,19 +1,20 @@
 import logging
 from typing import List, Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Query, Body
+from fastapi import APIRouter, HTTPException, Query, Body, Depends
 from pydantic import BaseModel, Field
 
 from ..agents.orchestrator import orchestrator
 from ..agents.repository import AgentRepository
 from ..agents.models import ReviewStatus, SourceStatus, SourceItem, ProposedUpdate
+from ..admin_auth import require_admin, require_admin_csrf
 
 logger = logging.getLogger("routes_agents")
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_admin)])
 
 # Request Models
 class DiscoverRequest(BaseModel):
-    seeds: Optional[List[str]] = Field(None, description="Optional custom seed URLs. Defaults to data.gov.in and eseva.mp.gov.in")
+    seeds: Optional[List[str]] = Field(None, description="Optional custom seed URLs. Defaults to myScheme public pages.")
     max_links_per_seed: int = Field(15, ge=1, le=50, description="Max government links to discover per seed")
 
 class CrawlRequest(BaseModel):
@@ -25,11 +26,9 @@ class MonitorRequest(BaseModel):
     max_sources: int = Field(10, ge=1, le=50, description="Max sources to check")
 
 class ApproveRequest(BaseModel):
-    reviewer_name: Optional[str] = Field("Admin Officer", description="Name/role of reviewer")
     reason: Optional[str] = Field("Approved after verifying against official notification.", description="Audit rationale")
 
 class RejectRequest(BaseModel):
-    reviewer_name: Optional[str] = Field("Admin Officer", description="Name/role of reviewer")
     reason: str = Field(..., description="Audit rationale for rejection")
 
 # 1. Agents Live Status & Runs
@@ -59,17 +58,17 @@ async def get_agent_runs(limit: int = Query(50, ge=1, le=200)):
     }
 
 # 2. Trigger Actions
-@router.post("/agents/discover")
+@router.post("/agents/discover", dependencies=[Depends(require_admin_csrf)])
 async def trigger_source_discovery(req: Optional[DiscoverRequest] = Body(None)):
     """
-    Triggers Agent 1 (Source Discovery) on the official portal roots (data.gov.in, eseva.mp.gov.in).
+    Triggers Agent 1 (Source Discovery) on myScheme public pages when an administrator requests it.
     """
     seeds = req.seeds if req else None
     max_links = req.max_links_per_seed if req else 15
     res = orchestrator.discover_sources(seeds=seeds, max_links_per_seed=max_links)
     return res
 
-@router.post("/agents/crawl")
+@router.post("/agents/crawl", dependencies=[Depends(require_admin_csrf)])
 async def trigger_source_crawling(req: Optional[CrawlRequest] = Body(None)):
     """
     Triggers Agent 2 (Crawling) across discovered government pages and PDF circulars.
@@ -79,7 +78,7 @@ async def trigger_source_crawling(req: Optional[CrawlRequest] = Body(None)):
     res = orchestrator.crawl_sources(source_ids=src_ids, max_sources=max_src)
     return res
 
-@router.post("/agents/monitor")
+@router.post("/agents/monitor", dependencies=[Depends(require_admin_csrf)])
 async def trigger_monitoring_cycle(req: Optional[MonitorRequest] = Body(None)):
     """
     Triggers Agent 9 (Monitoring Pipeline): Crawl -> Change Detection -> Extraction -> Classification -> Validation -> Policy Review Gate.
@@ -151,11 +150,16 @@ async def get_proposed_update_detail(update_id: str):
     }
 
 @router.post("/updates/{update_id}/approve")
-async def approve_proposed_update(update_id: str, req: Optional[ApproveRequest] = Body(None)):
+async def approve_proposed_update(update_id: str, req: Optional[ApproveRequest] = Body(None),
+                                 _authorized=Depends(require_admin_csrf)):
     """
     Approves proposed update, commits change to active catalog, and stores immutable scheme version.
     """
-    res = orchestrator.approve_update(update_id)
+    res = orchestrator.approve_update(
+        update_id,
+        reviewer_name=_authorized["sub"],
+        reason=req.reason if req else "Approved after verifying against official notification."
+    )
     if not res.get("success"):
         raise HTTPException(status_code=400, detail=res.get("error") or "Failed to approve and publish update.")
     return {
@@ -165,11 +169,13 @@ async def approve_proposed_update(update_id: str, req: Optional[ApproveRequest] 
     }
 
 @router.post("/updates/{update_id}/reject")
-async def reject_proposed_update(update_id: str, req: RejectRequest):
+async def reject_proposed_update(update_id: str, req: RejectRequest,
+                                 _authorized=Depends(require_admin_csrf)):
     """
     Rejects proposed update with mandatory audit rationale.
     """
-    res = orchestrator.reject_update(update_id, reason=req.reason)
+    res = orchestrator.reject_update(update_id, reason=req.reason,
+                                     reviewer_name=_authorized["sub"])
     if not res.get("success"):
         raise HTTPException(status_code=400, detail=res.get("error") or "Failed to reject update.")
     return {

@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from .config import settings
-from .routes import eligibility, schemes, checklist, ai, documents, admin_monitoring, translator, agents
+from .routes import eligibility, schemes, checklist, ai, documents, admin_monitoring, translator, agents, admin_auth
 from .services.scheme_service import scheme_service
 from .services.myscheme_adapter import myscheme_adapter
 from .services.azure_translator_service import azure_translator_service
@@ -17,6 +17,7 @@ from .db.database import (
     init_db,
     seed_schemes_from_json,
     seed_monitoring_sources,
+    seed_agent_sources,
     get_db_connection
 )
 from .db.repository import RateLimiterRepository, FeedbackRepository, MonitoringRepository
@@ -54,10 +55,11 @@ async def lifespan(app: FastAPI):
     # Initialize SQLite database and sync verified schemes
     is_testing = bool(os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING"))
     try:
+        init_db()
+        seed_schemes_from_json()
         if not is_testing:
-            init_db()
-            seed_schemes_from_json()
             seed_monitoring_sources()
+        seed_agent_sources()
     except Exception as e:
         logger.warning(f"Database init warning: {e}")
 
@@ -98,12 +100,8 @@ app.include_router(schemes.router, prefix=settings.API_PREFIX, tags=["Schemes"])
 app.include_router(checklist.router, prefix=settings.API_PREFIX, tags=["Checklist"])
 app.include_router(ai.router, prefix=settings.API_PREFIX, tags=["AI Assistance"])
 app.include_router(documents.router, prefix=settings.API_PREFIX, tags=["Document Guide"])
-<<<<<<< HEAD
-app.include_router(bhashini.router, prefix=settings.API_PREFIX, tags=["Bhashini Official Integration"])
 app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Indic Language Translation"])
-=======
-app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Azure AI Translator"])
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
+app.include_router(admin_auth.router, prefix=settings.API_PREFIX, tags=["Admin Authentication"])
 app.include_router(admin_monitoring.router, prefix=settings.API_PREFIX, tags=["Admin Scheme Monitoring"])
 app.include_router(agents.router, prefix=settings.API_PREFIX, tags=["Multi-Agent Scheme Intelligence"])
 
@@ -114,12 +112,7 @@ async def get_integrations_status():
     - Sarvam AI (Indic Language Engine)
     - Microsoft Azure AI Translator
     - myScheme / API Setu
-<<<<<<< HEAD
     - Bhashini Translation & Voice
-=======
-    - Microsoft Azure AI Translator
-    - Web Speech Voice Engine (ASR & TTS)
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
     - Python Eligibility Engine
     - Document Guide
     - Scheme Intelligence & Catalogue Monitoring
@@ -127,73 +120,47 @@ async def get_integrations_status():
     """
     myscheme_stat = myscheme_adapter.get_status()
     azure_stat = azure_translator_service.get_status()
-<<<<<<< HEAD
     sarvam_stat = sarvam_service.get_status()
     monitoring_summary = MonitoringRepository.get_monitoring_summary()
     scheduler_status = monitoring_scheduler.get_status()
-=======
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
 
     return {
         "sarvam_ai": sarvam_stat,
         "azure_translator": azure_stat,
         "myscheme": {
-            "name": "myScheme / API Setu",
+            "name": "myScheme / API Setu Registry",
             "status": myscheme_stat.status,
             "is_live_api": myscheme_stat.is_live_api,
-            "active_data_source": myscheme_stat.active_data_source,
-            "message": myscheme_stat.message,
+            "data_source": scheme_service.get_data_source(),
             "access_requirements": myscheme_stat.access_requirements,
             "last_checked": myscheme_stat.last_checked
         },
         "scheme_monitoring": {
-            "name": "Scheme Intelligence & Catalogue Monitoring",
-            "status": "active",
-            "monitoring_enabled": False,
-            "total_sources_monitored": 10,
-            "mode": "External GitHub Actions Updater (Feature 7)"
+            "name": "Scheme Intelligence and Catalogue Monitoring",
+            "status": "active" if monitoring_summary["total_sources_monitored"] > 0 else "idle",
+            "monitoring_enabled": scheduler_status["is_running"],
+            "total_sources_monitored": monitoring_summary["total_sources_monitored"],
+            "healthy_sources": monitoring_summary["total_sources_monitored"] - monitoring_summary["outdated_or_unavailable_sources"],
+            "unavailable_or_degraded_sources": monitoring_summary["outdated_or_unavailable_sources"],
+            "updates_awaiting_review": monitoring_summary["updates_awaiting_review"],
+            "last_run": monitoring_summary["last_monitoring_run"],
+            "next_run": scheduler_status["next_run"],
+            "mode": "Polite Official Public Crawler + Human-in-the-Loop Verification"
         },
-        "azure_translator": azure_stat,
         "data_gov_in": {
-            "name": "data.gov.in Public Catalog",
+            "name": "Open Government Data (data.gov.in)",
             "status": "active",
+            "is_live_api": False,
             "mode": "public_catalog_mode",
             "message": "Monitored as public discovery source; API Setu credentials optional."
         },
-<<<<<<< HEAD
-        "bhashini_translation": {
-            "name": "Bhashini NMT Text Translation",
-            "status": bhashini_stat["translation"],
-            "is_live_api": bhashini_stat["is_live_api"],
-            "supported_pairs": ["English ↔ Hindi", "Indic Languages"],
-            "caching": "Deterministic SHA-256 (24h TTL)",
-            "message": bhashini_stat["message"],
-            "last_checked": bhashini_stat["last_checked"]
-        },
-        "bhashini_asr": {
-            "name": "Bhashini Automatic Speech Recognition",
-            "status": bhashini_stat["asr"],
-            "is_live_api": bhashini_stat["is_live_api"],
-            "message": bhashini_stat["message"],
-            "fallback": "Browser Web Speech API active",
-            "last_checked": bhashini_stat["last_checked"]
-        },
-        "bhashini_tts": {
-            "name": "Bhashini Text-To-Speech",
-            "status": bhashini_stat["tts"],
-            "is_live_api": bhashini_stat["is_live_api"],
-            "message": bhashini_stat["message"],
-            "fallback": "Browser SpeechSynthesis active",
-            "last_checked": bhashini_stat["last_checked"]
-=======
         "voice_engine": {
-            "name": "Web Speech Voice Engine",
+            "name": "Web Speech Voice Engine (ASR & TTS)",
             "status": "active",
-            "asr": "Native browser continuous speech recognition (hi-IN & en-IN)",
-            "tts": "Native browser SpeechSynthesis with Hindi phonetic correction",
-            "privacy": "Zero voice audio recorded or sent to any third party server",
-            "supported_languages": ["hi-IN", "en-IN"]
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
+            "asr": "native_browser_speech_recognition",
+            "tts": "native_browser_speech_synthesis",
+            "privacy": "Zero voice audio recorded or stored on server",
+            "supported_locales": ["hi-IN", "en-IN"]
         },
         "eligibility_engine": {
             "name": "Deterministic Python Rule Engine",

@@ -1,12 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useSession } from '../context/SessionContext';
-<<<<<<< HEAD
 import VerificationQuestionnaire from '../components/VerificationQuestionnaire';
-=======
-import { evaluateCitizenProfile } from '../services/api';
-import questionsData from '../data/questions.json';
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
 import {
   CheckCircle,
   HelpCircle,
@@ -22,12 +17,7 @@ import {
   Building2,
   AlertTriangle,
   ArrowRight,
-<<<<<<< HEAD
   Eye
-=======
-  Check,
-  Zap
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
 } from 'lucide-react';
 import AudioSpeaker from '../components/AudioSpeaker';
 
@@ -43,15 +33,9 @@ export default function S4_ResultsScreen() {
   } = useSession();
 
   const [activeTab, setActiveTab] = useState('eligible');
-<<<<<<< HEAD
   const [showBatchVerification, setShowBatchVerification] = useState(false);
   const [activeInlineVerifySchemeId, setActiveInlineVerifySchemeId] = useState(null);
   const [recentResolutionNotice, setRecentResolutionNotice] = useState(null);
-=======
-  const [missingAnswers, setMissingAnswers] = useState({});
-  const [isProcessingVerification, setIsProcessingVerification] = useState(false);
-  const [verificationSuccessMsg, setVerificationSuccessMsg] = useState(null);
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
 
   const eligibleSchemes = evaluationResults?.eligible || [];
   const notSureSchemes = evaluationResults?.not_sure || [];
@@ -59,41 +43,12 @@ export default function S4_ResultsScreen() {
   const noRulesSchemes = evaluationResults?.no_rules || [];
   const contradictions = evaluationResults?.contradictions || [];
 
-<<<<<<< HEAD
   // Gather all unique missing fields across all not_sure schemes
   const allMissingFields = Array.from(
     new Set(notSureSchemes.flatMap((s) => s.missing_fields || []))
   );
 
   // Navigate to complete full-page view for the scheme
-=======
-  // Map question registry by field name
-  const questionsMap = useMemo(() => {
-    const map = {};
-    (questionsData.questions || []).forEach((q) => {
-      map[q.field] = q;
-    });
-    return map;
-  }, []);
-
-  // Compute unique unknown/missing fields for the "Needs Verification" category
-  const unverifiedMissingFields = useMemo(() => {
-    const fieldsSet = new Set();
-    notSureSchemes.forEach((s) => {
-      (s.missing_fields || []).forEach((f) => {
-        // Exclude internal flags and exclude fields that citizen already has an explicit answer for
-        if (
-          !['holds_constitutional_post', 'is_institutional_landholder', 'confirmed_fields', 'skipped_fields'].includes(f) &&
-          (profile[f] === undefined || profile[f] === null || profile[f] === '')
-        ) {
-          fieldsSet.add(f);
-        }
-      });
-    });
-    return Array.from(fieldsSet);
-  }, [notSureSchemes, profile]);
-
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
   const handleOpenDetails = (schemeResult) => {
     setActiveSchemeModal(schemeResult);
     setCurrentScreen('S5');
@@ -305,11 +260,7 @@ export default function S4_ResultsScreen() {
         <div className="flex items-center gap-1.5 p-1.5 bg-slate-200/80 rounded-xl overflow-x-auto">
           <button
             onClick={() => setActiveTab('eligible')}
-<<<<<<< HEAD
             className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-=======
-            className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
               activeTab === 'eligible'
                 ? 'bg-white text-emerald-800 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -324,11 +275,7 @@ export default function S4_ResultsScreen() {
 
           <button
             onClick={() => setActiveTab('not_sure')}
-<<<<<<< HEAD
             className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-=======
-            className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
               activeTab === 'not_sure'
                 ? 'bg-white text-amber-800 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -343,11 +290,7 @@ export default function S4_ResultsScreen() {
 
           <button
             onClick={() => setActiveTab('not_eligible')}
-<<<<<<< HEAD
             className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-=======
-            className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
               activeTab === 'not_eligible'
                 ? 'bg-white text-rose-800 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -362,11 +305,7 @@ export default function S4_ResultsScreen() {
 
           <button
             onClick={() => setActiveTab('no_rules')}
-<<<<<<< HEAD
             className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-=======
-            className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
               activeTab === 'no_rules'
                 ? 'bg-white text-slate-800 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -380,7 +319,6 @@ export default function S4_ResultsScreen() {
           </button>
         </div>
 
-<<<<<<< HEAD
         {/* 1. Interactive Verification Questionnaire Callout (for "Needs Verification" Tab) */}
         {activeTab === 'not_sure' && notSureSchemes.length > 0 && allMissingFields.length > 0 && (
           <div className="space-y-4">
@@ -434,199 +372,6 @@ export default function S4_ResultsScreen() {
                 onCancel={() => setShowBatchVerification(false)}
               />
             )}
-=======
-        {/* Verification Success Toast / Notification */}
-        {verificationSuccessMsg && (
-          <div className="bg-emerald-50 border border-emerald-300 text-emerald-950 p-4 rounded-2xl flex items-center justify-between text-xs sm:text-sm font-semibold shadow-xs animate-fade-in">
-            <div className="flex items-center gap-2.5">
-              <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-              <span>{verificationSuccessMsg}</span>
-            </div>
-            <button
-              onClick={() => setVerificationSuccessMsg(null)}
-              className="text-xs text-emerald-700 hover:underline cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-
-        {/* INTERACTIVE QUESTIONNAIRE FOR UNKNOWN INFORMATION (Requirement 1) */}
-        {activeTab === 'not_sure' && unverifiedMissingFields.length > 0 && (
-          <div className="bg-gradient-to-br from-amber-50 via-orange-50/50 to-white border-2 border-amber-300/90 rounded-3xl p-6 sm:p-7 shadow-md space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-200/80 pb-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-                  <Zap className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider bg-amber-200 text-amber-900 px-2.5 py-0.5 rounded-full">
-                      {language === 'hi' ? 'अंतिम पात्रता निर्णय प्रश्नावली' : 'Definitive Decision Questionnaire'}
-                    </span>
-                    <span className="text-xs font-bold text-amber-800">
-                      {unverifiedMissingFields.length} {language === 'hi' ? 'महत्वपूर्ण प्रश्न शेष' : 'Questions Required'}
-                    </span>
-                  </div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
-                    {language === 'hi'
-                      ? 'अधूरी जानकारी दर्ज करें — अंतिम पात्रता परिणाम तुरंत जानें'
-                      : 'Provide Unknown Information to Finalize Your Eligibility'}
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                    {language === 'hi'
-                      ? 'सत्यापन आवश्यक वाली योजनाओं के लिए केवल ये कुछ बिंदु स्पष्ट करें। हमारे नियम इंजन द्वारा तत्काल अंतिम निर्णय लिया जाएगा।'
-                      : 'Answer these unconfirmed points to let YojnaSarthi definitively conclude whether you qualify for these schemes.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <form onSubmit={handleProcessMissingAnswers} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                {unverifiedMissingFields.map((fieldKey) => {
-                  const qDef = questionsMap[fieldKey];
-                  if (!qDef) return null;
-
-                  const qTitle = language === 'hi'
-                    ? qDef.title_hi
-                    : language === 'bn'
-                    ? (qDef.title_bn || qDef.title_en)
-                    : qDef.title_en;
-
-                  const qSubtitle = language === 'hi'
-                    ? qDef.subtitle_hi
-                    : language === 'bn'
-                    ? (qDef.subtitle_bn || qDef.subtitle_en)
-                    : qDef.subtitle_en;
-
-                  const currentVal = missingAnswers[fieldKey];
-
-                  return (
-                    <div
-                      key={fieldKey}
-                      className="bg-white border border-amber-200 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3.5 flex flex-col justify-between"
-                    >
-                      <div className="space-y-1">
-                        <label className="text-xs sm:text-sm font-bold text-slate-900 leading-snug block">
-                          {qTitle}
-                        </label>
-                        {qSubtitle && (
-                          <p className="text-[11px] text-slate-500 leading-relaxed">
-                            {qSubtitle}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Render input by type */}
-                      {qDef.type === 'boolean' && (
-                        <div className="grid grid-cols-2 gap-2 pt-1">
-                          <button
-                            type="button"
-                            onClick={() => handleAnswerChange(fieldKey, true)}
-                            className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                              currentVal === true
-                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                            }`}
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                            <span>
-                              {language === 'hi' ? 'हाँ (Yes)' : language === 'bn' ? 'হ্যাঁ (Yes)' : 'Yes'}
-                            </span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => handleAnswerChange(fieldKey, false)}
-                            className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                              currentVal === false
-                                ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                            }`}
-                          >
-                            <span>✕</span>
-                            <span>
-                              {language === 'hi' ? 'नहीं (No)' : language === 'bn' ? 'না (No)' : 'No'}
-                            </span>
-                          </button>
-                        </div>
-                      )}
-
-                      {qDef.type === 'single_choice' && qDef.options && (
-                        <div className="space-y-1.5 pt-1">
-                          {qDef.options.map((opt, oIdx) => {
-                            const optLabel = language === 'hi'
-                              ? opt.label_hi
-                              : language === 'bn'
-                              ? (opt.label_bn || opt.label_en)
-                              : opt.label_en;
-                            const isSelected = currentVal === opt.value;
-
-                            return (
-                              <button
-                                key={oIdx}
-                                type="button"
-                                onClick={() => handleAnswerChange(fieldKey, opt.value)}
-                                className={`w-full text-left p-2.5 rounded-xl border text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
-                                  isSelected
-                                    ? 'bg-blue-50 border-blue-600 text-blue-900 font-bold shadow-2xs'
-                                    : 'bg-slate-50/70 border-slate-200 text-slate-700 hover:bg-slate-100'
-                                }`}
-                              >
-                                <span>{optLabel}</span>
-                                {isSelected && <Check className="w-4 h-4 text-blue-700" />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      {qDef.type === 'number' && (
-                        <div className="relative pt-1">
-                          <input
-                            type="number"
-                            min={qDef.min_val ?? 0}
-                            max={qDef.max_val ?? 10000000}
-                            value={currentVal !== undefined ? currentVal : ''}
-                            onChange={(e) => handleAnswerChange(fieldKey, e.target.value === '' ? null : Number(e.target.value))}
-                            placeholder={`e.g. ${qDef.min_val ?? 0}`}
-                            className="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-hidden bg-white"
-                          />
-                          {qDef.unit && (
-                            <span className="absolute right-3 top-3.5 text-xs font-semibold text-slate-400">
-                              {qDef.unit}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-                <span className="text-xs text-slate-500">
-                  {Object.keys(missingAnswers).length} / {unverifiedMissingFields.length}{' '}
-                  {language === 'hi' ? 'उत्तर दर्ज किए गए' : 'questions answered'}
-                </span>
-
-                <button
-                  type="submit"
-                  disabled={isProcessingVerification || Object.keys(missingAnswers).length === 0}
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer min-h-[44px]"
-                >
-                  <Sparkles className="w-4 h-4 text-teal-400" />
-                  <span>
-                    {isProcessingVerification
-                      ? (language === 'hi' ? 'पात्रता जाँची जा रही है...' : 'Evaluating Rules...')
-                      : (language === 'hi' ? 'जानकारी सत्यापित करें व अंतिम पात्रता देखें' : 'Process Information & Decide Eligibility')}
-                  </span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </form>
->>>>>>> 0c8519a438a18c035174e0639c3e7be376f5f48f
           </div>
         )}
 
