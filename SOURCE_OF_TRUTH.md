@@ -43,7 +43,7 @@
    - Switching language toggles 100% of the UI immediately without page reload or state loss.
 4. **No Mandatory External API Credentials**:
    - The application does not require API Setu or myScheme credentials to function.
-   - If Bhashini, Gemini, or external APIs are unavailable, deterministic offline fallbacks take over seamlessly.
+   - If Gemini, Azure, or external APIs are unconfigured, deterministic offline fallbacks take over seamlessly.
 5. **Human-in-the-Loop Approval for Scheme Catalogue Updates**:
    - The automated scheme monitor detects web updates from official portals and uses AI to summarize diffs.
    - Unapproved scraped changes **never reach the active eligibility evaluator**. Only human-approved versions are published.
@@ -63,13 +63,12 @@
 | **ASGI Server** | **Uvicorn** | >=0.28.0 | High-performance asynchronous web server |
 | **Data Validation** | **Pydantic** | >=2.6.0 (v2) | Strict schema validation for profiles, rules, and responses |
 | **Database** | **SQLite 3** | File: `backend/data/yojnasarthi.db` | WAL mode, indexed relational store with automatic schema init |
-| **Async HTTP Client** | **HTTPX** | >=0.27.0 | Non-blocking HTTP calls for Bhashini and polite crawler |
+| **Async HTTP Client** | **HTTPX** | >=0.27.0 | Non-blocking HTTP calls for Azure AI Translator and polite crawler |
 | **Generative AI** | **Google Gemini** | `google-genai` (2.5 Flash) | Natural language profile extraction and helpdesk reasoning |
 | **Cloud Translation** | **Microsoft Azure AI Translator** | REST API v3.0 | Secure server-side translation across English (`en`), Hindi (`hi`), Bengali (`bn`) with SHA-256 caching |
 | **Voice Speech-to-Text** | **Web Speech API** | Native `webkitSpeechRecognition` | Continuous streaming in-browser STT (`hi-IN` & `en-IN`) |
 | **Voice Text-to-Speech** | **Web Speech Synthesis** | Native `speechSynthesis` | Local TTS with Indian voice selection & Devanagari acronym map |
-| **Govt Voice API** | **Bhashini ULCA** | NLTM Dhruva Pipeline | Official Govt ASR & TTS integration with browser fallback (Strictly separate from Azure Translator) |
-| **Automated Testing** | **Pytest** | 9.2.0 + AnyIO | 92 automated unit, persona, eligibility, translator, and monitoring tests |
+| **Automated Testing** | **Pytest** | 9.2.0 + AnyIO | 87 automated unit, persona, eligibility, translator, and monitoring tests |
 
 ---
 
@@ -96,7 +95,7 @@
 │ • AST Rule Evaluator      │ │ • Gemini 2.5 Flash SDK  │ │ • SQLite 3 (WAL Mode) │
 │ • 3-Valued Logic Outcomes │ │ • 5 Semantic Handlers   │ │ • Schemes Catalog     │
 │ • Info-Gain Questioner    │ │ • Grounded Diff Engine  │ │ • Version History     │
-│ • Bilingual Reason Arrays │ │ • Bhashini ASR/TTS Fall.│ │ • Anonymous Audit Logs│
+│ • Bilingual Reason Arrays │ │ • Web Speech Voice Engine│ │ • Anonymous Audit Logs│
 └───────────────────────────┘ └─────────────────────────┘ └───────────────────────┘
 ```
 
@@ -165,7 +164,7 @@ Located at `backend/data/yojnasarthi.db`. Auto-initialized on startup by `init_d
 - Uses native `webkitSpeechRecognition` with continuous listening (`recognition.continuous = true`).
 - Emits real-time live interim transcripts (`onInterim`) into input fields.
 - Language binding: `hi-IN` for Hindi, `en-IN` for English.
-- Optional backend Bhashini ASR endpoint at `POST /api/bhashini/speech-to-text`.
+- 100% client-side continuous speech recognition with zero audio stored or transmitted to external servers.
 
 ### Text-to-Speech (Read-Aloud Speaker):
 - Implemented in [`frontend/src/services/speech.js`](file:///c:/Users/Lenovo/OneDrive/Desktop/YojnaSarthi/frontend/src/services/speech.js) and [`AudioSpeaker.jsx`](file:///c:/Users/Lenovo/OneDrive/Desktop/YojnaSarthi/frontend/src/components/AudioSpeaker.jsx).
@@ -270,7 +269,7 @@ All backend endpoints are prefixed with `/api` (except `/health` and `/`):
 | Method | Endpoint | Protection | Description |
 | :--- | :--- | :---: | :--- |
 | `GET` | `/health` | Public | System status, database health, scheme count, monitoring counts |
-| `GET` | `/api/integrations/status` | Public | Detailed status of all 8 subsystems (myScheme, Bhashini, Monitoring, Engine, etc.) |
+| `GET` | `/api/integrations/status` | Public | Detailed status of all subsystems (myScheme, Azure Translator, Voice Engine, Monitoring, Engine, etc.) |
 | `GET` | `/api/schemes` | Public | Lists all verified official government schemes |
 | `GET` | `/api/schemes/{id}` | Public | Full scheme details, rules, required documents, and application steps |
 | `GET` | `/api/schemes/{id}/rules-status` | Public | Rule verification age audit and staleness tracking |
@@ -284,8 +283,6 @@ All backend endpoints are prefixed with `/api` (except `/health` and `/`):
 | `GET` | `/api/documents/{doc_id}` | Public | Detailed document procurement instructions and synthetic sample |
 | `POST` | `/api/translate` | Public | Official Microsoft Azure Cognitive Services Translator REST API v3.0 (en, hi, bn) |
 | `GET` | `/api/translate/status` | Public | Live integration status of Azure AI Translator with secret protection |
-| `POST` | `/api/bhashini/speech-to-text` | Public | Bhashini voice transcription endpoint (with browser fallback advice) |
-| `POST` | `/api/bhashini/text-to-speech` | Public | Bhashini speech synthesis endpoint |
 | `POST` | `/api/feedback` | Public | Anonymous scheme rating and feedback submission |
 | `GET` | `/api/admin/monitoring/summary` | `X-Admin-Key` | System monitoring metrics, total sources, pending updates, verified schemes |
 | `GET` | `/api/admin/monitoring/sources` | `X-Admin-Key` | Lists all monitored portals with health status and robots.txt permissions |
@@ -361,8 +358,6 @@ YojnaSarthi/
 │   │   │   ├── ai.py                   # /chat, /parse-text, /form-help
 │   │   │   ├── documents.py            # /documents catalog
 │   │   │   ├── translator.py           # /translate & /translate/status (Microsoft Azure AI Translator)
-│   │   │   ├── bhashini.py             # /bhashini voice endpoints (Speech-to-Text & Text-to-Speech)
-│   │   │   ├── voice.py                # Legacy voice endpoints
 │   │   │   └── admin_monitoring.py     # /admin/monitoring/* (protected by X-Admin-Key)
 │   │   └── services/
 │   │       ├── azure_translator_service.py # Microsoft Azure Cognitive Services Translator client
@@ -370,8 +365,6 @@ YojnaSarthi/
 │   │       ├── document_service.py     # Document guide procurement data
 │   │       ├── checklist_service.py    # Document requirements & issuing authority service
 │   │       ├── gemini_service.py       # Gemini AI client + 5 deterministic intent handlers
-│   │       ├── bhashini_adapter.py     # Bhashini voice ASR and TTS adapter
-│   │       ├── bhashini_service.py     # Bhashini API client
 │   │       └── myscheme_adapter.py     # myScheme / API Setu adapter with local fallback
 │   ├── data/
 │   │   ├── yojnasarthi.db              # SQLite relational database (WAL mode)
@@ -381,7 +374,6 @@ YojnaSarthi/
 │       ├── test_api.py                 # 21 API tests (Chat, Feedback, Security, DB)
 │       ├── test_azure_translator.py    # 14 Azure AI Translator REST API & 6 language pair tests
 │       ├── test_monitoring.py          # 13 Scheme monitoring, crawler, approve/reject tests
-│       ├── test_bhashini_adapter.py    # 3 Bhashini voice ASR & TTS tests
 │       ├── test_document_guide.py      # 5 Document guide search & sample tests
 │       ├── test_eligibility_accuracy.py# 9 Deterministic accuracy & persona tests
 │       ├── test_evaluator.py           # 5 Evaluator unit tests
@@ -389,7 +381,7 @@ YojnaSarthi/
 │       ├── test_myscheme_adapter.py    # 3 myScheme adapter & normalization tests
 │       ├── test_personas.py            # 3 Real-world golden persona journey tests
 │       ├── test_question_selector.py   # 2 Information-gain selection tests
-│       └── test_rules.py               # 10 Rule operator unit tests (90 tests total)
+│       └── test_rules.py               # 10 Rule operator unit tests (87 tests total)
 │
 └── frontend/
     ├── package.json                    # React 19, Vite 8, Tailwind CSS v4, Lucide React
@@ -433,11 +425,11 @@ YojnaSarthi/
 
 ## 14. Test Suite & Quality Verification
 
-All 90 automated backend tests pass with 100% success rate:
+All 87 automated backend tests pass with 100% success rate:
 
 ```bash
 .\backend_venv\Scripts\python.exe -m pytest backend/tests/ -v
-# Output: 90 passed, 1 warning in ~18s
+# Output: 87 passed, 1 warning in ~18s
 ```
 
 Frontend production build compiles cleanly with zero errors:

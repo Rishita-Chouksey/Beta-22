@@ -129,30 +129,6 @@ export async function fetchTranslatorStatus() {
   return await resp.json();
 }
 
-// ==============================================================================
-// Bhashini Integration API (Voice ASR & TTS)
-// ==============================================================================
-
-export async function speechToTextBhashini(audioBase64, language = 'hi') {
-  const resp = await fetch(`${API_BASE_URL}/bhashini/speech-to-text`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ audio_base64: audioBase64, language }),
-  });
-  if (!resp.ok) throw new Error(`Bhashini STT failed: ${resp.status}`);
-  return await resp.json();
-}
-
-export async function textToSpeechBhashini(text, language = 'hi') {
-  const resp = await fetch(`${API_BASE_URL}/bhashini/text-to-speech`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, language }),
-  });
-  if (!resp.ok) throw new Error(`Bhashini TTS failed: ${resp.status}`);
-  return await resp.json();
-}
-
 export async function fetchIntegrationsStatus() {
   const resp = await fetch(`${API_BASE_URL}/integrations/status`);
   if (!resp.ok) throw new Error(`Fetch integration status failed: ${resp.status}`);

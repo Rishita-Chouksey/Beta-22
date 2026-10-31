@@ -265,7 +265,9 @@ export default function S0_StartScreen() {
               </div>
 
               <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-500">
-                <span className="bg-slate-100 px-2.5 py-1 rounded-md">🎙️ Bhashini / Voice Support</span>
+                <span className="bg-slate-100 px-2.5 py-1 rounded-md">
+                  {language === 'hi' ? '🎙️ आवाज़ सहायता' : '🎙️ Voice Support'}
+                </span>
                 <span className="bg-slate-100 px-2.5 py-1 rounded-md">👁️ नागरिक समीक्षा अनिवार्य</span>
               </div>
             </div>

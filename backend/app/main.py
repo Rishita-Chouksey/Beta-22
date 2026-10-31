@@ -6,10 +6,9 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from .config import settings
-from .routes import eligibility, schemes, checklist, ai, voice, documents, bhashini, admin_monitoring, translator
+from .routes import eligibility, schemes, checklist, ai, documents, admin_monitoring, translator
 from .services.scheme_service import scheme_service
 from .services.myscheme_adapter import myscheme_adapter
-from .services.bhashini_adapter import bhashini_adapter
 from .services.azure_translator_service import azure_translator_service
 from .services.document_service import document_service
 from .db.database import (
@@ -108,9 +107,7 @@ app.include_router(eligibility.router, prefix=settings.API_PREFIX, tags=["Eligib
 app.include_router(schemes.router, prefix=settings.API_PREFIX, tags=["Schemes"])
 app.include_router(checklist.router, prefix=settings.API_PREFIX, tags=["Checklist"])
 app.include_router(ai.router, prefix=settings.API_PREFIX, tags=["AI Assistance"])
-app.include_router(voice.router, prefix=settings.API_PREFIX, tags=["Voice & Language (Legacy)"])
 app.include_router(documents.router, prefix=settings.API_PREFIX, tags=["Document Guide"])
-app.include_router(bhashini.router, prefix=settings.API_PREFIX, tags=["Bhashini Official Integration"])
 app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Azure AI Translator"])
 app.include_router(admin_monitoring.router, prefix=settings.API_PREFIX, tags=["Admin Scheme Monitoring"])
 
@@ -120,15 +117,13 @@ async def get_integrations_status():
     Detailed status report of all system integrations:
     - myScheme / API Setu
     - Microsoft Azure AI Translator
-    - Bhashini ASR
-    - Bhashini TTS
+    - Web Speech Voice Engine (ASR & TTS)
     - Python Eligibility Engine
     - Document Guide
     - Scheme Intelligence & Catalogue Monitoring
     - data.gov.in Public Catalog
     """
     myscheme_stat = myscheme_adapter.get_status()
-    bhashini_stat = bhashini_adapter.get_status()
     azure_stat = azure_translator_service.get_status()
     monitoring_summary = MonitoringRepository.get_monitoring_summary()
     scheduler_status = monitoring_scheduler.get_status()
@@ -163,21 +158,13 @@ async def get_integrations_status():
             "message": "Monitored as public discovery source; API Setu credentials optional."
         },
         "azure_translator": azure_stat,
-        "bhashini_asr": {
-            "name": "Bhashini Automatic Speech Recognition",
-            "status": bhashini_stat["asr"],
-            "is_live_api": bhashini_stat["is_live_api"],
-            "message": bhashini_stat["message"],
-            "fallback": "Browser Web Speech API active",
-            "last_checked": bhashini_stat["last_checked"]
-        },
-        "bhashini_tts": {
-            "name": "Bhashini Text-To-Speech",
-            "status": bhashini_stat["tts"],
-            "is_live_api": bhashini_stat["is_live_api"],
-            "message": bhashini_stat["message"],
-            "fallback": "Browser SpeechSynthesis active",
-            "last_checked": bhashini_stat["last_checked"]
+        "voice_engine": {
+            "name": "Web Speech Voice Engine",
+            "status": "active",
+            "asr": "Native browser continuous speech recognition (hi-IN & en-IN)",
+            "tts": "Native browser SpeechSynthesis with Hindi phonetic correction",
+            "privacy": "Zero voice audio recorded or sent to any third party server",
+            "supported_languages": ["hi-IN", "en-IN"]
         },
         "eligibility_engine": {
             "name": "Deterministic Python Rule Engine",
