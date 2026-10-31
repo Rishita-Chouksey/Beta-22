@@ -38,6 +38,11 @@ class Settings(BaseModel):
     ENABLE_BHASHINI_ASR: bool = os.getenv("ENABLE_BHASHINI_ASR", "false").lower() == "true"
     ENABLE_BHASHINI_TTS: bool = os.getenv("ENABLE_BHASHINI_TTS", "false").lower() == "true"
     
+    # Administrative Security & Monitoring
+    ADMIN_API_KEY: str = os.getenv("ADMIN_API_KEY", "yojnasarthi-admin-secret-2026")
+    ENABLE_AUTOMATIC_MONITORING: bool = os.getenv("ENABLE_AUTOMATIC_MONITORING", "true").lower() == "true"
+    MONITORING_INTERVAL_SECONDS: int = int(os.getenv("MONITORING_INTERVAL_SECONDS", "86400"))
+
     # Caching TTL
     TRANSLATION_CACHE_TTL_SECONDS: int = int(os.getenv("TRANSLATION_CACHE_TTL_SECONDS", "86400"))
     SCHEME_CACHE_TTL_SECONDS: int = int(os.getenv("SCHEME_CACHE_TTL_SECONDS", "3600"))

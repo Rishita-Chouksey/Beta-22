@@ -146,3 +146,94 @@ export async function fetchIntegrationsStatus() {
   return await resp.json();
 }
 
+
+
+// ==============================================================================
+// Admin Scheme Intelligence & Monitoring API (Protected via X-Admin-Key)
+// ==============================================================================
+function getAdminHeaders(adminKey) {
+  return {
+    'Content-Type': 'application/json',
+    'X-Admin-Key': adminKey || '',
+  };
+}
+
+export async function fetchMonitoringSummary(adminKey) {
+  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/summary`, {
+    headers: getAdminHeaders(adminKey),
+  });
+  if (!resp.ok) throw new Error(`Monitoring summary failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchMonitoringSources(adminKey) {
+  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/sources`, {
+    headers: getAdminHeaders(adminKey),
+  });
+  if (!resp.ok) throw new Error(`Monitoring sources failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchMonitoringChanges(adminKey, limit = 50) {
+  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/changes?limit=${limit}`, {
+    headers: getAdminHeaders(adminKey),
+  });
+  if (!resp.ok) throw new Error(`Monitoring changes failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchPendingUpdates(adminKey, includeDemo = true) {
+  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/pending-updates?include_demo=${includeDemo}`, {
+    headers: getAdminHeaders(adminKey),
+  });
+  if (!resp.ok) throw new Error(`Pending updates failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchSchemeVersionHistory(adminKey, schemeId) {
+  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/schemes/${schemeId}/history`, {
+    headers: getAdminHeaders(adminKey),
+  });
+  if (!resp.ok) throw new Error(`Scheme history failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function triggerMonitoringRun(adminKey, sourceId = null) {
+  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/run`, {
+    method: 'POST',
+    headers: getAdminHeaders(adminKey),
+    body: JSON.stringify({ source_id: sourceId }),
+  });
+  if (!resp.ok) throw new Error(`Run monitoring failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function approveSchemeUpdate(adminKey, updateId, reviewerName, reason) {
+  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/updates/${updateId}/approve`, {
+    method: 'POST',
+    headers: getAdminHeaders(adminKey),
+    body: JSON.stringify({ reviewer_name: reviewerName, reason }),
+  });
+  if (!resp.ok) throw new Error(`Approve update failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function rejectSchemeUpdate(adminKey, updateId, reviewerName, reason) {
+  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/updates/${updateId}/reject`, {
+    method: 'POST',
+    headers: getAdminHeaders(adminKey),
+    body: JSON.stringify({ reviewer_name: reviewerName, reason }),
+  });
+  if (!resp.ok) throw new Error(`Reject update failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function rollbackSchemeVersion(adminKey, schemeId, targetVersionId, reviewerName) {
+  const resp = await fetch(`${API_BASE_URL}/admin/monitoring/schemes/${schemeId}/rollback`, {
+    method: 'POST',
+    headers: getAdminHeaders(adminKey),
+    body: JSON.stringify({ target_version_id: targetVersionId, reviewer_name: reviewerName }),
+  });
+  if (!resp.ok) throw new Error(`Rollback version failed: ${resp.status}`);
+  return await resp.json();
+}

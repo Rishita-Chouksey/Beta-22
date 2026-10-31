@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useSession } from '../context/SessionContext';
-import { RotateCcw, Shield, ExternalLink, Globe, BookOpen, FileCheck2, Home, HelpCircle } from 'lucide-react';
+import { RotateCcw, Shield, ExternalLink, Globe, BookOpen, FileCheck2, Home, HelpCircle, Activity } from 'lucide-react';
 
 export default function Header() {
   const { language, setLanguage, t } = useLanguage();
@@ -10,6 +10,7 @@ export default function Header() {
   const isHomeActive = ['S0', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6'].includes(currentScreen);
   const isDocGuideActive = currentScreen === 'S8';
   const isFormHelpActive = currentScreen === 'S7';
+  const isAdminActive = currentScreen === 'S9';
 
   return (
     <header className="no-print bg-[#0b1730] border-b border-blue-900/40 text-white sticky top-0 z-40 shadow-md">
@@ -77,6 +78,19 @@ export default function Header() {
             <HelpCircle className="w-3.5 h-3.5" />
             <span>{t('nav_form_help')}</span>
           </button>
+
+          <button
+            onClick={() => setCurrentScreen('S9')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              isAdminActive
+                ? 'bg-teal-700 text-white shadow-xs'
+                : 'text-slate-300 hover:text-white hover:bg-blue-950/60'
+            }`}
+            title="Administrative Scheme Intelligence Monitor"
+          >
+            <Shield className="w-3.5 h-3.5 text-teal-400" />
+            <span>{language === 'hi' ? 'योजना निगरानी' : 'Monitor'}</span>
+          </button>
         </nav>
 
         {/* Action Controls */}
@@ -90,6 +104,16 @@ export default function Header() {
           >
             <FileCheck2 className="w-3.5 h-3.5 text-amber-400" />
             <span className="hidden xs:inline">{language === 'hi' ? 'दस्तावेज़' : 'Docs'}</span>
+          </button>
+
+          {/* Quick Monitor Button for Mobile */}
+          <button
+            onClick={() => setCurrentScreen('S9')}
+            className="md:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-teal-300 bg-teal-950/40 border border-teal-700/50 hover:bg-teal-900/60 transition-colors"
+            title="Admin Monitor"
+            aria-label="Admin Monitor"
+          >
+            <Shield className="w-3.5 h-3.5 text-teal-400" />
           </button>
 
           {/* Language Toggle */}

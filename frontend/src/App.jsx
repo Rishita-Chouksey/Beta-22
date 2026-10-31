@@ -14,9 +14,11 @@ import S5_SchemeDetailsModal from './screens/S5_SchemeDetailsModal';
 import S6_DocumentChecklistScreen from './screens/S6_DocumentChecklistScreen';
 import S7_FormHelpScreen from './screens/S7_FormHelpScreen';
 import S8_DocumentGuideScreen from './screens/S8_DocumentGuideScreen';
+import S9_AdminMonitoringScreen from './screens/S9_AdminMonitoringScreen';
+import { Shield } from 'lucide-react';
 
 function MainAppContent() {
-  const { currentScreen } = useSession();
+  const { currentScreen, setCurrentScreen } = useSession();
   const { language } = useLanguage();
 
   return (
@@ -33,6 +35,7 @@ function MainAppContent() {
         {currentScreen === 'S6' && <S6_DocumentChecklistScreen />}
         {currentScreen === 'S7' && <S7_FormHelpScreen />}
         {currentScreen === 'S8' && <S8_DocumentGuideScreen />}
+        {currentScreen === 'S9' && <S9_AdminMonitoringScreen />}
       </main>
 
       {/* Global Civic Footer */}
@@ -58,9 +61,14 @@ function MainAppContent() {
                 : 'Zero Data Retention'}
             </span>
             <span>•</span>
-            <span>
-              {language === 'hi' ? 'डिजिटल भारत' : 'Digital India'}
-            </span>
+            <button
+              onClick={() => setCurrentScreen('S9')}
+              className="text-slate-500 hover:text-teal-700 flex items-center gap-1 transition"
+              title="Admin Scheme Intelligence Monitor"
+            >
+              <Shield className="w-3 h-3 text-teal-600" />
+              <span>{language === 'hi' ? 'प्रशासनिक निगरानी' : 'Admin Monitor'}</span>
+            </button>
           </div>
         </div>
       </footer>
