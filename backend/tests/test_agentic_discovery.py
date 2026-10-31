@@ -3,9 +3,11 @@ import json
 import uuid
 from pathlib import Path
 import pytest
-from fastapi.testclient import TestClient
+from tests.test_client import ApiTestClient
 
 from app.main import app
+from app.config import settings
+from app.admin_auth import create_admin_session, hash_admin_password, SESSION_COOKIE, CSRF_COOKIE
 from app.agents.models import (
     SourceItem,
     SourceType,
@@ -30,8 +32,9 @@ from app.services.scheme_service import scheme_service
 from app.models.profile import CitizenProfile
 from app.engine.evaluator import evaluate_all_schemes
 from app.db import database as db
+from app.db.repository import AuditRepository
 
-client = TestClient(app)
+client = ApiTestClient(app)
 
 
 @pytest.fixture(autouse=True)
@@ -40,6 +43,14 @@ def isolated_agent_test_database(monkeypatch):
     test_db_path = Path(__file__).parent.parent / ".pytest_cache" / f"agentic-tests-{uuid.uuid4().hex}.sqlite"
     monkeypatch.setattr(db, "DB_PATH", str(test_db_path))
     monkeypatch.setattr(db, "_tables_initialized", False)
+    monkeypatch.setattr(settings, "ADMIN_USERNAME", "test-admin")
+    monkeypatch.setattr(settings, "ADMIN_PASSWORD_HASH", hash_admin_password("test-password"))
+    monkeypatch.setattr(settings, "ADMIN_SESSION_SECRET", "test-session-secret-that-is-at-least-32-bytes")
+    monkeypatch.setattr(settings, "ADMIN_COOKIE_SECURE", False)
+    client.cookies.clear()
+    token, csrf = create_admin_session("test-admin")
+    client.cookies.set(SESSION_COOKIE, token, path="/api")
+    client.cookies.set(CSRF_COOKIE, csrf, path="/")
     db.init_db()
     db.seed_schemes_from_json()
     scheme_service.load_schemes()
@@ -47,13 +58,37 @@ def isolated_agent_test_database(monkeypatch):
     for suffix in ("", "-wal", "-shm"):
         Path(f"{test_db_path}{suffix}").unlink(missing_ok=True)
 
+
+def test_chat_audit_does_not_persist_free_text_or_session_id():
+    AuditRepository.log_chat_interaction(
+        "My annual household income is 17,500 and my phone is 9999999999",
+        detected_intent="PRIVACY_TEST",
+        bot_response_preview="Echoed private profile details",
+        session_id="citizen-session-secret",
+    )
+    conn = db.get_db_connection()
+    row = conn.execute("SELECT session_id, user_query, bot_response_preview FROM chat_audit_logs WHERE detected_intent = 'PRIVACY_TEST' ORDER BY id DESC LIMIT 1").fetchone()
+    conn.close()
+    assert row["session_id"] is None
+    assert row["user_query"] == ""
+    assert row["bot_response_preview"] is None
+
+
+def test_chat_audit_metadata_expires_after_30_days():
+    conn = db.get_db_connection()
+    conn.execute("INSERT INTO chat_audit_logs (user_query, detected_intent, created_at) VALUES ('', 'OLD_AUDIT', '2000-01-01 00:00:00')")
+    db.init_db_schema(conn)
+    assert conn.execute("SELECT COUNT(*) FROM chat_audit_logs WHERE detected_intent = 'OLD_AUDIT'").fetchone()[0] == 0
+    conn.close()
+
 # 1. Source Discovery & Domain Filtering & Deduplication
 def test_source_discovery_domain_filtering_and_deduplication():
     agent = SourceDiscoveryAgent()
 
     # Domain filtering verification
-    assert agent.is_official_gov_domain("data.gov.in") is True
-    assert agent.is_official_gov_domain("eseva.mp.gov.in") is True
+    assert agent.is_official_gov_domain("www.myscheme.gov.in") is True
+    assert agent.is_official_gov_domain("data.gov.in") is False
+    assert agent.is_official_gov_domain("eseva.mp.gov.in") is False
     assert agent.is_official_gov_domain("mpedistrict.gov.in") is True
     assert agent.is_official_gov_domain("twitter.com") is False
     assert agent.is_official_gov_domain("randomblog.com") is False
@@ -433,8 +468,13 @@ def test_monitoring_pipeline_review_publish_and_history(monkeypatch):
     assert len([u for u in AgentRepository.get_all_proposed_updates(ReviewStatus.PENDING)
                 if u.source_url == source.url]) == 1
 
-    approval = orchestrator.approve_update(updates[0].id)
+    approval = orchestrator.approve_update(
+        updates[0].id, reviewer_name="Test Policy Reviewer", reason="Verified using controlled official-source fixture."
+    )
     assert approval["success"] is True
+    reviewed = AgentRepository.get_proposed_update_by_id(updates[0].id)
+    assert reviewed.reviewed_by == "Test Policy Reviewer"
+    assert reviewed.review_reason == "Verified using controlled official-source fixture."
     scheme_id = approval["publishing"]["scheme_id"]
     versions = AgentRepository.get_scheme_versions(scheme_id)
     assert versions and versions[0].approval_status == "APPROVED"

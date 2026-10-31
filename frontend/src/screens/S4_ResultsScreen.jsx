@@ -138,6 +138,16 @@ export default function S4_ResultsScreen() {
                 </p>
               ))}
             </div>
+            <div className="flex flex-col gap-2 border-t border-amber-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-relaxed text-amber-950">
+                {language === 'hi'
+                  ? 'इन उत्तरों को जाँचें। यदि सरकारी अभिलेख अलग हों, तो नतीजे पर भरोसा करने से पहले संबंधित योजना कार्यालय से पुष्टि करें।'
+                  : 'Review these answers. If official records differ, confirm with the relevant scheme office before relying on the result.'}
+              </p>
+              <button onClick={() => setCurrentScreen('S3')} className="shrink-0 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 hover:bg-amber-100">
+                {language === 'hi' ? 'उत्तर जाँचें' : 'Review answers'}
+              </button>
+            </div>
           </div>
         )}
 

@@ -6,6 +6,13 @@ from .database import get_db_connection
 
 logger = logging.getLogger("yojnasarthi_repo")
 
+def _scheduler_running() -> bool:
+    try:
+        from ..monitoring.scheduler import monitoring_scheduler
+        return bool(monitoring_scheduler.get_status()["is_running"])
+    except Exception:
+        return False
+
 class SchemeRepository:
     @staticmethod
     def get_all_schemes() -> List[Dict[str, Any]]:
@@ -35,8 +42,8 @@ class SchemeRepository:
                 "official_source_url": r["official_source_url"],
                 "helpline": r["helpline"],
                 "last_verified_date": r["last_verified_date"],
-                "review_status": "verified",
-                "verified_by": ["Official Verification Team", "Policy Review Gate"],
+                "review_status": r["review_status"] if "review_status" in r.keys() else "verified",
+                "verified_by": json.loads(r["verified_by_json"] or "[]") if "verified_by_json" in r.keys() else [],
             })
         return schemes
 
@@ -69,8 +76,8 @@ class SchemeRepository:
             "official_source_url": r["official_source_url"],
             "helpline": r["helpline"],
             "last_verified_date": r["last_verified_date"],
-            "review_status": "verified",
-            "verified_by": ["Official Verification Team", "Policy Review Gate"],
+            "review_status": r["review_status"] if "review_status" in r.keys() else "verified",
+            "verified_by": json.loads(r["verified_by_json"] or "[]") if "verified_by_json" in r.keys() else [],
         }
 
 class AuditRepository:
@@ -83,15 +90,14 @@ class AuditRepository:
         language: str = "hi",
         session_id: Optional[str] = None
     ):
-        """Logs chat query without any personal identity (Zero Citizen PII)."""
+        """Store aggregate routing metadata only; never persist chat text or session IDs."""
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            preview = bot_response_preview[:300] if bot_response_preview else ""
             cursor.execute("""
             INSERT INTO chat_audit_logs (session_id, user_query, detected_scheme_id, detected_intent, bot_response_preview, language)
             VALUES (?, ?, ?, ?, ?, ?)
-            """, (session_id, user_query[:500], detected_scheme_id, detected_intent, preview, language))
+            """, (None, "", detected_scheme_id, detected_intent, None, language))
             conn.commit()
             conn.close()
         except Exception as e:
@@ -152,19 +158,19 @@ class MonitoringRepository:
         cursor.execute("SELECT COUNT(*) FROM schemes")
         total_schemes = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM monitoring_sources")
+        cursor.execute("SELECT COUNT(*) FROM monitoring_sources WHERE automated_monitoring_permitted = 1 AND COALESCE(error_details, '') NOT LIKE 'DEMO/SYNTHETIC:%' AND COALESCE(error_details, '') NOT LIKE 'RETIRED:%'")
         total_sources = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM pending_scheme_updates WHERE status = 'PENDING'")
+        cursor.execute("SELECT COUNT(*) FROM pending_scheme_updates WHERE status = 'PENDING' AND is_demo = 0")
         pending_updates = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM monitoring_activity_logs WHERE status = 'CHANGE_DETECTED'")
+        cursor.execute("SELECT COUNT(*) FROM monitoring_activity_logs WHERE status = 'CHANGE_DETECTED' AND is_demo = 0")
         changes_detected = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM monitoring_sources WHERE accessibility_status IN ('unavailable', 'degraded')")
+        cursor.execute("SELECT COUNT(*) FROM monitoring_sources WHERE automated_monitoring_permitted = 1 AND accessibility_status IN ('unavailable', 'degraded') AND COALESCE(error_details, '') NOT LIKE 'DEMO/SYNTHETIC:%' AND COALESCE(error_details, '') NOT LIKE 'RETIRED:%'")
         outdated_or_unavailable = cursor.fetchone()[0]
 
-        cursor.execute("SELECT MAX(timestamp) FROM monitoring_activity_logs")
+        cursor.execute("SELECT MAX(timestamp) FROM monitoring_activity_logs WHERE is_demo = 0")
         last_run_row = cursor.fetchone()
         last_run = last_run_row[0] if last_run_row and last_run_row[0] else None
 
@@ -178,15 +184,15 @@ class MonitoringRepository:
             "verified_schemes_count": max(0, total_schemes - pending_updates),
             "outdated_or_unavailable_sources": outdated_or_unavailable,
             "last_monitoring_run": last_run,
-            "next_scheduled_run": "Daily at 02:00 IST / Scheduled Interval",
-            "is_scheduler_running": True
+            "next_scheduled_run": "Scheduled" if _scheduler_running() else None,
+            "is_scheduler_running": _scheduler_running()
         }
 
     @staticmethod
     def get_all_sources() -> List[Dict[str, Any]]:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM monitoring_sources ORDER BY category, name")
+        cursor.execute("SELECT * FROM monitoring_sources WHERE automated_monitoring_permitted = 1 AND COALESCE(error_details, '') NOT LIKE 'DEMO/SYNTHETIC:%' AND COALESCE(error_details, '') NOT LIKE 'RETIRED:%' ORDER BY category, name")
         rows = cursor.fetchall()
         conn.close()
 
@@ -210,7 +216,7 @@ class MonitoringRepository:
         return sources
 
     @staticmethod
-    def get_pending_updates(include_demo: bool = True) -> List[Dict[str, Any]]:
+    def get_pending_updates(include_demo: bool = False) -> List[Dict[str, Any]]:
         conn = get_db_connection()
         cursor = conn.cursor()
         query = "SELECT * FROM pending_scheme_updates"
@@ -330,10 +336,14 @@ class MonitoringRepository:
         return True, f"Successfully rejected update {update_id}."
 
     @staticmethod
-    def get_scheme_version_history(scheme_id: str) -> List[Dict[str, Any]]:
+    def get_scheme_version_history(scheme_id: str, include_demo: bool = False) -> List[Dict[str, Any]]:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM scheme_versions WHERE scheme_id = ? ORDER BY version_number DESC", (scheme_id,))
+        query = "SELECT * FROM scheme_versions WHERE scheme_id = ?"
+        if not include_demo:
+            query += " AND COALESCE(is_demo, 0) = 0"
+        query += " ORDER BY version_number DESC"
+        cursor.execute(query, (scheme_id,))
         rows = cursor.fetchall()
         conn.close()
 
@@ -411,7 +421,7 @@ class MonitoringRepository:
     def get_activity_logs(limit: int = 50) -> List[Dict[str, Any]]:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM monitoring_activity_logs ORDER BY timestamp DESC LIMIT ?", (limit,))
+        cursor.execute("SELECT * FROM monitoring_activity_logs WHERE is_demo = 0 ORDER BY timestamp DESC LIMIT ?", (limit,))
         rows = cursor.fetchall()
         conn.close()
 

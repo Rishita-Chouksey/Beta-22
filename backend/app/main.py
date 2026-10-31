@@ -7,15 +7,15 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from .config import settings
-from .routes import eligibility, schemes, checklist, ai, documents, admin_monitoring, translator, agents
+from .routes import eligibility, schemes, checklist, ai, documents, admin_monitoring, translator, agents, admin_auth
 from .services.scheme_service import scheme_service
-from .services.myscheme_adapter import myscheme_adapter
 from .services.azure_translator_service import azure_translator_service
 from .services.document_service import document_service
 from .db.database import (
     init_db,
     seed_schemes_from_json,
     seed_monitoring_sources,
+    seed_monitoring_demo_data,
     get_db_connection
 )
 from .db.repository import RateLimiterRepository, FeedbackRepository, MonitoringRepository
@@ -57,6 +57,8 @@ async def lifespan(app: FastAPI):
             init_db()
             seed_schemes_from_json()
             seed_monitoring_sources()
+            if settings.ENABLE_MONITORING_DEMO_DATA:
+                seed_monitoring_demo_data(enabled=True)
     except Exception as e:
         logger.warning(f"Database init warning: {e}")
 
@@ -83,7 +85,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -100,46 +102,42 @@ app.include_router(documents.router, prefix=settings.API_PREFIX, tags=["Document
 app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Azure AI Translator"])
 app.include_router(admin_monitoring.router, prefix=settings.API_PREFIX, tags=["Admin Scheme Monitoring"])
 app.include_router(agents.router, prefix=settings.API_PREFIX, tags=["Multi-Agent Scheme Intelligence"])
+app.include_router(admin_auth.router, prefix=settings.API_PREFIX)
 
 @app.get("/api/integrations/status", tags=["Integration Status"])
 async def get_integrations_status():
     """
     Detailed status report of all system integrations:
-    - myScheme / API Setu
+    - Manually curated myScheme scheme pages
     - Microsoft Azure AI Translator
     - Web Speech Voice Engine (ASR & TTS)
     - Python Eligibility Engine
     - Document Guide
     - Scheme Intelligence & Catalogue Monitoring
-    - data.gov.in Public Catalog
     """
-    myscheme_stat = myscheme_adapter.get_status()
     azure_stat = azure_translator_service.get_status()
+    from .db.repository import MonitoringRepository
+    monitor_summary = MonitoringRepository.get_monitoring_summary()
 
     return {
         "myscheme": {
-            "name": "myScheme / API Setu",
-            "status": myscheme_stat.status,
-            "is_live_api": myscheme_stat.is_live_api,
-            "active_data_source": myscheme_stat.active_data_source,
-            "message": myscheme_stat.message,
-            "access_requirements": myscheme_stat.access_requirements,
-            "last_checked": myscheme_stat.last_checked
+            "name": "myScheme public scheme pages",
+            "status": "manual_catalog",
+            "is_live_api": False,
+            "active_data_source": "local_json_catalog",
+            "automated_scraping": False,
+            "message": "Citizen scheme data is served from the locally curated catalogue. No API credentials or scheduled page scraping are used.",
+            "source_pages": [s.official_source_url for s in scheme_service.get_all_schemes()
+                             if "myscheme.gov.in/schemes/" in s.official_source_url]
         },
         "scheme_monitoring": {
             "name": "Scheme Intelligence & Catalogue Monitoring",
-            "status": "active",
-            "monitoring_enabled": False,
-            "total_sources_monitored": 10,
-            "mode": "External GitHub Actions Updater (Feature 7)"
+            "status": "active" if monitoring_scheduler.get_status()["is_running"] else "stopped",
+            "monitoring_enabled": monitoring_scheduler.get_status()["is_running"],
+            "total_sources_monitored": monitor_summary["total_sources_monitored"],
+            "mode": "Manual catalogue; background crawling disabled by default"
         },
         "azure_translator": azure_stat,
-        "data_gov_in": {
-            "name": "data.gov.in Public Catalog",
-            "status": "active",
-            "mode": "public_catalog_mode",
-            "message": "Monitored as public discovery source; API Setu credentials optional."
-        },
         "voice_engine": {
             "name": "Web Speech Voice Engine",
             "status": "active",
@@ -183,24 +181,37 @@ async def health_check():
     needs_review = sum(1 for s in schemes if getattr(s, "review_status", "") in ["needs_review", "draft"])
 
     data_version = os.getenv("DATA_VERSION") or os.getenv("GIT_COMMIT_SHA") or "v2.1.0-dynamic"
+    database_status = "connected"
+    try:
+        conn = get_db_connection()
+        conn.execute("SELECT 1").fetchone()
+        conn.close()
+        monitor_summary = MonitoringRepository.get_monitoring_summary()
+    except Exception:
+        database_status = "unavailable"
+        monitor_summary = None
+        logger.exception("Health check could not read the application database.")
+
+    monitoring_status = monitoring_scheduler.get_status()
+    monitoring = {
+        **monitoring_status,
+        "sources_tracked": monitor_summary["total_sources_monitored"] if monitor_summary else None,
+        "total_sources_monitored": monitor_summary["total_sources_monitored"] if monitor_summary else None,
+    }
 
     return {
-        "status": "healthy",
+        "status": "healthy" if database_status == "connected" else "degraded",
         "data_version": data_version,
         "data_generated_at": datetime.now().isoformat(),
         "active_data_source": "local_json_catalog",
         "total_documents": len(document_service.get_all_documents()),
         "document_guide_items": len(document_service.get_all_documents()),
-        "monitoring": {
-            "status": "active",
-            "sources_tracked": 10,
-            "total_sources_monitored": 10
-        },
+        "monitoring": monitoring,
         "schemes_loaded": total,
         "schemes_total": total,
         "schemes_verified": verified,
         "schemes_auto_updated": auto_updated,
         "schemes_needs_review": needs_review,
-        "database": "connected",
-        "privacy": "Zero-PII-logged memory-only mode active"
+        "database": database_status,
+        "privacy": "Citizen profile answers are not stored; chat text is excluded from audit logs."
     }

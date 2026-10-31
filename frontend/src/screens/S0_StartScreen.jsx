@@ -140,7 +140,7 @@ export default function S0_StartScreen() {
               <span className="flex items-center gap-1.5 bg-blue-950/60 px-3 py-1.5 rounded-lg border border-blue-800/40">
                 <Lock className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                 <span>
-                  {language === 'hi' ? 'शून्य डेटा संचयन' : 'Zero Data Retention'}
+                  {language === 'hi' ? 'प्रोफ़ाइल सहेजी नहीं जाती' : 'No profile storage'}
                 </span>
               </span>
             </div>
@@ -466,7 +466,7 @@ export default function S0_StartScreen() {
             {language === 'hi' ? 'गोपनीयता की गारंटी' : 'Privacy Guarantee'}
           </h5>
           <p className="text-[11px] text-slate-500">
-            {language === 'hi' ? 'शून्य डेटा संचयन' : 'Zero Data Retention'}
+            {language === 'hi' ? 'प्रोफ़ाइल सहेजी नहीं जाती' : 'No profile storage'}
           </p>
         </div>
       </section>

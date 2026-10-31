@@ -38,15 +38,18 @@ import {
   rejectAgentUpdate,
   fetchSchemeVersions,
   fetchMonitoringOverview,
-  fetchAllSchemes
+  fetchAllSchemes,
+  fetchAdminSession,
+  loginAdmin,
+  logoutAdmin
 } from '../services/api';
 
 const AGENT_METADATA = {
   source_discovery: {
     titleEn: '1. Source Discovery Agent',
     titleHi: '1. स्रोत खोज एजेंट (Source Discovery)',
-    descEn: 'Discovers public government portals, seed links (data.gov.in, eseva.mp.gov.in), and circular PDFs.',
-    descHi: 'सरकारी पोर्टलों, डेटासेट और पीडीएफ सर्कुलर की स्वचालित खोज करता है।',
+    descEn: 'References myScheme scheme pages for the locally curated catalogue.',
+    descHi: 'स्थानीय योजना सूची के लिए myScheme योजना पृष्ठों का संदर्भ लेता है।',
     icon: Globe,
   },
   crawling: {
@@ -110,6 +113,12 @@ const AGENT_METADATA = {
 export default function S9_AdminMonitoringScreen() {
   const { language } = useLanguage();
   const { setCurrentScreen } = useSession();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [adminUser, setAdminUser] = useState(null);
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authBusy, setAuthBusy] = useState(false);
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'agents', 'sources', 'updates', 'history'
@@ -149,8 +158,52 @@ export default function S9_AdminMonitoringScreen() {
   const [rejectReason, setRejectReason] = useState('');
 
   useEffect(() => {
-    loadAllData();
+    fetchAdminSession()
+      .then((session) => {
+        if (session.authenticated) {
+          setAdminUser(session.username);
+          loadAllData();
+        } else if (!session.configured) {
+          setAuthError(language === 'hi' ? 'प्रशासक लॉगिन कॉन्फ़िगर नहीं है। सर्वर पर सुरक्षित ADMIN_* मान सेट करें।' : 'Admin login is not configured. Set secure ADMIN_* values on the server.');
+        }
+      })
+      .catch((err) => setAuthError(err.message))
+      .finally(() => setAuthChecked(true));
   }, []);
+
+  useEffect(() => {
+    const onSessionExpired = () => {
+      setAdminUser(null);
+      setSources([]); setUpdates([]); setAgentRuns([]); setSchemeCatalog([]); setSchemeVersions([]);
+      setAuthError(language === 'hi' ? 'प्रशासक सत्र समाप्त हो गया। फिर से लॉगिन करें।' : 'Admin session expired. Please sign in again.');
+    };
+    window.addEventListener('admin-session-expired', onSessionExpired);
+    return () => window.removeEventListener('admin-session-expired', onSessionExpired);
+  }, [language]);
+
+  const handleAdminLogin = async (event) => {
+    event.preventDefault();
+    setAuthBusy(true);
+    setAuthError('');
+    try {
+      const session = await loginAdmin(loginUsername, loginPassword);
+      setAdminUser(session.username);
+      setLoginPassword('');
+      await loadAllData();
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+
+  const handleAdminLogout = async () => {
+    try { await logoutAdmin(); } finally {
+      setAdminUser(null);
+      setSources([]); setUpdates([]); setAgentRuns([]); setSchemeCatalog([]); setSchemeVersions([]);
+      setCurrentScreen('S0');
+    }
+  };
 
   const loadAllData = async () => {
     setIsLoading(true);
@@ -224,7 +277,7 @@ export default function S9_AdminMonitoringScreen() {
     try {
       const res = await triggerAgentDiscover();
       if (!res.success) {
-        throw new Error((res.source_errors || []).map((item) => `${item.url}: ${item.error}`).join('; ') || 'All configured discovery portals failed.');
+        throw new Error((res.source_errors || []).map((item) => `${item.url}: ${item.error}`).join('; ') || 'The myScheme source page could not be read.');
       }
       setActionNotification({
         type: 'success',
@@ -281,7 +334,7 @@ export default function S9_AdminMonitoringScreen() {
   // Section D: Change Review Actions
   const handleApproveUpdate = async (updateId) => {
     try {
-      await approveAgentUpdate(updateId, 'Admin Verification Officer', 'Approved following official government notification verification.');
+      await approveAgentUpdate(updateId, 'Approved following official government notification verification.');
       setActionNotification({
         type: 'success',
         message: language === 'hi'
@@ -300,7 +353,7 @@ export default function S9_AdminMonitoringScreen() {
   const handleRejectUpdate = async () => {
     if (!rejectingUpdateId || !rejectReason.trim()) return;
     try {
-      await rejectAgentUpdate(rejectingUpdateId, 'Admin Verification Officer', rejectReason.trim());
+      await rejectAgentUpdate(rejectingUpdateId, rejectReason.trim());
       setActionNotification({
         type: 'info',
         message: language === 'hi' ? 'अपडेट अस्वीकृत कर दिया गया है।' : 'Proposed update was rejected.'
@@ -323,6 +376,25 @@ export default function S9_AdminMonitoringScreen() {
     if (!updateFilter) return true;
     return u.review_status === updateFilter;
   });
+
+  if (!authChecked) return <div className="p-8 text-center text-slate-600">{language === 'hi' ? 'प्रशासक सत्र जाँचा जा रहा है…' : 'Checking administrator session…'}</div>;
+  if (!adminUser) return (
+    <section className="max-w-md mx-auto my-12 w-full rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+      <button onClick={() => setCurrentScreen('S0')} className="mb-5 text-sm text-slate-500 hover:text-slate-900">← {language === 'hi' ? 'वापस' : 'Back'}</button>
+      <h1 className="mb-2 text-2xl font-bold text-slate-900">{language === 'hi' ? 'प्रशासक लॉगिन' : 'Administrator sign in'}</h1>
+      <p className="mb-6 text-sm text-slate-600">{language === 'hi' ? 'इस निगरानी पोर्टल तक केवल अधिकृत प्रशासक पहुँच सकते हैं।' : 'Only authorized administrators can access monitoring and scheme review.'}</p>
+      <form onSubmit={handleAdminLogin} className="space-y-4">
+        <label className="block text-sm font-medium">{language === 'hi' ? 'उपयोगकर्ता नाम' : 'Username'}
+          <input autoComplete="username" required value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+        </label>
+        <label className="block text-sm font-medium">{language === 'hi' ? 'पासवर्ड' : 'Password'}
+          <input autoComplete="current-password" type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+        </label>
+        {authError && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{authError}</p>}
+        <button disabled={authBusy} className="w-full rounded-lg bg-teal-700 px-4 py-2.5 font-semibold text-white disabled:opacity-60">{authBusy ? (language === 'hi' ? 'जाँच जारी है…' : 'Signing in…') : (language === 'hi' ? 'सुरक्षित लॉगिन' : 'Sign in securely')}</button>
+      </form>
+    </section>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-16">
@@ -385,6 +457,7 @@ export default function S9_AdminMonitoringScreen() {
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
             </button>
+            <button onClick={handleAdminLogout} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100">{language === 'hi' ? 'लॉग आउट' : `Sign out (${adminUser})`}</button>
           </div>
         </div>
       </header>
@@ -460,7 +533,7 @@ export default function S9_AdminMonitoringScreen() {
                 </span>
                 <div className="text-2xl font-bold text-slate-900 mt-1">{overview.total_discovered_sources}</div>
                 <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
-                  <Globe className="w-3 h-3 text-indigo-500" /> data.gov.in & MP e-Seva
+                  <Globe className="w-3 h-3 text-indigo-500" /> myScheme reference pages
                 </div>
               </div>
 
@@ -525,7 +598,7 @@ export default function S9_AdminMonitoringScreen() {
                   <p className="text-xs text-slate-500 mt-0.5">
                     {language === 'hi'
                       ? '9 विशिष्ट एजेंट क्रमिक रूप से सार्वजनिक स्रोतों से नियम निकालते हैं एवं साक्ष्य की पुष्टि के बाद ही मानव समीक्षा हेतु प्रस्तुत करते हैं।'
-                      : '9 specialized Python agents autonomously discover, crawl, hash, extract, classify, validate, and queue changes.'}
+                      : 'The agent pipeline runs only when an administrator starts a manual action. Background page scraping is disabled; citizen scheme data comes from the local curated catalogue.'}
                   </p>
                 </div>
                 <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700">
@@ -536,7 +609,7 @@ export default function S9_AdminMonitoringScreen() {
               {/* Pipeline Flow Stepper */}
               <div className="grid grid-cols-1 md:grid-cols-5 gap-3 pt-2">
                 {[
-                  { step: '1', title: 'Discovery & Crawl', desc: 'Seeds (data.gov.in, MP e-Seva) & PDFs scanned' },
+                  { step: '1', title: 'Curated Scheme Pages', desc: 'myScheme page details are stored in the local catalogue' },
                   { step: '2', title: 'SHA-256 Hash Diff', desc: 'Detects semantic modifications vs previous snapshots' },
                   { step: '3', title: 'Extraction & Grounding', desc: 'Eligibility, benefits & exact evidence quotes extracted' },
                   { step: '4', title: 'Classification & Gate', desc: 'Changes routed to Human Policy Review Gate (PENDING)' },
@@ -708,7 +781,7 @@ export default function S9_AdminMonitoringScreen() {
                 </h2>
                 <p className="text-xs text-slate-500">
                   {language === 'hi'
-                    ? 'data.gov.in और MP e-Seva से शुरू होकर सरकारी डोमेन (.gov.in, .nic.in) के सभी अधिकृत पृष्ठ।'
+                    ? 'myScheme के योजना पृष्ठ स्थानीय कैटलॉग में संदर्भित हैं; पृष्ठों की स्वचालित स्क्रैपिंग बंद है।'
                     : 'Discovered official government web pages, datasets, and circulars with verified domain boundaries.'}
                 </p>
               </div>

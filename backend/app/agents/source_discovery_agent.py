@@ -17,8 +17,6 @@ GOV_DOMAIN_PATTERNS = [
     r"\.gov\.in$",
     r"\.nic\.in$",
     r"\.mp\.gov\.in$",
-    r"data\.gov\.in$",
-    r"eseva\.mp\.gov\.in$",
     r"samagra\.gov\.in$",
     r"mpedistrict\.gov\.in$",
     r"india\.gov\.in$",
@@ -30,8 +28,7 @@ EXCLUDE_EXTENSIONS = {".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".
 EXCLUDE_DOMAINS = {"twitter.com", "facebook.com", "youtube.com", "instagram.com", "linkedin.com", "t.me", "wa.me"}
 
 DEFAULT_SEEDS = [
-    "https://data.gov.in/",
-    "https://eseva.mp.gov.in/"
+    "https://www.myscheme.gov.in/"
 ]
 
 class SourceDiscoveryAgent:
@@ -57,8 +54,6 @@ class SourceDiscoveryAgent:
         url_lower = url.lower()
         if url_lower.endswith(".pdf") or ".pdf?" in url_lower:
             return SourceType.PDF
-        if "data.gov.in" in url_lower and ("/dataset" in url_lower or "/resource" in url_lower):
-            return SourceType.DATASET
         if url_lower.endswith(("/", ".html", ".htm", ".aspx", ".php", "/cms/")) or "/service" in url_lower:
             return SourceType.HTML
         return SourceType.HTML
@@ -81,7 +76,7 @@ class SourceDiscoveryAgent:
 
     def discover_sources(self, seed_urls: Optional[List[str]] = None, max_links_per_seed: int = 15) -> List[SourceItem]:
         """
-        Discovers official government links from seed portals, filters duplicates,
+        Discovers official government links from myScheme, filters duplicates,
         persists new sources in the SQLite database, and logs the execution run.
         """
         run_id = f"run-disc-{uuid.uuid4().hex[:8]}"

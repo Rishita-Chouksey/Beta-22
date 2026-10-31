@@ -94,7 +94,7 @@ class CrawlingAgent:
                 }
             resp = polite_get(client, target_url)
 
-            # Check for client-side JS redirect (e.g. MP e-Seva landing page)
+            # Follow a simple client-side redirect only after checking target robots policy.
             if resp.status_code == 200 and "window.location.replace(" in resp.text:
                 match = re.search(r'window\.location\.replace\(["\']([^"\']+)["\']\)', resp.text)
                 if match:

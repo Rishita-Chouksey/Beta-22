@@ -1,12 +1,12 @@
 import pytest
 from unittest.mock import patch, AsyncMock
-from fastapi.testclient import TestClient
+from tests.test_client import ApiTestClient
 import httpx
 
 from app.main import app
 from app.services.azure_translator_service import AzureTranslatorService, azure_translator_service
 
-client = TestClient(app)
+client = ApiTestClient(app)
 
 def test_azure_translator_status_unconfigured():
     """Verify translator status endpoint masks keys and reports unconfigured state accurately."""

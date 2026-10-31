@@ -121,7 +121,7 @@ class AgentRepository:
         if status:
             cursor.execute("SELECT * FROM sources WHERE status = ? ORDER BY created_at DESC LIMIT ?", (status, limit))
         else:
-            cursor.execute("SELECT * FROM sources ORDER BY created_at DESC LIMIT ?", (limit,))
+            cursor.execute("SELECT * FROM sources WHERE status != 'disabled' ORDER BY created_at DESC LIMIT ?", (limit,))
         rows = cursor.fetchall()
         conn.close()
 
@@ -349,7 +349,9 @@ class AgentRepository:
             confidence=float(r["confidence"]) if r["confidence"] is not None else 0.85,
             review_status=ReviewStatus(r["review_status"]),
             created_at=r["created_at"],
-            reviewed_at=r["reviewed_at"]
+            reviewed_at=r["reviewed_at"],
+            reviewed_by=r["reviewed_by"],
+            review_reason=r["review_reason"]
         )
 
     @staticmethod
@@ -389,18 +391,21 @@ class AgentRepository:
                 confidence=float(r["confidence"]) if r["confidence"] is not None else 0.85,
                 review_status=rs,
                 created_at=r["created_at"],
-                reviewed_at=r["reviewed_at"]
+                reviewed_at=r["reviewed_at"],
+                reviewed_by=r["reviewed_by"],
+                review_reason=r["review_reason"]
             ))
         return updates
 
     @staticmethod
-    def update_proposed_update_status(update_id: str, status: ReviewStatus, reviewed_at: Optional[str] = None):
+    def update_proposed_update_status(update_id: str, status: ReviewStatus, reviewed_at: Optional[str] = None,
+                                      reviewed_by: Optional[str] = None, review_reason: Optional[str] = None):
         conn = get_db_connection()
         cursor = conn.cursor()
         ts = reviewed_at or AgentRepository.now_iso()
         cursor.execute("""
-        UPDATE proposed_updates SET review_status = ?, reviewed_at = ? WHERE id = ?
-        """, (status.value, ts, update_id))
+        UPDATE proposed_updates SET review_status = ?, reviewed_at = ?, reviewed_by = ?, review_reason = ? WHERE id = ?
+        """, (status.value, ts, reviewed_by, review_reason, update_id))
         conn.commit()
         conn.close()
 

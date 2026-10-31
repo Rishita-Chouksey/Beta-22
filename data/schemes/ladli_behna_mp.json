@@ -5,17 +5,21 @@
   "name_bn": "মুখ্যমন্ত্রী লাডলি বহনা যোজনা",
   "level": "state",
   "state": "MP",
-  "applicable_states": ["MP"],
+  "applicable_states": [
+    "MP"
+  ],
   "category": "Women Welfare",
-  "personas": ["widow"],
-  "benefit_en": "Direct monthly financial assistance of ₹1,250 transferred every month directly into beneficiary's DBT-enabled bank account.",
-  "benefit_hi": "प्रत्येक माह ₹1,250 की प्रत्यक्ष वित्तीय सहायता सीधे लाभार्थी के आधार-लिंक्ड बैंक खाते में।",
-  "benefit_bn": "আধার সংযুক্ত ডিবিটি ব্যাঙ্ক অ্যাকাউন্টে প্রতি মাসে ₹১,২৫০ সরাসরি আর্থিক সহায়তা।",
+  "personas": [
+    "widow"
+  ],
+  "benefit_en": "The myScheme page lists ₹1,000 per month for an eligible woman, paid to her Aadhaar-linked DBT bank account. Confirm the current amount with the Madhya Pradesh department.",
+  "benefit_hi": "myScheme पृष्ठ पात्र महिला के आधार-लिंक्ड डीबीटी बैंक खाते में ₹1,000 प्रति माह बताता है। वर्तमान राशि मध्य प्रदेश विभाग से सत्यापित करें।",
+  "benefit_bn": "যোগ্য মহিলার আধার-সংযুক্ত ডিবিটি ব্যাঙ্ক অ্যাকাউন্টে প্রতি মাসে ₹১,০০০ জমা হয়। বর্তমান অঙ্ক মধ্যপ্রদেশ সরকারের কাছে যাচাই করুন।",
   "description_en": "Madhya Pradesh state initiative for women's financial independence, nutrition and healthcare empowerment.",
   "description_hi": "महिलाओं के आर्थिक स्वावलंबन, स्वास्थ्य और पोषण में निरंतर सुधार के लिए मध्य प्रदेश शासन की प्रमुख योजना।",
   "description_bn": "মধ্যপ্রদেশে নারীদের ও বিধবাদের অর্থনৈতিকভাবে ক্ষমতায়নের প্রধান উদ্যোগ।",
-  "review_status": "verified",
-  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "review_status": "needs_review",
+  "verified_by": [],
   "auto_update": null,
   "machine_translated": {
     "hi": false,
@@ -47,7 +51,11 @@
       "rule_id": "marital_status_eligible",
       "field": "marital_status",
       "operator": "in",
-      "value": ["married", "widow", "divorced"],
+      "value": [
+        "married",
+        "widow",
+        "divorced"
+      ],
       "description_en": "Applicant must be a married woman, widow, or divorced/deserted woman (unmarried women are excluded).",
       "description_hi": "आवेदिका विवाहित, विधवा या तलाकशुदा/परित्यक्ता महिला होनी चाहिए।",
       "description_bn": "আবেদনকারীকে বিবাহিত, বিধবা বা পরিত্যক্তা মহিলা হতে হবে।",
@@ -61,10 +69,13 @@
       "rule_id": "age_between",
       "field": "age",
       "operator": "between",
-      "value": [21, 60],
-      "description_en": "Age must be between 21 and 60 years.",
-      "description_hi": "आयु 21 से 60 वर्ष के बीच होनी चाहिए।",
-      "description_bn": "বয়স ২১ থেকে ৬০ বছরের মধ্যে হতে হবে।",
+      "value": [
+        23,
+        59
+      ],
+      "description_en": "The myScheme page says age 23 or older and under 60 as of January 1 of the application year.",
+      "description_hi": "myScheme पृष्ठ के अनुसार आवेदन वर्ष की 1 जनवरी को आयु 23 वर्ष या अधिक और 60 वर्ष से कम होनी चाहिए।",
+      "description_bn": "আবেদনের বছরের ১ জানুয়ারি তারিখে বয়স কমপক্ষে ২৩ বছর এবং ৬০ বছরের কম হতে হবে।",
       "why_template": {
         "en": "Age must be between {value} years.",
         "hi": "आयु {value} वर्ष के बीच होनी चाहिए।",
@@ -84,26 +95,12 @@
         "hi": "परिवार की सम्मिलित वार्षिक आय ₹{value} से अधिक नहीं होनी चाहिए।",
         "bn": "পারিবারিক যৌথ বার্ষিক আয় ₹{value} এর বেশি হওয়া চলবে না।"
       }
-    },
-    {
-      "rule_id": "land_limit",
-      "field": "landholding_hectares",
-      "operator": "lte",
-      "value": 2.02,
-      "description_en": "Family agricultural land must not exceed 5 acres (approx 2.02 hectares).",
-      "description_hi": "परिवार के पास 5 एकड़ (लगभग 2.02 हेक्टेयर) से अधिक कृषि भूमि नहीं होनी चाहिए।",
-      "description_bn": "পরিবারের কাছে ৫ একরের (প্রায় ২.০২ হেক্টর) বেশি জমি থাকা চলবে না।",
-      "why_template": {
-        "en": "Family agricultural land must not exceed {value} hectares.",
-        "hi": "परिवार के पास {value} हेक्टेयर से अधिक कृषि भूमि नहीं होनी चाहिए।",
-        "bn": "পরিবারের কাছে {value} হেক্টরের বেশি কৃষিজমি থাকা চলবে না।"
-      }
     }
   ],
   "restrictions": [
-    "No family member should be an income tax payer.",
-    "Applicant must not be a permanent or contractual employee in any government department.",
-    "Applicant must hold a Madhya Pradesh resident domicile."
+    "The myScheme page lists a combined self-declared family annual income limit of ₹2,50,000.",
+    "The myScheme page excludes families with an income-tax payer or a regular/contract government employee or government pensioner.",
+    "The myScheme page may not reflect later Madhya Pradesh updates; verify the current benefit and eligibility with the department."
   ],
   "required_documents": [
     {
@@ -150,16 +147,14 @@
     }
   ],
   "application_procedure": [
-    "Step 1: Check your Samagra e-KYC and ensure Aadhaar is linked to your bank account with DBT active.",
-    "Step 2: Attend the special camp organized at your Gram Panchayat or Ward office.",
-    "Step 3: Officials will fill out the online form on cmladlibahna.mp.gov.in and take live webcam photograph.",
-    "Step 4: Receive SMS acknowledgment with your Ladli Behna Application ID.",
-    "Step 5: Monthly payment begins after the final eligibility list is published."
+    "Collect the form at a Gram Panchayat, Ward Office, or camp site.",
+    "Fill out the application form and attach a photograph.",
+    "Submit the form through the Ladli Behna portal/app at the camp site, Gram Panchayat, or Ward Office."
   ],
-  "official_source_url": "https://cmladlibahna.mp.gov.in/",
-  "last_verified_date": "2026-10-15",
+  "official_source_url": "https://www.myscheme.gov.in/schemes/cmlby",
+  "last_verified_date": "2026-10-31",
   "max_allowed_age_days": 180,
-  "verification_status": "verified",
+  "verification_status": "needs_review",
   "conflicting_schemes": [],
   "helpline": "0755-2700800"
 }

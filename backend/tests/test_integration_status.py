@@ -1,8 +1,8 @@
 import pytest
-from fastapi.testclient import TestClient
+from tests.test_client import ApiTestClient
 from app.main import app
 
-client = TestClient(app)
+client = ApiTestClient(app)
 
 def test_integration_status_endpoint():
     response = client.get("/api/integrations/status")
@@ -17,7 +17,8 @@ def test_integration_status_endpoint():
     assert "document_guide" in data
 
     # Check status values
-    assert data["myscheme"]["status"] in ["active", "configured_awaiting_credentials", "disabled", "failed"]
+    assert data["myscheme"]["status"] == "manual_catalog"
+    assert data["myscheme"]["automated_scraping"] is False
     assert data["azure_translator"]["status"] in ["active", "configured_awaiting_credentials"]
     assert data["voice_engine"]["status"] == "active"
     assert data["eligibility_engine"]["status"] == "active"
