@@ -1,85 +1,142 @@
 {
   "id": "pm_awas_yojana_gramin",
-  "name_en": "Pradhan Mantri Awaas Yojana - Gramin (PMAY-G)",
-  "name_hi": "प्रधानमंत्री आवास योजना - ग्रामीण (PMAY-G)",
+  "name_en": "Pradhan Mantri Awaas Yojana - Gramin",
+  "name_hi": "प्रधानमंत्री आवास योजना - ग्रामीण",
+  "name_bn": "প্রধানমন্ত্রী আবাস যোজনা - গ্রামীণ",
   "level": "central",
-  "applicable_states": ["ALL"],
+  "state": null,
+  "applicable_states": [
+    "ALL"
+  ],
   "category": "Housing",
-  "benefit_en": "Financial grant of ₹1,20,000 (plains) / ₹1,30,000 (hilly/difficult areas) directly transferred in installments for construction of a permanent pucca house, plus ₹12,000 for toilet under SBM-G and 90-95 days of MGNREGA wages.",
-  "benefit_hi": "पक्के मकान के निर्माण के लिए सीधे किस्तों में ₹1,20,000 (मैदानी क्षेत्र) / ₹1,30,000 (पहाड़ी/दुर्गम क्षेत्र) का अनुदान, साथ ही शौचालय हेतु ₹12,000 और 90-95 दिनों की मनरेगा मजदूरी।",
-  "description_en": "Flagship social welfare program to provide housing for all rural homeless and families living in kutcha or dilapidated houses.",
-  "description_hi": "ग्रामीण क्षेत्रों में बेघर और कच्चे या जीर्ण-शीर्ण मकानों में रहने वाले परिवारों को पक्के आवास उपलब्ध कराने की प्रमुख योजना।",
+  "personas": [
+    "farmer",
+    "widow"
+  ],
+  "benefit_en": "Financial assistance of ₹1,20,000 in plains and ₹1,30,000 in hilly/difficult areas for pucca house construction, plus 90/95 days MGNREGA wages and ₹12,000 toilet grant.",
+  "benefit_hi": "पक्के मकान निर्माण हेतु मैदानी क्षेत्रों में ₹1,20,000 एवं पहाड़ी/कठिन क्षेत्रों में ₹1,30,000 की वित्तीय सहायता, साथ ही 90/95 दिन की मनरेगा मजदूरी एवं शौचालय निर्माण हेतु ₹12,000।",
+  "benefit_bn": "পাকা বাড়ি নির্মাণের জন্য সমতল এলাকায় ₹১,২০,০০০ এবং পাহাড়ি/দুর্গম এলাকায় ₹১,৩০,০০০ আর্থিক সহায়তা, সঙ্গে ১০০ দিনের কাজের মজুরি ও শৌচালয় অনুদান।",
+  "description_en": "Flagship rural housing scheme aiming to provide a pucca house with basic amenities to all houseless households living in kutcha and dilapidated houses.",
+  "description_hi": "ग्रामीण क्षेत्रों में कच्चे एवं जर्जर मकानों में रहने वाले सभी बेघर परिवारों को बुनियादी सुविधाओं से युक्त पक्का मकान उपलब्ध कराने की प्रमुख योजना।",
+  "description_bn": "গ্রামীণ এলাকায় কাঁচা ও ভগ্নপ্রায় বাড়িতে বসবাসকারী গৃহহীন পরিবারগুলিকে মৌলিক সুবিধাযুক্ত পাকা বাড়ি প্রদানের প্রধান প্রকল্প।",
+  "review_status": "verified",
+  "verified_by": [
+    "A. Sharma",
+    "R. Chouksey"
+  ],
+  "auto_update": null,
+  "machine_translated": {
+    "hi": false,
+    "bn": true
+  },
+  "tracked": [
+    {
+      "rule_id": "income_limit",
+      "extractor": "income_limit",
+      "kind": "amount_inr"
+    }
+  ],
   "rules": [
     {
+      "rule_id": "residence_rural",
       "field": "residence_type",
       "operator": "eq",
       "value": "rural",
-      "description_en": "Must reside in a rural area / village.",
-      "description_hi": "ग्रामीण क्षेत्र / गांव का निवासी होना चाहिए।"
+      "description_en": "Applicant must reside in a rural village area (Gram Panchayat jurisdiction).",
+      "description_hi": "आवेदक ग्रामीण ग्राम पंचायत क्षेत्र का निवासी होना चाहिए।",
+      "description_bn": "আবেদনকারীকে গ্রামীণ গ্রাম পঞ্চায়েত এলাকার বাসিন্দা হতে হবে।",
+      "why_template": {
+        "en": "Applicant residence area type must be {value}.",
+        "hi": "आवेदक का निवास क्षेत्र {value} होना चाहिए।",
+        "bn": "আবেদনকারীর বসবাসের এলাকা {value} হতে হবে।"
+      }
     },
     {
+      "rule_id": "no_pucca_house",
       "field": "has_pucca_house",
       "operator": "eq",
       "value": false,
-      "description_en": "Beneficiary family must not own a pucca brick house in their name anywhere in India.",
-      "description_hi": "लाभार्थी परिवार के नाम पर भारत में कहीं भी पक्का मकान नहीं होना चाहिए।"
+      "description_en": "Applicant family must not own a pucca (brick/concrete roof) house anywhere in India.",
+      "description_hi": "आवेदक परिवार के पास भारत में कहीं भी पक्का मकान नहीं होना चाहिए।",
+      "description_bn": "আবেদনকারী পরিবারের ভারতে কোথাও নিজস্ব পাকা বাড়ি থাকা চলবে না।",
+      "why_template": {
+        "en": "Ownership of pucca house must be {value}.",
+        "hi": "पक्के मकान का स्वामित्व {value} होना चाहिए।",
+        "bn": "পাকা বাড়ির মালিকানা {value} হতে হবে।"
+      }
     },
     {
+      "rule_id": "income_limit",
       "field": "annual_income",
       "operator": "lte",
       "value": 200000.0,
       "description_en": "Household income must be under ₹2,00,000 per year (or identified in Awaas+ rural deprivation list).",
-      "description_hi": "परिवार की वार्षिक आय ₹2,00,000 से कम होनी चाहिए (या आवास+ सूची में शामिल)।"
+      "description_hi": "परिवार की वार्षिक आय ₹2,00,000 से कम होनी चाहिए (या आवास+ सूची में शामिल)।",
+      "description_bn": "পরিবারের বার্ষিক আয় ₹২,০০,০০০ এর কম হতে হবে।",
+      "why_template": {
+        "en": "Total family annual income must not exceed ₹{value}.",
+        "hi": "परिवार की कुल वार्षिक आय ₹{value} से अधिक नहीं होनी चाहिए।",
+        "bn": "পারিবারিক বার্ষিক আয় ₹{value} এর বেশি হওয়া যাবে না।"
+      }
     }
   ],
   "restrictions": [
-    "Families owning motorized 3-4 wheelers or mechanized agricultural equipment (like tractors) are excluded.",
-    "Households having any member as a government employee are excluded."
+    "Families owning motorized three/four wheelers or agricultural equipment like tractors are excluded.",
+    "Households with any member as a government employee or paying income/professional tax are excluded."
   ],
   "required_documents": [
     {
       "id": "aadhaar",
-      "name_en": "Aadhaar Card of all adult members",
-      "name_hi": "सभी वयस्क सदस्यों का आधार कार्ड",
-      "purpose_en": "Identity and family unit verification.",
-      "purpose_hi": "पहचान और पारिवारिक इकाई सत्यापन।",
-      "how_to_get_en": "Issued by UIDAI.",
-      "how_to_get_hi": "UIDAI द्वारा जारी।",
+      "name_en": "Aadhaar Card",
+      "name_hi": "आधार कार्ड",
+      "name_bn": "আধার কার্ড",
+      "purpose_en": "Biometric and identity authentication of head of household.",
+      "purpose_hi": "परिवार के मुखिया का बायोमेट्रिक एवं पहचान प्रमाणीकरण।",
+      "purpose_bn": "পরিবারের প্রধানের বায়োমেট্রিক এবং পরিচয় প্রমাণ।",
+      "how_to_get_en": "Issued by UIDAI. Visit nearest Aadhaar Center.",
+      "how_to_get_hi": "UIDAI द्वारा जारी। निकटतम आधार केंद्र पर जाएं।",
+      "how_to_get_bn": "UIDAI দ্বারা জারি করা। নিকটতম আধার কেন্দ্রে যোগাযোগ করুন।",
       "online_url": "https://myaadhaar.uidai.gov.in/",
       "offline_office": "Aadhaar Seva Kendra"
     },
     {
-      "id": "job_card_mgnrega",
-      "name_en": "MGNREGA Job Card Number",
-      "name_hi": "मनरेगा जॉब कार्ड संख्या",
-      "purpose_en": "To link unskilled labor wage entitlement (90-95 days) during house construction.",
-      "purpose_hi": "मकान निर्माण के दौरान अकुशल मजदूरी भुगतान को जोड़ने के लिए।",
-      "how_to_get_en": "Issued by Gram Panchayat.",
-      "how_to_get_hi": "ग्राम पंचायत कार्यालय से प्राप्त करें।",
-      "online_url": "https://nrega.nic.in/",
-      "offline_office": "Gram Panchayat Office / Rojgar Sahayak"
+      "id": "bank_passbook",
+      "name_en": "Bank Passbook (DBT / Aadhaar Linked)",
+      "name_hi": "बैंक पासबुक (डीबीटी / आधार लिंक)",
+      "name_bn": "ব্যাঙ্ক পাসবুক (ডিবিটি / আধার সংযুক্ত)",
+      "purpose_en": "For direct electronic transfer of construction installments.",
+      "purpose_hi": "मकान निर्माण की किस्तों के सीधे अंतरण हेतु।",
+      "purpose_bn": "নির্মাণ কিস্তির সরাসরি ব্যাঙ্ক স্থানান্তরের জন্য।",
+      "how_to_get_en": "Account passbook with active NPCI Aadhaar seeding.",
+      "how_to_get_hi": "बैंक शाखा से एनपीसीआई एक्टिव पासबुक।",
+      "how_to_get_bn": "ব্যাঙ্ক শাখা থেকে আধার সংযুক্ত পাসবুক।",
+      "online_url": null,
+      "offline_office": "Local Bank Branch"
     },
     {
-      "id": "bank_passbook",
-      "name_en": "Bank Account Details (Aadhaar Seeded)",
-      "name_hi": "बैंक खाता विवरण (आधार सीडेड)",
-      "purpose_en": "For DBT transfer of construction stage installments based on geotagged photos.",
-      "purpose_hi": "जियो-टैग्ड फोटो के आधार पर निर्माण किस्तों के सीधे भुगतान के लिए।",
-      "how_to_get_en": "Account in applicant's name in commercial or regional rural bank.",
-      "how_to_get_hi": "राष्ट्रीयकृत या क्षेत्रीय ग्रामीण बैंक में आवेदक का खाता।",
-      "online_url": null,
-      "offline_office": "Bank Branch"
+      "id": "job_card",
+      "name_en": "MGNREGA Job Card",
+      "name_hi": "मनरेगा जॉब कार्ड",
+      "name_bn": "মনরেগা জব কার্ড",
+      "purpose_en": "To claim 90 to 95 days of unskilled labour assistance for house construction.",
+      "purpose_hi": "मकान निर्माण में 90-95 दिनों की अकुशल मजदूरी सहायता प्राप्त करने के लिए।",
+      "purpose_bn": "বাড়ি নির্মাণে অদক্ষ শ্রম মজুরি দাবি করার জন্য।",
+      "how_to_get_en": "Issued free of cost by Gram Panchayat.",
+      "how_to_get_hi": "ग्राम पंचायत सचिव द्वारा निःशुल्क जारी।",
+      "how_to_get_bn": "গ্রাম পঞ্চায়েত সচিব দ্বারা বিনামূল্যে জারি করা।",
+      "online_url": "https://nrega.nic.in/",
+      "offline_office": "Gram Panchayat Office"
     }
   ],
   "application_procedure": [
-    "Step 1: Contact your Gram Panchayat or Gram Rozgar Sahayak to verify if your name is listed on the Awaas+ portal.",
-    "Step 2: Submit Aadhaar consent form and bank account details.",
-    "Step 3: Verification team inspects existing kutcha dwelling and captures geotagged photo via AwaasApp.",
-    "Step 4: Sanction letter is approved and first installment released for foundation work.",
-    "Step 5: Subsequent installments released after geotagging plinth, lintel and roof completion stages."
+    "Step 1: Beneficiary identification is done automatically via SECC 2011 and Gram Sabha prioritization.",
+    "Step 2: Gram Panchayat Secretary collects Aadhaar, bank details, and consent form.",
+    "Step 3: Geotagging of existing kutcha house site is completed by the Panchayat Awaas Coordinator.",
+    "Step 4: Block Development Office approves the sanction order; 1st installment (₹25,000-₹40,000) transferred directly to bank account.",
+    "Step 5: Subsequent installments released after geotagged physical verification of plinth, lintel, and roof construction levels."
   ],
   "official_source_url": "https://pmayg.nic.in/",
-  "last_verified_date": "2026-10-15",
+  "last_verified_date": "2026-10-10",
   "max_allowed_age_days": 180,
   "verification_status": "verified",
   "conflicting_schemes": [],

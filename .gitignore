@@ -54,3 +54,10 @@ __pycache__/
 *.pyc
 __pycache__/
 *.pyc
+
+powershell.exe
+
+
+python.cmd
+pytest.cmd
+
