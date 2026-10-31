@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from .config import settings
-from .routes import eligibility, schemes, checklist, ai, voice, documents, bhashini, admin_monitoring, translator
+from .routes import eligibility, schemes, checklist, ai, voice, documents, bhashini, admin_monitoring, translator, agents
 from .services.scheme_service import scheme_service
 from .services.myscheme_adapter import myscheme_adapter
 from .services.bhashini_adapter import bhashini_adapter
@@ -16,7 +16,6 @@ from .db.database import (
     init_db,
     seed_schemes_from_json,
     seed_monitoring_sources,
-    seed_monitoring_demo_data,
     get_db_connection
 )
 from .db.repository import RateLimiterRepository, FeedbackRepository, MonitoringRepository
@@ -68,7 +67,6 @@ async def lifespan(app: FastAPI):
             init_db()
             seed_schemes_from_json()
             seed_monitoring_sources()
-            seed_monitoring_demo_data()
     except Exception as e:
         logger.warning(f"Database init warning: {e}")
 
@@ -113,6 +111,7 @@ app.include_router(documents.router, prefix=settings.API_PREFIX, tags=["Document
 app.include_router(bhashini.router, prefix=settings.API_PREFIX, tags=["Bhashini Official Integration"])
 app.include_router(translator.router, prefix=settings.API_PREFIX, tags=["Azure AI Translator"])
 app.include_router(admin_monitoring.router, prefix=settings.API_PREFIX, tags=["Admin Scheme Monitoring"])
+app.include_router(agents.router, prefix=settings.API_PREFIX, tags=["Multi-Agent Scheme Intelligence"])
 
 @app.get("/api/integrations/status", tags=["Integration Status"])
 async def get_integrations_status():

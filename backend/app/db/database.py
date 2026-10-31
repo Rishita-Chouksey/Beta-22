@@ -151,13 +151,106 @@ def init_db_schema(conn: sqlite3.Connection):
     )
     """)
 
+    # 9. Multi-Agent Discovery: sources table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS sources (
+        id TEXT PRIMARY KEY,
+        url TEXT UNIQUE NOT NULL,
+        domain TEXT NOT NULL,
+        source_type TEXT NOT NULL,
+        discovered_from TEXT,
+        status TEXT DEFAULT 'discovered',
+        last_checked_at TEXT,
+        last_successful_fetch_at TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # 10. Multi-Agent Discovery: source_snapshots table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS source_snapshots (
+        id TEXT PRIMARY KEY,
+        source_id TEXT NOT NULL,
+        content_hash TEXT NOT NULL,
+        extracted_content TEXT NOT NULL,
+        retrieved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        document_type TEXT NOT NULL,
+        previous_snapshot_id TEXT,
+        FOREIGN KEY(source_id) REFERENCES sources(id)
+    )
+    """)
+
+    # 11. Multi-Agent Discovery: discovered_schemes table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS discovered_schemes (
+        id TEXT PRIMARY KEY,
+        scheme_name TEXT NOT NULL,
+        department TEXT,
+        state TEXT,
+        source_id TEXT NOT NULL,
+        source_url TEXT NOT NULL,
+        extracted_data TEXT NOT NULL,
+        verification_status TEXT DEFAULT 'unverified',
+        first_discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(source_id) REFERENCES sources(id)
+    )
+    """)
+
+    # 12. Multi-Agent Discovery: proposed_updates table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS proposed_updates (
+        id TEXT PRIMARY KEY,
+        scheme_id TEXT NOT NULL,
+        change_type TEXT NOT NULL,
+        old_value TEXT,
+        proposed_value TEXT,
+        evidence TEXT,
+        source_url TEXT NOT NULL,
+        confidence REAL DEFAULT 0.85,
+        review_status TEXT DEFAULT 'PENDING',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        reviewed_at TIMESTAMP
+    )
+    """)
+
+    # 13. Multi-Agent Discovery: agent_runs table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS agent_runs (
+        id TEXT PRIMARY KEY,
+        agent_name TEXT NOT NULL,
+        status TEXT NOT NULL,
+        input_summary TEXT,
+        output_summary TEXT,
+        error_message TEXT,
+        started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        completed_at TIMESTAMP
+    )
+    """)
+
+    # Ensure scheme_versions columns exist for Section 5 schema compatibility
+    cursor.execute("PRAGMA table_info(scheme_versions)")
+    existing_cols = {col[1] for col in cursor.fetchall()}
+    if "source_url" not in existing_cols:
+        cursor.execute("ALTER TABLE scheme_versions ADD COLUMN source_url TEXT")
+    if "scheme_data" not in existing_cols:
+        cursor.execute("ALTER TABLE scheme_versions ADD COLUMN scheme_data TEXT")
+    if "approval_status" not in existing_cols:
+        cursor.execute("ALTER TABLE scheme_versions ADD COLUMN approval_status TEXT DEFAULT 'APPROVED'")
+
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_rate_limit ON rate_limit_records (client_ip, endpoint, timestamp)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_schemes_category ON schemes (category)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_schemes_level ON schemes (level)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_scheme_versions ON scheme_versions (scheme_id, version_number)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_pending_updates ON pending_scheme_updates (scheme_id, status)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_monitoring_logs ON monitoring_activity_logs (timestamp)")
-
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_sources_domain ON sources (domain)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_sources_status ON sources (status)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_snapshots_source ON source_snapshots (source_id, retrieved_at)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_disc_schemes_src ON discovered_schemes (source_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_prop_updates_status ON proposed_updates (review_status)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_agent_runs_name ON agent_runs (agent_name, started_at)")
+    seed_agent_sources(conn)
     conn.commit()
 
 def get_db_connection() -> sqlite3.Connection:
@@ -176,7 +269,6 @@ def get_db_connection() -> sqlite3.Connection:
         cursor.execute("SELECT COUNT(*) FROM monitoring_sources")
         if cursor.fetchone()[0] == 0:
             seed_monitoring_sources(conn)
-            seed_monitoring_demo_data(conn)
     return conn
 
 def init_db():
@@ -431,3 +523,25 @@ def seed_monitoring_demo_data(conn: Optional[sqlite3.Connection] = None):
     if should_close:
         conn.close()
     logger.info("Seeded monitoring sources and synthetic demonstration dataset.")
+
+def seed_agent_sources(conn: Optional[sqlite3.Connection] = None):
+    """Initializes official seed portals into sources table."""
+    should_close = False
+    if conn is None:
+        conn = get_db_connection()
+        should_close = True
+    cursor = conn.cursor()
+    seeds = [
+        ("src_seed_datagov", "https://data.gov.in/", "data.gov.in", "PORTAL", "initial_seed", "discovered"),
+        ("src_seed_eseva", "https://eseva.mp.gov.in/", "eseva.mp.gov.in", "PORTAL", "initial_seed", "discovered")
+    ]
+    for s_id, s_url, s_dom, s_type, s_from, s_stat in seeds:
+        cursor.execute("""
+        INSERT INTO sources (id, url, domain, source_type, discovered_from, status)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO NOTHING
+        """, (s_id, s_url, s_dom, s_type, s_from, s_stat))
+    conn.commit()
+    if should_close:
+        conn.close()
+    logger.info("Seeded official seed portals into sources table.")

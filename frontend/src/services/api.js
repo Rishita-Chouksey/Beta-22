@@ -254,3 +254,111 @@ export async function rollbackSchemeVersion(adminKey, schemeId, targetVersionId,
   if (!resp.ok) throw new Error(`Rollback version failed: ${resp.status}`);
   return await resp.json();
 }
+
+// ==============================================================================
+// Multi-Agent Discovery & Scheme Intelligence API
+// ==============================================================================
+export async function fetchAgentsStatus() {
+  const resp = await fetch(`${API_BASE_URL}/agents/status`);
+  if (!resp.ok) throw new Error(`Fetch agents status failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchAgentRuns(limit = 50) {
+  const resp = await fetch(`${API_BASE_URL}/agents/runs?limit=${limit}`);
+  if (!resp.ok) throw new Error(`Fetch agent runs failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function triggerAgentDiscover(seeds = null, maxLinks = 15) {
+  const resp = await fetch(`${API_BASE_URL}/agents/discover`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ seeds, max_links_per_seed: maxLinks }),
+  });
+  if (!resp.ok) throw new Error(`Discover failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function triggerAgentCrawl(sourceIds = null, maxSources = 10) {
+  const resp = await fetch(`${API_BASE_URL}/agents/crawl`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source_ids: sourceIds, max_sources: maxSources }),
+  });
+  if (!resp.ok) throw new Error(`Crawl failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function triggerAgentMonitor(sourceIds = null, maxSources = 10) {
+  const resp = await fetch(`${API_BASE_URL}/agents/monitor`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source_ids: sourceIds, max_sources: maxSources }),
+  });
+  if (!resp.ok) throw new Error(`Monitor failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchDiscoveredSources(status = null, limit = 100) {
+  const params = new URLSearchParams();
+  if (status) params.append('status', status);
+  if (limit) params.append('limit', limit);
+  const url = `${API_BASE_URL}/sources${params.toString() ? `?${params.toString()}` : ''}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Fetch sources failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchSourceDetail(sourceId) {
+  const resp = await fetch(`${API_BASE_URL}/sources/${sourceId}`);
+  if (!resp.ok) throw new Error(`Fetch source detail failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchAgentUpdates(status = null) {
+  const params = new URLSearchParams();
+  if (status) params.append('status', status);
+  const url = `${API_BASE_URL}/updates${params.toString() ? `?${params.toString()}` : ''}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Fetch updates failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchAgentUpdateDetail(updateId) {
+  const resp = await fetch(`${API_BASE_URL}/updates/${updateId}`);
+  if (!resp.ok) throw new Error(`Fetch update detail failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function approveAgentUpdate(updateId, reviewerName = 'Admin Officer', reason = 'Verified against official notification') {
+  const resp = await fetch(`${API_BASE_URL}/updates/${updateId}/approve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reviewer_name: reviewerName, reason }),
+  });
+  if (!resp.ok) throw new Error(`Approve update failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function rejectAgentUpdate(updateId, reviewerName = 'Admin Officer', reason = 'Discrepancy with official circular') {
+  const resp = await fetch(`${API_BASE_URL}/updates/${updateId}/reject`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reviewer_name: reviewerName, reason }),
+  });
+  if (!resp.ok) throw new Error(`Reject update failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchSchemeVersions(schemeId) {
+  const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}/versions`);
+  if (!resp.ok) throw new Error(`Fetch scheme versions failed: ${resp.status}`);
+  return await resp.json();
+}
+
+export async function fetchMonitoringOverview() {
+  const resp = await fetch(`${API_BASE_URL}/monitoring/status`);
+  if (!resp.ok) throw new Error(`Fetch monitoring overview failed: ${resp.status}`);
+  return await resp.json();
+}
