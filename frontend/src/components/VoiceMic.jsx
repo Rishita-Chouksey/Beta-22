@@ -8,7 +8,7 @@ export default function VoiceMic({ onTranscriptChange, onLiveInterim = null, cla
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [hasCapturedSpeech, setHasCapturedSpeech] = useState(false);
-  const { language, t } = useLanguage();
+  const { language, t, lt } = useLanguage();
   
   const recognizerRef = useRef(null);
   const timerRef = useRef(null);
@@ -35,21 +35,15 @@ export default function VoiceMic({ onTranscriptChange, onLiveInterim = null, cla
       onError: (errCode) => {
         if (errCode === 'permission_denied') {
           setErrorMessage(
-            language === 'hi'
-              ? 'माइक्रोफ़ोन की अनुमति अस्वीकृत है। कृपया ब्राउज़र सेटिंग्स में माइक्रोफ़ोन की अनुमति दें।'
-              : 'Microphone permission blocked. Please allow mic access in your browser address bar.'
+            lt('Microphone permission blocked. Please allow mic access in your browser address bar.', 'माइक्रोफ़ोन की अनुमति अस्वीकृत है। कृपया ब्राउज़र सेटिंग्स में माइक्रोफ़ोन की अनुमति दें।')
           );
         } else if (errCode === 'browser_unsupported') {
           setErrorMessage(
-            language === 'hi'
-              ? 'इस ब्राउज़र में ध्वनि पहचान समर्थित नहीं है। कृपया लिखकर विवरण दर्ज करें।'
-              : 'Speech recognition is not supported in this browser. Please use text typing.'
+            lt('Speech recognition is not supported in this browser. Please use text typing.', 'इस ब्राउज़र में ध्वनि पहचान समर्थित नहीं है। कृपया लिखकर विवरण दर्ज करें।')
           );
         } else if (errCode === 'network_error') {
           setErrorMessage(
-            language === 'hi'
-              ? 'ध्वनि सेवा नेटवर्क समस्या। आप नीचे लिखकर भी विवरण दर्ज कर सकते हैं।'
-              : 'Voice recognition network error. You can continue by typing.'
+            lt('Voice recognition network error. You can continue by typing.', 'ध्वनि सेवा नेटवर्क समस्या। आप नीचे लिखकर भी विवरण दर्ज कर सकते हैं।')
           );
         }
       },
@@ -115,14 +109,14 @@ export default function VoiceMic({ onTranscriptChange, onLiveInterim = null, cla
             aria-label={t('voice_input')}
           >
             <Mic className="w-4 h-4 text-teal-700" />
-            <span>{language === 'hi' ? 'बोलकर बताएं' : 'Speak with Voice'}</span>
+            <span>{lt('Speak with Voice', 'बोलकर बताएं')}</span>
           </button>
         ) : (
           <div className="inline-flex items-center gap-3 p-1.5 pr-3 rounded-xl bg-rose-50 border border-rose-300 shadow-sm animate-pulse">
             {/* Live recording pulsing indicator */}
             <div className="flex items-center gap-2 px-2.5 py-1 text-xs font-bold text-rose-800">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping inline-block" />
-              <span>{language === 'hi' ? 'सुन रहे हैं...' : 'Recording...'}</span>
+              <span>{lt('Recording...', 'सुन रहे हैं...')}</span>
               <span className="font-mono text-rose-950 font-extrabold">{formatTime(recordingSeconds)}</span>
             </div>
 
@@ -135,16 +129,14 @@ export default function VoiceMic({ onTranscriptChange, onLiveInterim = null, cla
               aria-label={t('voice_stop')}
             >
               <Square className="w-3.5 h-3.5 fill-current" />
-              <span>{language === 'hi' ? 'रिकॉर्डिंग रोकें (Stop)' : 'Stop Recording'}</span>
+              <span>{lt('Stop Recording', 'रिकॉर्डिंग रोकें (Stop)')}</span>
             </button>
           </div>
         )}
 
         {isRecording && (
           <span className="text-[11px] text-slate-500 hidden sm:inline">
-            {language === 'hi'
-              ? 'बोलते रहें; बोलने के बाद "रिकॉर्डिंग रोकें" दबाएं।'
-              : 'Speak naturally with pauses; click Stop when finished.'}
+            {lt('Speak naturally with pauses; click Stop when finished.', 'बोलते रहें; बोलने के बाद "रिकॉर्डिंग रोकें" दबाएं।')}
           </span>
         )}
       </div>

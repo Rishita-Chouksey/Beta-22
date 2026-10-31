@@ -14,6 +14,7 @@ class SourceStatus(str, Enum):
     CRAWLED = "crawled"
     FAILED = "failed"
     DEGRADED = "degraded"
+    DISABLED = "disabled"
 
 class ChangeDetectionStatus(str, Enum):
     NEW_SOURCE = "NEW_SOURCE"
@@ -89,6 +90,8 @@ class ProposedUpdate(BaseModel):
     review_status: ReviewStatus = ReviewStatus.PENDING
     created_at: Optional[str] = None
     reviewed_at: Optional[str] = None
+    reviewed_by: Optional[str] = None
+    review_reason: Optional[str] = None
 
 class SchemeVersion(BaseModel):
     id: Optional[int] = None

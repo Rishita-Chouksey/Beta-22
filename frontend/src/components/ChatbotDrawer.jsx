@@ -7,15 +7,13 @@ import AudioSpeaker from './AudioSpeaker';
 import VoiceMic from './VoiceMic';
 
 export default function ChatbotDrawer() {
-  const { language, t } = useLanguage();
+  const { language, t, lt, tr } = useLanguage();
   const { isChatOpen, setIsChatOpen, activeSchemeModal, profile, openDocumentGuide } = useSession();
   
   const initialBotWelcome = {
     id: 'welcome',
     sender: 'bot',
-    text: language === 'hi'
-      ? 'नमस्ते! मैं योजनासारथी सरकारी योजना सहायक हूँ। आप मुझसे किसी भी सरकारी योजना की पात्रता, आवश्यक दस्तावेज़ या आवेदन प्रक्रिया के बारे में पूछ सकते हैं।'
-      : 'Namaste! I am your YojnaSarthi Government Scheme Assistant. Ask me about scheme eligibility rules, required documents, or official application procedures.',
+    text: lt('Namaste! I am your YojnaSarthi Government Scheme Assistant. Ask me about scheme eligibility rules, required documents, or official application procedures.', 'नमस्ते! मैं योजनासारथी सरकारी योजना सहायक हूँ। आप मुझसे किसी भी सरकारी योजना की पात्रता, आवश्यक दस्तावेज़ या आवेदन प्रक्रिया के बारे में पूछ सकते हैं।'),
     sources: []
   };
 
@@ -40,14 +38,16 @@ export default function ChatbotDrawer() {
     });
   }, [language]);
 
-  const quickPrompts = language === 'hi' ? [
+  const quickPromptsHi = [
     { label: '🎓 MMVY छात्रवृत्ति क्या है?', text: 'MMVY क्या है और इसके लिए क्या पात्रता है?' },
     { label: '👩 विधवाओं हेतु योजनाएं', text: 'विधवा महिलाओं के लिए कौन-कौन सी सरकारी योजनाएं उपलब्ध हैं?' },
     { label: '🌾 किसानों हेतु योजनाएं', text: 'किसानों के लिए कौन सी कल्याणकारी योजनाएं उपलब्ध हैं?' },
     { label: '📑 आय प्रमाण पत्र कैसे बनवाएं?', text: 'आय प्रमाण पत्र कैसे और कहाँ से बनवाएं?' },
     { label: '💰 क्या 2 छात्रवृत्ति एक साथ मिल सकती हैं?', text: 'क्या दो छात्रवृत्तियां एक साथ मिल सकती हैं?' },
     { label: '🌸 लाड़ली बहना योजना', text: 'लाड़ली बहना योजना की पात्रता और लाभ क्या हैं?' }
-  ] : [
+  ];
+
+  const quickPromptsEn = [
     { label: '🎓 What is MMVY?', text: 'What is MMVY and who is eligible?' },
     { label: '👩 Schemes for Widows', text: 'Are there any government schemes for widows?' },
     { label: '🌾 Schemes for Farmers', text: 'Which schemes are available for farmers?' },
@@ -55,6 +55,9 @@ export default function ChatbotDrawer() {
     { label: '💰 Two scholarships at once?', text: 'Can I receive two scholarships simultaneously?' },
     { label: '🌸 Ladli Behna Yojana', text: 'What is Ladli Behna Yojana and its benefits?' }
   ];
+
+  // English is the source; Bengali is generated offline from it.
+  const quickPrompts = language === 'hi' ? quickPromptsHi : quickPromptsEn.map((p) => ({ label: tr(p.label), text: tr(p.text) }));
 
   const sendMessageWithText = async (textToSend) => {
     const query = textToSend.trim();
@@ -98,9 +101,7 @@ export default function ChatbotDrawer() {
         {
           id: (Date.now() + 1).toString(),
           sender: 'bot',
-          text: language === 'hi'
-            ? 'क्षमा करें, सेवा अभी व्यस्त है। कृपया आधिकारिक पोर्टल देखें।'
-            : 'Sorry, the service is currently experiencing delay. Please try again or visit official portals.',
+          text: lt('Sorry, the service is currently experiencing delay. Please try again or visit official portals.', 'क्षमा करें, सेवा अभी व्यस्त है। कृपया आधिकारिक पोर्टल देखें।'),
           sources: []
         }
       ]);
@@ -162,7 +163,7 @@ export default function ChatbotDrawer() {
             <div className="bg-amber-50/90 border-b border-amber-200 px-4 py-2 flex items-center justify-between text-xs text-amber-900">
               <span className="flex items-center gap-1.5 font-medium">
                 <FileCheck2 className="w-3.5 h-3.5 text-amber-700" />
-                <span>{language === 'hi' ? 'दस्तावेज़ों का नमूना देखना चाहते हैं?' : 'Need document sample previews?'}</span>
+                <span>{lt('Need document sample previews?', 'दस्तावेज़ों का नमूना देखना चाहते हैं?')}</span>
               </span>
               <button
                 type="button"
@@ -172,7 +173,7 @@ export default function ChatbotDrawer() {
                 }}
                 className="font-bold text-amber-800 hover:text-amber-950 underline cursor-pointer"
               >
-                {language === 'hi' ? 'गाइड खोलें' : 'Open Guide'}
+                {lt('Open Guide', 'गाइड खोलें')}
               </button>
             </div>
 
@@ -196,11 +197,11 @@ export default function ChatbotDrawer() {
                         : 'bg-white text-slate-900 border border-slate-200 rounded-bl-xs'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{m.text}</p>
+                    <p className="whitespace-pre-wrap">{m.id === 'welcome' ? initialBotWelcome.text : m.text}</p>
 
                     {m.sender === 'bot' && (
                       <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                        <AudioSpeaker text={m.text} className="w-7 h-7" />
+                        <AudioSpeaker text={m.id === 'welcome' ? initialBotWelcome.text : m.text} className="w-7 h-7" />
                         {m.sources && m.sources.length > 0 && (
                           <a
                             href={m.sources[0]}
@@ -208,7 +209,7 @@ export default function ChatbotDrawer() {
                             rel="noopener noreferrer"
                             className="text-[11px] text-teal-700 hover:underline flex items-center gap-1 font-semibold"
                           >
-                            <span>{language === 'hi' ? 'आधिकारिक स्रोत' : 'Official Source'}</span>
+                            <span>{lt('Official Source', 'आधिकारिक स्रोत')}</span>
                             <ExternalLink className="w-3 h-3" />
                           </a>
                         )}
@@ -231,7 +232,7 @@ export default function ChatbotDrawer() {
                   </div>
                   <div className="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-xs text-slate-600 flex items-center gap-2 shadow-2xs">
                     <span className="font-semibold text-slate-700">
-                      {language === 'hi' ? 'उत्तर तैयार हो रहा है' : 'YojnaSarthi is typing'}
+                      {lt('YojnaSarthi is typing', 'उत्तर तैयार हो रहा है')}
                     </span>
                     <div className="flex items-center gap-1 pl-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-teal-600 typing-dot-1" />
@@ -283,7 +284,7 @@ export default function ChatbotDrawer() {
               <div className="flex items-center justify-between text-xs text-slate-500 px-1">
                 <VoiceMic onTranscriptChange={handleVoiceTranscript} />
                 <span className="text-[11px] text-slate-400">
-                  {language === 'hi' ? 'गोपनीय एवं सुरक्षित' : 'Zero PII logged'}
+                  {lt('Zero PII logged', 'गोपनीय एवं सुरक्षित')}
                 </span>
               </div>
             </form>

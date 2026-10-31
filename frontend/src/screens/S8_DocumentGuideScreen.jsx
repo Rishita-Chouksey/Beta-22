@@ -23,7 +23,7 @@ import {
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S8_DocumentGuideScreen() {
-  const { language, t } = useLanguage();
+  const { language, t, lt } = useLanguage();
   const {
     currentScreen,
     setCurrentScreen,
@@ -126,10 +126,10 @@ export default function S8_DocumentGuideScreen() {
               <ArrowLeft className="w-4 h-4" />
               <span>
                 {docGuideReturnScreen === 'S5'
-                  ? (language === 'hi' ? 'योजना विवरण पर लौटें' : 'Return to Scheme')
+                  ? (lt('Return to Scheme', 'योजना विवरण पर लौटें'))
                   : docGuideReturnScreen === 'S6'
-                  ? (language === 'hi' ? 'दस्तावेज़ चेकलिस्ट पर लौटें' : 'Return to Checklist')
-                  : (language === 'hi' ? 'वापस जाएं' : 'Go Back')}
+                  ? (lt('Return to Checklist', 'दस्तावेज़ चेकलिस्ट पर लौटें'))
+                  : (lt('Go Back', 'वापस जाएं'))}
               </span>
             </button>
           ) : (
@@ -138,7 +138,7 @@ export default function S8_DocumentGuideScreen() {
               className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 font-medium"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>{language === 'hi' ? 'होम पर जाएं' : 'Home'}</span>
+              <span>{lt('Home', 'होम पर जाएं')}</span>
             </button>
           )}
 
@@ -149,13 +149,13 @@ export default function S8_DocumentGuideScreen() {
               onClick={() => setSelectedDocId(null)}
               className={`cursor-pointer hover:text-blue-700 ${!selectedDocId ? 'font-bold text-slate-900' : ''}`}
             >
-              {language === 'hi' ? 'दस्तावेज़ मार्गदर्शिका (Document Guide)' : 'Document Guide'}
+              {lt('Document Guide', 'दस्तावेज़ मार्गदर्शिका (Document Guide)')}
             </span>
             {activeDoc && (
               <>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                 <span className="font-bold text-slate-900 line-clamp-1">
-                  {language === 'hi' ? activeDoc.name_hi : activeDoc.name_en}
+                  {lt(activeDoc.name_en, activeDoc.name_hi)}
                 </span>
               </>
             )}
@@ -166,9 +166,7 @@ export default function S8_DocumentGuideScreen() {
         <div className="flex items-center gap-2 text-xs text-slate-500 self-start sm:self-auto">
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
           <span>
-            {language === 'hi'
-              ? 'सत्यापित आधिकारिक पोर्टल एवं प्रक्रियाएं'
-              : 'Verified Government Portals & Procedures'}
+            {lt('Verified Government Portals & Procedures', 'सत्यापित आधिकारिक पोर्टल एवं प्रक्रियाएं')}
           </span>
         </div>
       </div>
@@ -192,24 +190,24 @@ export default function S8_DocumentGuideScreen() {
                     }`}
                   >
                     {activeDoc.is_online_available
-                      ? (language === 'hi' ? 'ऑनलाइन आवेदन उपलब्ध' : 'Online Application Available')
-                      : (language === 'hi' ? 'तहसील / केंद्र पर व्यक्तिगत उपस्थिति' : 'Offline / In-Person Visit')}
+                      ? (lt('Online Application Available', 'ऑनलाइन आवेदन उपलब्ध'))
+                      : (lt('Offline / In-Person Visit', 'तहसील / केंद्र पर व्यक्तिगत उपस्थिति'))}
                   </span>
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  {language === 'hi' ? activeDoc.name_hi : activeDoc.name_en}
+                  {lt(activeDoc.name_en, activeDoc.name_hi)}
                 </h1>
                 <p className="text-sm text-slate-600 leading-relaxed max-w-3xl">
-                  {language === 'hi' ? activeDoc.short_explanation_hi : activeDoc.short_explanation_en}
+                  {lt(activeDoc.short_explanation_en, activeDoc.short_explanation_hi)}
                 </p>
               </div>
 
               {/* Audio Read-Aloud & Actions */}
               <div className="flex items-center gap-3">
                 <AudioSpeaker
-                  text={`${language === 'hi' ? activeDoc.name_hi : activeDoc.name_en}। ${
-                    language === 'hi' ? activeDoc.short_explanation_hi : activeDoc.short_explanation_en
+                  text={`${lt(activeDoc.name_en, activeDoc.name_hi)}। ${
+                    lt(activeDoc.short_explanation_en, activeDoc.short_explanation_hi)
                   }`}
                   className="w-10 h-10 shadow-sm"
                 />
@@ -220,7 +218,7 @@ export default function S8_DocumentGuideScreen() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all"
                   >
-                    <span>{language === 'hi' ? 'आवेदन पोर्टल पर जाएं' : 'Apply on Official Portal'}</span>
+                    <span>{lt('Apply on Official Portal', 'आवेदन पोर्टल पर जाएं')}</span>
                     <ExternalLink className="w-4 h-4" />
                   </a>
                 )}
@@ -232,12 +230,10 @@ export default function S8_DocumentGuideScreen() {
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-slate-900 block">
-                  {language === 'hi' ? 'आवेदन माध्यम एवं जारीकर्ता प्राधिकरण:' : 'Application Mode & Issuing Office:'}
+                  {lt('Application Mode & Issuing Office:', 'आवेदन माध्यम एवं जारीकर्ता प्राधिकरण:')}
                 </span>
                 <span>
-                  {language === 'hi'
-                    ? `${activeDoc.application_mode_note_hi} (${activeDoc.issuing_authority_note_hi})`
-                    : `${activeDoc.application_mode_note_en} (${activeDoc.issuing_authority_note_en})`}
+                  {lt(`${activeDoc.application_mode_note_en} (${activeDoc.issuing_authority_note_en})`, `${activeDoc.application_mode_note_hi} (${activeDoc.issuing_authority_note_hi})`)}
                 </span>
               </div>
             </div>
@@ -251,10 +247,10 @@ export default function S8_DocumentGuideScreen() {
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-3">
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2 text-blue-900">
                   <HelpCircle className="w-4 h-4 text-blue-700" />
-                  <span>{language === 'hi' ? 'सरकारी योजनाएं यह दस्तावेज़ क्यों मांगती हैं?' : 'Why Do Government Schemes Require This?'}</span>
+                  <span>{lt('Why Do Government Schemes Require This?', 'सरकारी योजनाएं यह दस्तावेज़ क्यों मांगती हैं?')}</span>
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                  {language === 'hi' ? activeDoc.why_schemes_ask_hi : activeDoc.why_schemes_ask_en}
+                  {lt(activeDoc.why_schemes_ask_en, activeDoc.why_schemes_ask_hi)}
                 </p>
               </div>
 
@@ -262,10 +258,10 @@ export default function S8_DocumentGuideScreen() {
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-3">
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2 text-indigo-900">
                   <Building2 className="w-4 h-4 text-indigo-700" />
-                  <span>{language === 'hi' ? 'यह दस्तावेज़ कौन जारी करता है?' : 'Who Issues This Document?'}</span>
+                  <span>{lt('Who Issues This Document?', 'यह दस्तावेज़ कौन जारी करता है?')}</span>
                 </h2>
                 <p className="text-xs sm:text-sm font-semibold text-slate-900">
-                  {language === 'hi' ? activeDoc.issuer_hi : activeDoc.issuer_en}
+                  {lt(activeDoc.issuer_en, activeDoc.issuer_hi)}
                 </p>
               </div>
 
@@ -273,10 +269,10 @@ export default function S8_DocumentGuideScreen() {
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-3">
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2 text-slate-800">
                   <FileText className="w-4 h-4 text-slate-600" />
-                  <span>{language === 'hi' ? 'इस दस्तावेज़ में क्या जानकारी होती है?' : 'What Information Does It Contain?'}</span>
+                  <span>{lt('What Information Does It Contain?', 'इस दस्तावेज़ में क्या जानकारी होती है?')}</span>
                 </h2>
                 <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
-                  {(language === 'hi' ? activeDoc.contents_hi : activeDoc.contents_en).map((item, idx) => (
+                  {(lt(activeDoc.contents_en, activeDoc.contents_hi)).map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                       <span>{item}</span>
@@ -289,10 +285,10 @@ export default function S8_DocumentGuideScreen() {
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-3">
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2 text-amber-900">
                   <ListChecks className="w-4 h-4 text-amber-700" />
-                  <span>{language === 'hi' ? 'इसे बनवाने हेतु आवश्यक दस्तावेज़ एवं जानकारी:' : 'Documents Needed to Apply For It:'}</span>
+                  <span>{lt('Documents Needed to Apply For It:', 'इसे बनवाने हेतु आवश्यक दस्तावेज़ एवं जानकारी:')}</span>
                 </h2>
                 <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
-                  {(language === 'hi' ? activeDoc.required_for_application_hi : activeDoc.required_for_application_en).map((reqItem, idx) => (
+                  {(lt(activeDoc.required_for_application_en, activeDoc.required_for_application_hi)).map((reqItem, idx) => (
                     <li key={idx} className="flex items-start gap-2.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-600 flex-shrink-0 mt-2"></span>
                       <span>{reqItem}</span>
@@ -305,10 +301,10 @@ export default function S8_DocumentGuideScreen() {
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2 text-blue-900">
                   <FileCheck2 className="w-4 h-4 text-blue-700" />
-                  <span>{language === 'hi' ? 'आवेदन करने के सरल चरण (Step-by-Step Instructions):' : 'Step-by-Step Application Instructions:'}</span>
+                  <span>{lt('Step-by-Step Application Instructions:', 'आवेदन करने के सरल चरण (Step-by-Step Instructions):')}</span>
                 </h2>
                 <div className="space-y-3">
-                  {(language === 'hi' ? activeDoc.application_steps_hi : activeDoc.application_steps_en).map((step, idx) => (
+                  {(lt(activeDoc.application_steps_en, activeDoc.application_steps_hi)).map((step, idx) => (
                     <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs sm:text-sm text-slate-800 leading-relaxed">
                       {step}
                     </div>
@@ -328,10 +324,10 @@ export default function S8_DocumentGuideScreen() {
                 <div className="pt-2 flex items-center justify-between">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                      {language === 'hi' ? 'काल्पनिक प्रारूप (Synthetic Preview)' : 'Synthetic Document Preview'}
+                      {lt('Synthetic Document Preview', 'काल्पनिक प्रारूप (Synthetic Preview)')}
                     </span>
                     <h3 className="font-extrabold text-slate-900 text-base">
-                      {language === 'hi' ? activeDoc.name_hi : activeDoc.name_en}
+                      {lt(activeDoc.name_en, activeDoc.name_hi)}
                     </h3>
                   </div>
                   <span className="text-2xl">🏛️</span>
@@ -351,7 +347,7 @@ export default function S8_DocumentGuideScreen() {
                       {activeDoc.sample_preview.issuing_authority}
                     </p>
                     <p className="text-[10px] text-slate-500">
-                      {language === 'hi' ? 'आधिकारिक नागरिक प्रमाण पत्र प्रारूप' : 'Official Citizen Certificate Layout'}
+                      {lt('Official Citizen Certificate Layout', 'आधिकारिक नागरिक प्रमाण पत्र प्रारूप')}
                     </p>
                   </div>
 
@@ -392,15 +388,13 @@ export default function S8_DocumentGuideScreen() {
                 {/* Prominent Legal Disclaimer */}
                 <div className="text-[11px] text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-200 leading-relaxed space-y-1">
                   <p className="font-semibold text-slate-700">
-                    {language === 'hi' ? '⚠️ कानूनी अस्वीकरण (Disclaimer):' : '⚠️ Important Notice:'}
+                    {lt('⚠️ Important Notice:', '⚠️ कानूनी अस्वीकरण (Disclaimer):')}
                   </p>
                   <p>
-                    {language === 'hi' ? activeDoc.sample_preview.disclaimer_hi : activeDoc.sample_preview.disclaimer_en}
+                    {lt(activeDoc.sample_preview.disclaimer_en, activeDoc.sample_preview.disclaimer_hi)}
                   </p>
                   <p className="text-[10px] text-slate-400">
-                    {language === 'hi'
-                      ? 'यह नमूना केवल लेआउट और फ़ील्ड्स को समझाने हेतु बनाया गया है। इसमें किसी भी वास्तविक नागरिक का डेटा सम्मिलित नहीं है।'
-                      : 'This sample illustrates standard layouts only and does not contain any real citizen data or valid security marks.'}
+                    {lt('This sample illustrates standard layouts only and does not contain any real citizen data or valid security marks.', 'यह नमूना केवल लेआउट और फ़ील्ड्स को समझाने हेतु बनाया गया है। इसमें किसी भी वास्तविक नागरिक का डेटा सम्मिलित नहीं है।')}
                   </p>
                 </div>
 
@@ -413,7 +407,7 @@ export default function S8_DocumentGuideScreen() {
                       rel="noopener noreferrer"
                       className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition-all"
                     >
-                      <span>{language === 'hi' ? 'दस्तावेज़ हेतु आवेदन करें' : 'Apply for this Document'}</span>
+                      <span>{lt('Apply for this Document', 'दस्तावेज़ हेतु आवेदन करें')}</span>
                       <ExternalLink className="w-4 h-4" />
                     </a>
                   )}
@@ -422,7 +416,7 @@ export default function S8_DocumentGuideScreen() {
                     onClick={() => setSelectedDocId(null)}
                     className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 font-semibold text-xs text-slate-700 transition-all"
                   >
-                    <span>{language === 'hi' ? '← सभी दस्तावेज़ देखें' : '← View All Documents in Guide'}</span>
+                    <span>{lt('← View All Documents in Guide', '← सभी दस्तावेज़ देखें')}</span>
                   </button>
                 </div>
               </div>
@@ -436,17 +430,13 @@ export default function S8_DocumentGuideScreen() {
           <div className="bg-gradient-to-b from-white to-blue-50/40 border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-xs space-y-4">
             <div className="max-w-3xl space-y-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-900 text-xs font-bold uppercase tracking-wider">
-                <span>📚 {language === 'hi' ? 'नागरिक दस्तावेज़ मार्गदर्शिका' : 'Citizen Document Guide'}</span>
+                <span>📚 {lt('Citizen Document Guide', 'नागरिक दस्तावेज़ मार्गदर्शिका')}</span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                {language === 'hi'
-                  ? 'सरकारी योजनाओं हेतु आवश्यक दस्तावेज़ एवं आवेदन प्रक्रिया'
-                  : 'Common Government Documents & Procurement Guide'}
+                {lt('Common Government Documents & Procurement Guide', 'सरकारी योजनाओं हेतु आवश्यक दस्तावेज़ एवं आवेदन प्रक्रिया')}
               </h1>
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                {language === 'hi'
-                  ? 'आय प्रमाण पत्र, मूल निवास, जाति प्रमाण पत्र, समग्र आईडी एवं आधार कार्ड के बारे में जानें, उनके काल्पनिक नमूने देखें, और आधिकारिक पोर्टल से सीधे आवेदन करें।'
-                  : 'Understand what certificates are required, view illustrative synthetic samples, know where to apply, and get direct links to official government application portals.'}
+                {lt('Understand what certificates are required, view illustrative synthetic samples, know where to apply, and get direct links to official government application portals.', 'आय प्रमाण पत्र, मूल निवास, जाति प्रमाण पत्र, समग्र आईडी एवं आधार कार्ड के बारे में जानें, उनके काल्पनिक नमूने देखें, और आधिकारिक पोर्टल से सीधे आवेदन करें।')}
               </p>
             </div>
 
@@ -459,9 +449,7 @@ export default function S8_DocumentGuideScreen() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
-                    language === 'hi'
-                      ? 'दस्तावेज़ का नाम खोजें (जैसे: आय, निवास, आधार, समग्र)...'
-                      : 'Search document name (e.g. Income, Domicile, Aadhaar, Land)...'
+                    lt('Search document name (e.g. Income, Domicile, Aadhaar, Land)...', 'दस्तावेज़ का नाम खोजें (जैसे: आय, निवास, आधार, समग्र)...')
                   }
                   className="w-full pl-11 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all shadow-xs"
                 />
@@ -481,7 +469,7 @@ export default function S8_DocumentGuideScreen() {
                     : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                {language === 'hi' ? cat.label_hi : cat.label_en}
+                {lt(cat.label_en, cat.label_hi)}
               </button>
             ))}
           </div>
@@ -507,31 +495,31 @@ export default function S8_DocumentGuideScreen() {
                       }`}
                     >
                       {doc.is_online_available
-                        ? (language === 'hi' ? 'ऑनलाइन' : 'Online')
-                        : (language === 'hi' ? 'ऑफलाइन / केंद्र' : 'In-Person')}
+                        ? (lt('Online', 'ऑनलाइन'))
+                        : (lt('In-Person', 'ऑफलाइन / केंद्र'))}
                     </span>
                   </div>
 
                   <div>
                     <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-700 transition-colors">
-                      {language === 'hi' ? doc.name_hi : doc.name_en}
+                      {lt(doc.name_en, doc.name_hi)}
                     </h3>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                      {language === 'hi' ? doc.short_explanation_hi : doc.short_explanation_en}
+                      {lt(doc.short_explanation_en, doc.short_explanation_hi)}
                     </p>
                   </div>
 
                   <div className="text-[11px] text-slate-500 pt-1">
                     <span className="font-semibold text-slate-700">
-                      {language === 'hi' ? 'जारीकर्ता: ' : 'Issued by: '}
+                      {lt('Issued by: ', 'जारीकर्ता: ')}
                     </span>
-                    <span>{language === 'hi' ? doc.issuer_hi : doc.issuer_en}</span>
+                    <span>{lt(doc.issuer_en, doc.issuer_hi)}</span>
                   </div>
                 </div>
 
                 <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-700">
                   <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                    <span>{language === 'hi' ? 'मार्गदर्शिका एवं नमूना देखें' : 'View Guide & Sample'}</span>
+                    <span>{lt('View Guide & Sample', 'मार्गदर्शिका एवं नमूना देखें')}</span>
                     <ChevronRight className="w-4 h-4" />
                   </span>
                   <span className="text-base">📄</span>
@@ -544,7 +532,7 @@ export default function S8_DocumentGuideScreen() {
             <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 space-y-2">
               <AlertCircle className="w-8 h-8 text-slate-400 mx-auto" />
               <p className="font-bold text-slate-800">
-                {language === 'hi' ? 'कोई दस्तावेज़ नहीं मिला' : 'No documents matched your search'}
+                {lt('No documents matched your search', 'कोई दस्तावेज़ नहीं मिला')}
               </p>
               <button
                 onClick={() => {
@@ -553,7 +541,7 @@ export default function S8_DocumentGuideScreen() {
                 }}
                 className="text-xs text-blue-700 font-semibold hover:underline"
               >
-                {language === 'hi' ? 'सभी फ़िल्टर साफ़ करें' : 'Clear all filters'}
+                {lt('Clear all filters', 'सभी फ़िल्टर साफ़ करें')}
               </button>
             </div>
           )}

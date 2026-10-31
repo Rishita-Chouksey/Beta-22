@@ -7,7 +7,7 @@ import VoiceMic from '../components/VoiceMic';
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S2_FreeTextInputScreen() {
-  const { language, t } = useLanguage();
+  const { language, t, lt } = useLanguage();
   const { setCurrentScreen, setProfile } = useSession();
 
   const [descriptionText, setDescriptionText] = useState('');
@@ -18,23 +18,17 @@ export default function S2_FreeTextInputScreen() {
     {
       label_hi: '🌾 किसान उदाहरण (Farmer)',
       label_en: '🌾 Farmer example',
-      text: language === 'hi'
-        ? 'मैं 48 साल का किसान हूँ, मध्य प्रदेश के सीहोर जिले में रहता हूँ। मेरे पास 1.5 हेक्टेयर खेती की जमीन है और वार्षिक आय 65 हजार रुपये है।'
-        : 'I am a 48 year old farmer living in Sehore, Madhya Pradesh with 1.5 hectares of land and annual family income of 65000 INR.'
+      text: lt('I am a 48 year old farmer living in Sehore, Madhya Pradesh with 1.5 hectares of land and annual family income of 65000 INR.', 'मैं 48 साल का किसान हूँ, मध्य प्रदेश के सीहोर जिले में रहता हूँ। मेरे पास 1.5 हेक्टेयर खेती की जमीन है और वार्षिक आय 65 हजार रुपये है।')
     },
     {
       label_hi: '👩 विधवा महिला उदाहरण (Widow)',
       label_en: '👩 Widow example',
-      text: language === 'hi'
-        ? 'मैं 52 वर्ष की महिला हूँ, मेरे पति का देहांत हो चुका है। मेरे पास बीपीएल राशन कार्ड है और मैं मध्य प्रदेश में रहती हूँ।'
-        : 'I am a 52 year old widow living in Madhya Pradesh. We have a BPL ration card and annual income under 25000.'
+      text: lt('I am a 52 year old widow living in Madhya Pradesh. We have a BPL ration card and annual income under 25000.', 'मैं 52 वर्ष की महिला हूँ, मेरे पति का देहांत हो चुका है। मेरे पास बीपीएल राशन कार्ड है और मैं मध्य प्रदेश में रहती हूँ।')
     },
     {
       label_hi: '🎓 कॉलेज छात्र उदाहरण (Student)',
       label_en: '🎓 Student example',
-      text: language === 'hi'
-        ? 'मैं 19 साल का छात्र हूँ, मध्य प्रदेश का मूल निवासी हूँ। 12वीं बोर्ड में मेरे 86% अंक आए हैं और मैंने बी.टेक इंजीनियरिंग कॉलेज में प्रवेश लिया है।'
-        : 'I am a 19 year old student from MP with 86% marks in 12th board exams and enrolled in an engineering degree.'
+      text: lt('I am a 19 year old student from MP with 86% marks in 12th board exams and enrolled in an engineering degree.', 'मैं 19 साल का छात्र हूँ, मध्य प्रदेश का मूल निवासी हूँ। 12वीं बोर्ड में मेरे 86% अंक आए हैं और मैंने बी.टेक इंजीनियरिंग कॉलेज में प्रवेश लिया है।')
     }
   ];
 
@@ -59,9 +53,7 @@ export default function S2_FreeTextInputScreen() {
     } catch (err) {
       console.error('Text parsing error:', err);
       setErrorMsg(
-        language === 'hi'
-          ? 'विवरण विश्लेषण में समस्या आई। कृपया नीचे दोबारा प्रयास करें।'
-          : 'Could not extract profile details. Please try again or rephrase.'
+        lt('Could not extract profile details. Please try again or rephrase.', 'विवरण विश्लेषण में समस्या आई। कृपया नीचे दोबारा प्रयास करें।')
       );
     } finally {
       setIsParsing(false);
@@ -84,19 +76,15 @@ export default function S2_FreeTextInputScreen() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-snug">
-                {language === 'hi' ? 'अपने बारे में बोलें या लिखें' : 'Describe Yourself in Your Own Words'}
+                {lt('Describe Yourself in Your Own Words', 'अपने बारे में बोलें या लिखें')}
               </h2>
               <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-                {language === 'hi'
-                  ? 'अपनी आयु, व्यवसाय, राज्य, आय और परिवार के बारे में स्वाभाविक रूप से बताएं। एआई केवल आवश्यक विवरण निकालेगा, जिसकी पुष्टि आप अगले चरण में कर सकेंगे।'
-                  : 'Speak or type naturally about your age, work, state, income, and family. AI extracts details for your confirmation before eligibility is computed.'}
+                {lt('Speak or type naturally about your age, work, state, income, and family. AI extracts details for your confirmation before eligibility is computed.', 'अपनी आयु, व्यवसाय, राज्य, आय और परिवार के बारे में स्वाभाविक रूप से बताएं। एआई केवल आवश्यक विवरण निकालेगा, जिसकी पुष्टि आप अगले चरण में कर सकेंगे।')}
               </p>
             </div>
             <AudioSpeaker
               text={
-                language === 'hi'
-                  ? 'अपनी आयु, व्यवसाय, राज्य और परिवार के बारे में बोलकर या लिखकर बताएं।'
-                  : 'Describe yourself in your own words using voice or text.'
+                lt('Describe yourself in your own words using voice or text.', 'अपनी आयु, व्यवसाय, राज्य और परिवार के बारे में बोलकर या लिखकर बताएं।')
               }
               className="mt-1 flex-shrink-0"
             />
@@ -111,9 +99,7 @@ export default function S2_FreeTextInputScreen() {
               value={descriptionText}
               onChange={(e) => setDescriptionText(e.target.value)}
               placeholder={
-                language === 'hi'
-                  ? 'उदाहरण: मैं 48 साल का किसान हूँ, मध्य प्रदेश में रहता हूँ, मेरे पास 1.5 हेक्टेयर जमीन है और वार्षिक आय 65 हजार है...'
-                  : 'E.g., I am a 48 year old farmer living in Madhya Pradesh with 1.5 hectares of land and annual family income of 65,000 INR...'
+                lt('E.g., I am a 48 year old farmer living in Madhya Pradesh with 1.5 hectares of land and annual family income of 65,000 INR...', 'उदाहरण: मैं 48 साल का किसान हूँ, मध्य प्रदेश में रहता हूँ, मेरे पास 1.5 हेक्टेयर जमीन है और वार्षिक आय 65 हजार है...')
               }
               className="w-full text-sm sm:text-base text-slate-900 p-4 rounded-xl border border-slate-300 focus:border-blue-600 focus:outline-hidden bg-slate-50/50 leading-relaxed resize-none shadow-inner"
             />
@@ -124,10 +110,10 @@ export default function S2_FreeTextInputScreen() {
               <VoiceMic onTranscriptChange={handleVoiceTranscript} />
               <div className="text-xs text-slate-600">
                 <span className="font-semibold block">
-                  {language === 'hi' ? 'आवाज से इनपुट (Voice Input)' : 'Voice Microphone'}
+                  {lt('Voice Microphone', 'आवाज से इनपुट (Voice Input)')}
                 </span>
                 <span className="text-slate-400">
-                  {language === 'hi' ? 'माइक बटन दबाएं और स्पष्ट बोलें' : 'Tap mic button and speak clearly'}
+                  {lt('Tap mic button and speak clearly', 'माइक बटन दबाएं और स्पष्ट बोलें')}
                 </span>
               </div>
             </div>
@@ -138,7 +124,7 @@ export default function S2_FreeTextInputScreen() {
                 onClick={() => setDescriptionText('')}
                 className="text-xs text-slate-500 hover:text-rose-600 font-semibold underline transition-colors self-end sm:self-auto"
               >
-                {language === 'hi' ? 'पाठ साफ़ करें (Clear)' : 'Clear Text'}
+                {lt('Clear Text', 'पाठ साफ़ करें (Clear)')}
               </button>
             )}
           </div>
@@ -148,7 +134,7 @@ export default function S2_FreeTextInputScreen() {
         <div className="space-y-2.5">
           <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5 uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>{language === 'hi' ? 'त्वरित उदाहरण विवरण (Tap to fill):' : 'Sample Prompts (Tap to fill):'}</span>
+            <span>{lt('Sample Prompts (Tap to fill):', 'त्वरित उदाहरण विवरण (Tap to fill):')}</span>
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {samplePrompts.map((s, idx) => (
@@ -159,7 +145,7 @@ export default function S2_FreeTextInputScreen() {
                 className="p-3 bg-white hover:bg-blue-50/60 border border-slate-200 hover:border-blue-400 rounded-xl text-left text-xs font-semibold text-slate-700 transition-all shadow-2xs hover:shadow-xs group"
               >
                 <span className="block text-slate-900 group-hover:text-blue-800">
-                  {language === 'hi' ? s.label_hi : s.label_en}
+                  {lt(s.label_en, s.label_hi)}
                 </span>
                 <span className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
                   {s.text}
@@ -187,11 +173,11 @@ export default function S2_FreeTextInputScreen() {
           {isParsing ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>{language === 'hi' ? 'विवरण निकाला जा रहा है...' : 'Extracting profile with AI...'}</span>
+              <span>{lt('Extracting profile with AI...', 'विवरण निकाला जा रहा है...')}</span>
             </div>
           ) : (
             <>
-              <span>{language === 'hi' ? 'विवरण की समीक्षा करें' : 'Review & Confirm Profile'}</span>
+              <span>{lt('Review & Confirm Profile', 'विवरण की समीक्षा करें')}</span>
               <ArrowRight className="w-4 h-4" />
             </>
           )}

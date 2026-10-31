@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, SkipForward, Check, HelpCircle, Info, Lightbulb,
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S1_QuestionnaireScreen() {
-  const { language, t, getBilingualText } = useLanguage();
+  const { language, t, getBilingualText, lt } = useLanguage();
   const { profile, updateProfile, setCurrentScreen, setEvaluationResults } = useSession();
 
   // Questionnaire history: stack of questions visited [{ field, questionData }]
@@ -211,7 +211,7 @@ export default function S1_QuestionnaireScreen() {
             </button>
 
             <span className="bg-teal-50 text-teal-900 border border-teal-200 px-3.5 py-1 rounded-full text-xs font-bold tracking-wide">
-              {language === 'hi' ? `प्रश्न ${currentStep} / ~${totalEst}` : `Question ${currentStep} of ~${totalEst}`}
+              {lt(`Question ${currentStep} of ~${totalEst}`, `प्रश्न ${currentStep} / ~${totalEst}`)}
             </span>
           </div>
 
@@ -239,9 +239,7 @@ export default function S1_QuestionnaireScreen() {
               {profile.skipped_fields?.includes(questionData?.field) && (
                 <div className="pt-1">
                   <span className="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">
-                    {language === 'hi'
-                      ? '⚠️ यह प्रश्न पहले छोड़ा गया था (आप अब विकल्प चुन सकते हैं)'
-                      : '⚠️ Previously skipped (You can answer or skip again)'}
+                    {lt('⚠️ Previously skipped (You can answer or skip again)', '⚠️ यह प्रश्न पहले छोड़ा गया था (आप अब विकल्प चुन सकते हैं)')}
                   </span>
                 </div>
               )}
@@ -274,8 +272,13 @@ export default function S1_QuestionnaireScreen() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {questionData.options.map((opt, idx) => {
                   const isSelected = selectedValue === opt.value;
+<<<<<<< HEAD
                   const label = language === 'hi' ? opt.label_hi : (language === 'bn' ? (opt.label_bn || opt.label_hi || opt.label_en) : opt.label_en);
                   const desc = language === 'hi' ? opt.description_hi : (language === 'bn' ? (opt.description_bn || opt.description_hi || opt.description_en) : opt.description_en);
+=======
+                  const label = lt(opt.label_en, opt.label_hi);
+                  const desc = lt(opt.description_en, opt.description_hi);
+>>>>>>> shreya/main
 
                   return (
                     <div
@@ -324,7 +327,7 @@ export default function S1_QuestionnaireScreen() {
                     max={questionData.max_val}
                     value={selectedValue}
                     onChange={(e) => setSelectedValue(e.target.value)}
-                    placeholder={language === 'hi' ? 'मान दर्ज करें' : 'Enter amount/number'}
+                    placeholder={lt('Enter amount/number', 'मान दर्ज करें')}
                     className="w-full text-xl font-bold text-slate-900 p-4 rounded-xl border-2 border-slate-300 focus:border-teal-600 focus:outline-hidden bg-white min-h-[56px] pr-16"
                   />
                   {questionData.unit && (
@@ -334,7 +337,7 @@ export default function S1_QuestionnaireScreen() {
                   )}
                 </div>
                 <p className="text-xs text-slate-500">
-                  {language === 'hi' ? 'केवल संख्या दर्ज करें (जैसे 29, 65000)' : 'Enter numerical digits only (e.g. 29, 65000)'}
+                  {lt('Enter numerical digits only (e.g. 29, 65000)', 'केवल संख्या दर्ज करें (जैसे 29, 65000)')}
                 </p>
               </div>
             )}
@@ -345,7 +348,7 @@ export default function S1_QuestionnaireScreen() {
                 type="text"
                 value={selectedValue}
                 onChange={(e) => setSelectedValue(e.target.value)}
-                placeholder={language === 'hi' ? 'उत्तर लिखें' : 'Enter details'}
+                placeholder={lt('Enter details', 'उत्तर लिखें')}
                 className="w-full text-base font-medium text-slate-900 p-4 rounded-xl border-2 border-slate-300 focus:border-teal-600 focus:outline-hidden bg-white min-h-[56px]"
               />
             )}

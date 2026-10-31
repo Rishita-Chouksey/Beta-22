@@ -18,6 +18,7 @@ class Settings(BaseModel):
     VERSION: str = "2.1.0"
     API_PREFIX: str = "/api"
     
+<<<<<<< HEAD
     # Sarvam AI Indic Language Integration Configuration
     SARVAM_API_KEY: str = os.getenv("SARVAM_API_KEY", "")
     ENABLE_SARVAM_TRANSLATION: bool = os.getenv("ENABLE_SARVAM_TRANSLATION", "true").lower() == "true"
@@ -29,9 +30,22 @@ class Settings(BaseModel):
     AZURE_TRANSLATOR_KEY: str = os.getenv("AZURE_TRANSLATOR_KEY", "")
     AZURE_TRANSLATOR_REGION: str = os.getenv("AZURE_TRANSLATOR_REGION", "")
     AZURE_TRANSLATOR_ENDPOINT: str = os.getenv("AZURE_TRANSLATOR_ENDPOINT", "https://api.cognitive.microsofttranslator.com")
+=======
+    # Translation is fully offline (Argos Translate) - no API keys required.
+    TRANSLATION_ENABLED: bool = os.getenv("TRANSLATION_ENABLED", "true").lower() == "true"
+
+>>>>>>> shreya/main
     
     # Administrative Security & Monitoring
-    ADMIN_API_KEY: str = os.getenv("ADMIN_API_KEY", "yojnasarthi-admin-secret-2026")
+    # Admin authentication is disabled until all three values are configured.
+    ADMIN_USERNAME: str = os.getenv("ADMIN_USERNAME", "")
+    ADMIN_PASSWORD_HASH: str = os.getenv("ADMIN_PASSWORD_HASH", "")
+    ADMIN_SESSION_SECRET: str = os.getenv("ADMIN_SESSION_SECRET", "")
+    ADMIN_SESSION_TTL_SECONDS: int = int(os.getenv("ADMIN_SESSION_TTL_SECONDS", "1800"))
+    ADMIN_COOKIE_SECURE: bool = os.getenv("ADMIN_COOKIE_SECURE", "true").lower() == "true"
+    ADMIN_COOKIE_SAMESITE: str = os.getenv("ADMIN_COOKIE_SAMESITE", "strict").lower()
+    CORS_ALLOWED_ORIGINS: list[str] = [origin.strip() for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if origin.strip()]
+    ENABLE_MONITORING_DEMO_DATA: bool = os.getenv("ENABLE_MONITORING_DEMO_DATA", "false").lower() == "true"
     ENABLE_AUTOMATIC_MONITORING: bool = os.getenv("ENABLE_AUTOMATIC_MONITORING", "false").lower() == "true"
     MONITORING_INTERVAL_SECONDS: int = int(os.getenv("MONITORING_INTERVAL_SECONDS", "86400"))
 
@@ -49,7 +63,6 @@ class Settings(BaseModel):
     ENABLE_MYSCHEME_INTEGRATION: bool = os.getenv("ENABLE_MYSCHEME_INTEGRATION", "false").lower() == "true"
     
     # Caching TTL
-    TRANSLATION_CACHE_TTL_SECONDS: int = int(os.getenv("TRANSLATION_CACHE_TTL_SECONDS", "86400"))
     SCHEME_CACHE_TTL_SECONDS: int = int(os.getenv("SCHEME_CACHE_TTL_SECONDS", "3600"))
     
     # Schemes data directory

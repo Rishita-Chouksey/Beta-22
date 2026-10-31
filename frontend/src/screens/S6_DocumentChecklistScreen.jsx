@@ -259,7 +259,7 @@ const DOCUMENT_SAMPLES_CONFIG = {
 };
 
 export default function S6_DocumentChecklistScreen() {
-  const { language, t } = useLanguage();
+  const { language, t, lt } = useLanguage();
   const { evaluationResults, setCurrentScreen, checklistData, setChecklistData, openDocumentGuide } = useSession();
 
   const [readyDocs, setReadyDocs] = useState({});
@@ -329,9 +329,7 @@ export default function S6_DocumentChecklistScreen() {
             </div>
             <AudioSpeaker
               text={
-                language === 'hi'
-                  ? `आपकी पात्र योजनाओं के लिए कुल ${documents.length} दस्तावेज़ आवश्यक हैं। आप प्रत्येक दस्तावेज़ का नमूना और क्या जांचना है, देख सकते हैं।`
-                  : `A total of ${documents.length} documents are required across your eligible schemes. Review sample previews and verification checklists.`
+                lt(`A total of ${documents.length} documents are required across your eligible schemes. Review sample previews and verification checklists.`, `आपकी पात्र योजनाओं के लिए कुल ${documents.length} दस्तावेज़ आवश्यक हैं। आप प्रत्येक दस्तावेज़ का नमूना और क्या जांचना है, देख सकते हैं।`)
               }
               className="mt-1 flex-shrink-0"
             />
@@ -349,13 +347,11 @@ export default function S6_DocumentChecklistScreen() {
             </div>
             <div className="text-right text-xs text-slate-500 space-y-0.5">
               <p>
-                {language === 'hi' ? 'दिनांक: ' : 'Date: '}
-                {new Date().toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-IN')}
+                {lt('Date: ', 'दिनांक: ')}
+                {new Date().toLocaleDateString(lt('en-IN', 'hi-IN'))}
               </p>
               <p>
-                {language === 'hi'
-                  ? 'आधिकारिक सत्यापन मार्गदर्शिका • सत्यापित नियम'
-                  : 'Official Verification Guide • Verified Rules'}
+                {lt('Official Verification Guide • Verified Rules', 'आधिकारिक सत्यापन मार्गदर्शिका • सत्यापित नियम')}
               </p>
             </div>
           </div>
@@ -369,7 +365,7 @@ export default function S6_DocumentChecklistScreen() {
                 {t('doc_readiness')}
               </span>
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-teal-50 text-teal-900 border border-teal-200">
-                {readyCount} / {documents.length} {language === 'hi' ? 'तैयार' : 'Ready'}
+                {readyCount} / {documents.length} {lt('Ready', 'तैयार')}
               </span>
             </div>
 
@@ -399,16 +395,16 @@ export default function S6_DocumentChecklistScreen() {
           <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl space-y-3">
             <div className="w-8 h-8 border-3 border-teal-700 border-t-transparent rounded-full animate-spin mx-auto" />
             <p className="text-xs font-semibold text-slate-600">
-              {language === 'hi' ? 'समेकित चेकलिस्ट तैयार की जा रही है...' : 'Generating de-duplicated document checklist...'}
+              {lt('Generating de-duplicated document checklist...', 'समेकित चेकलिस्ट तैयार की जा रही है...')}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {documents.map((doc) => {
               const isChecked = Boolean(readyDocs[doc.document_id]);
-              const docName = language === 'hi' ? doc.name_hi : doc.name_en;
-              const purpose = language === 'hi' ? doc.purpose_hi : doc.purpose_en;
-              const howToGet = language === 'hi' ? doc.how_to_get_hi : doc.how_to_get_en;
+              const docName = lt(doc.name_en, doc.name_hi);
+              const purpose = lt(doc.purpose_en, doc.purpose_hi);
+              const howToGet = lt(doc.how_to_get_en, doc.how_to_get_hi);
               const sampleConfig = DOCUMENT_SAMPLES_CONFIG[doc.document_id];
               const isPreviewOpen = Boolean(expandedPreview[doc.document_id]);
 
@@ -458,7 +454,7 @@ export default function S6_DocumentChecklistScreen() {
                       {/* Purpose */}
                       <p className="text-xs text-slate-600 leading-relaxed">
                         <strong className="text-slate-800">
-                          {language === 'hi' ? 'उद्देश्य: ' : 'Purpose: '}
+                          {lt('Purpose: ', 'उद्देश्य: ')}
                         </strong>
                         {purpose}
                       </p>
@@ -505,8 +501,8 @@ export default function S6_DocumentChecklistScreen() {
                             <Eye className="w-3.5 h-3.5" />
                             <span>
                               {isPreviewOpen
-                                ? (language === 'hi' ? 'नमूना एवं जांच सूची छुपाएं' : 'Hide Sample & Details')
-                                : (language === 'hi' ? 'दस्तावेज़ का नमूना एवं जांच सूची देखें' : 'View Sample Preview & Checkpoints')}
+                                ? (lt('Hide Sample & Details', 'नमूना एवं जांच सूची छुपाएं'))
+                                : (lt('View Sample Preview & Checkpoints', 'दस्तावेज़ का नमूना एवं जांच सूची देखें'))}
                             </span>
                             {isPreviewOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                           </button>
@@ -517,7 +513,7 @@ export default function S6_DocumentChecklistScreen() {
                           className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-900 hover:text-amber-950 bg-amber-50 hover:bg-amber-100/70 border border-amber-300 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                         >
                           <FileText className="w-3.5 h-3.5 text-amber-700" />
-                          <span>{language === 'hi' ? 'दस्तावेज़ गाइड में खोलें' : 'Open in Document Guide'}</span>
+                          <span>{lt('Open in Document Guide', 'दस्तावेज़ गाइड में खोलें')}</span>
                         </button>
                       </div>
                     </div>
@@ -530,7 +526,7 @@ export default function S6_DocumentChecklistScreen() {
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700">
-                            📄 {language === 'hi' ? 'सांकेतिक दस्तावेज़ नमूना (Sample Preview)' : 'Illustrative Document Sample'}
+                            📄 {lt('Illustrative Document Sample', 'सांकेतिक दस्तावेज़ नमूना (Sample Preview)')}
                           </span>
                           <span className="text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full">
                             {t('sample_preview_label')}
@@ -546,7 +542,7 @@ export default function S6_DocumentChecklistScreen() {
 
                           <div className="flex items-center justify-between border-b pb-2 border-slate-100">
                             <span className="text-xs font-extrabold text-slate-800">
-                              🏛️ {language === 'hi' ? sampleConfig.issuer_hi : sampleConfig.issuer_en}
+                              🏛️ {lt(sampleConfig.issuer_en, sampleConfig.issuer_hi)}
                             </span>
                             <span className="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">
                               {sampleConfig.docNumberPlaceholder}
@@ -560,7 +556,7 @@ export default function S6_DocumentChecklistScreen() {
                             <div className="space-y-1 text-xs text-slate-600 flex-1">
                               <p className="font-bold text-slate-900">{docName}</p>
                               <p className="text-[11px] text-slate-500">
-                                {language === 'hi' ? 'सत्यापित नागरिक पहचान / राजस्व प्रपत्र' : 'Verified Citizen Revenue / Identity Record'}
+                                {lt('Verified Citizen Revenue / Identity Record', 'सत्यापित नागरिक पहचान / राजस्व प्रपत्र')}
                               </p>
                               <div className="h-1.5 bg-slate-200 rounded-full w-3/4" />
                             </div>
@@ -575,7 +571,7 @@ export default function S6_DocumentChecklistScreen() {
                           <span>{t('what_to_check')}</span>
                         </h4>
                         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
-                          {(language === 'hi' ? sampleConfig.checkpoints_hi : sampleConfig.checkpoints_en).map((cp, cIdx) => (
+                          {(lt(sampleConfig.checkpoints_en, sampleConfig.checkpoints_hi)).map((cp, cIdx) => (
                             <li key={cIdx} className="bg-white border border-slate-200 rounded-lg p-2.5 flex items-start gap-2 shadow-2xs">
                               <span className="text-teal-700 font-bold flex-shrink-0">✓</span>
                               <span className="leading-snug">{cp}</span>

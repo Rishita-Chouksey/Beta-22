@@ -6,7 +6,7 @@ import { ArrowLeft, CheckCircle2, ShieldCheck, ArrowRight, Info, AlertTriangle }
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S3_ConfirmProfileScreen() {
-  const { language, t } = useLanguage();
+  const { language, t, lt } = useLanguage();
   const { profile, setProfile, setCurrentScreen, setEvaluationResults } = useSession();
 
   const [editableProfile, setEditableProfile] = useState({ ...profile });
@@ -91,9 +91,7 @@ export default function S3_ConfirmProfileScreen() {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs sm:text-sm text-blue-900 flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-700 flex-shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            {language === 'hi'
-              ? 'गोपनीयता एवं सटीकता नियम: एआई द्वारा निकाले गए विवरण की नीचे समीक्षा करें। आप किसी भी मान को बदल सकते हैं। केवल आपके द्वारा पुष्ट जानकारी के आधार पर ही सरकारी नियमों का मूल्यांकन होगा।'
-              : 'Deterministic Rules Guarantee: Review the extracted attributes below. You can modify any value. Only confirmed values will be processed by the official rule engine.'}
+            {lt('Deterministic Rules Guarantee: Review the extracted attributes below. You can modify any value. Only confirmed values will be processed by the official rule engine.', 'गोपनीयता एवं सटीकता नियम: एआई द्वारा निकाले गए विवरण की नीचे समीक्षा करें। आप किसी भी मान को बदल सकते हैं। केवल आपके द्वारा पुष्ट जानकारी के आधार पर ही सरकारी नियमों का मूल्यांकन होगा।')}
           </p>
         </div>
 
@@ -102,13 +100,13 @@ export default function S3_ConfirmProfileScreen() {
           {/* Age */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
             <label className="text-xs font-bold text-slate-700 block">
-              {language === 'hi' ? fieldLabels.age.hi : fieldLabels.age.en}
+              {lt(fieldLabels.age.en, fieldLabels.age.hi)}
             </label>
             <input
               type="number"
               value={editableProfile.age !== undefined && editableProfile.age !== null ? editableProfile.age : ''}
               onChange={(e) => handleFieldChange('age', e.target.value ? parseInt(e.target.value) : null)}
-              placeholder={language === 'hi' ? 'उदा. 48' : 'e.g. 48'}
+              placeholder={lt('e.g. 48', 'उदा. 48')}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-slate-50/50"
             />
           </div>
@@ -116,88 +114,88 @@ export default function S3_ConfirmProfileScreen() {
           {/* Gender */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
             <label className="text-xs font-bold text-slate-700 block">
-              {language === 'hi' ? fieldLabels.gender.hi : fieldLabels.gender.en}
+              {lt(fieldLabels.gender.en, fieldLabels.gender.hi)}
             </label>
             <select
               value={editableProfile.gender || ''}
               onChange={(e) => handleFieldChange('gender', e.target.value || null)}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-white"
             >
-              <option value="">{language === 'hi' ? '-- चयन करें --' : '-- Select --'}</option>
-              <option value="male">{language === 'hi' ? 'पुरुष (Male)' : 'Male'}</option>
-              <option value="female">{language === 'hi' ? 'महिला (Female)' : 'Female'}</option>
-              <option value="transgender">{language === 'hi' ? 'ट्रांसजेंडर (Transgender)' : 'Transgender'}</option>
+              <option value="">{lt('-- Select --', '-- चयन करें --')}</option>
+              <option value="male">{lt('Male', 'पुरुष (Male)')}</option>
+              <option value="female">{lt('Female', 'महिला (Female)')}</option>
+              <option value="transgender">{lt('Transgender', 'ट्रांसजेंडर (Transgender)')}</option>
             </select>
           </div>
 
           {/* Marital Status */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
             <label className="text-xs font-bold text-slate-700 block">
-              {language === 'hi' ? fieldLabels.marital_status.hi : fieldLabels.marital_status.en}
+              {lt(fieldLabels.marital_status.en, fieldLabels.marital_status.hi)}
             </label>
             <select
               value={editableProfile.marital_status || ''}
               onChange={(e) => handleFieldChange('marital_status', e.target.value || null)}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-white"
             >
-              <option value="">{language === 'hi' ? '-- चयन करें --' : '-- Select --'}</option>
-              <option value="widow">{language === 'hi' ? 'विधवा (Widow)' : 'Widow'}</option>
-              <option value="married">{language === 'hi' ? 'विवाहित (Married)' : 'Married'}</option>
-              <option value="single">{language === 'hi' ? 'अविवाहित (Single)' : 'Single'}</option>
-              <option value="divorced">{language === 'hi' ? 'तलाकशुदा / परित्यक्ता' : 'Divorced / Deserted'}</option>
+              <option value="">{lt('-- Select --', '-- चयन करें --')}</option>
+              <option value="widow">{lt('Widow', 'विधवा (Widow)')}</option>
+              <option value="married">{lt('Married', 'विवाहित (Married)')}</option>
+              <option value="single">{lt('Single', 'अविवाहित (Single)')}</option>
+              <option value="divorced">{lt('Divorced / Deserted', 'तलाकशुदा / परित्यक्ता')}</option>
             </select>
           </div>
 
           {/* State */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
             <label className="text-xs font-bold text-slate-700 block">
-              {language === 'hi' ? fieldLabels.state.hi : fieldLabels.state.en}
+              {lt(fieldLabels.state.en, fieldLabels.state.hi)}
             </label>
             <select
               value={editableProfile.state || ''}
               onChange={(e) => handleFieldChange('state', e.target.value || null)}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-white"
             >
-              <option value="">{language === 'hi' ? '-- चयन करें --' : '-- Select --'}</option>
-              <option value="Madhya Pradesh">{language === 'hi' ? 'मध्य प्रदेश (Madhya Pradesh)' : 'Madhya Pradesh'}</option>
-              <option value="Maharashtra">{language === 'hi' ? 'महाराष्ट्र (Maharashtra)' : 'Maharashtra'}</option>
-              <option value="Uttar Pradesh">{language === 'hi' ? 'उत्तर प्रदेश (Uttar Pradesh)' : 'Uttar Pradesh'}</option>
-              <option value="Rajasthan">{language === 'hi' ? 'राजस्थान (Rajasthan)' : 'Rajasthan'}</option>
-              <option value="Bihar">{language === 'hi' ? 'बिहार (Bihar)' : 'Bihar'}</option>
-              <option value="Other">{language === 'hi' ? 'अन्य राज्य / केंद्र शासित प्रदेश' : 'Other State / UT'}</option>
+              <option value="">{lt('-- Select --', '-- चयन करें --')}</option>
+              <option value="Madhya Pradesh">{lt('Madhya Pradesh', 'मध्य प्रदेश (Madhya Pradesh)')}</option>
+              <option value="Maharashtra">{lt('Maharashtra', 'महाराष्ट्र (Maharashtra)')}</option>
+              <option value="Uttar Pradesh">{lt('Uttar Pradesh', 'उत्तर प्रदेश (Uttar Pradesh)')}</option>
+              <option value="Rajasthan">{lt('Rajasthan', 'राजस्थान (Rajasthan)')}</option>
+              <option value="Bihar">{lt('Bihar', 'बिहार (Bihar)')}</option>
+              <option value="Other">{lt('Other State / UT', 'अन्य राज्य / केंद्र शासित प्रदेश')}</option>
             </select>
           </div>
 
           {/* Occupation */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
             <label className="text-xs font-bold text-slate-700 block">
-              {language === 'hi' ? fieldLabels.occupation.hi : fieldLabels.occupation.en}
+              {lt(fieldLabels.occupation.en, fieldLabels.occupation.hi)}
             </label>
             <select
               value={editableProfile.occupation || ''}
               onChange={(e) => handleFieldChange('occupation', e.target.value || null)}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-white"
             >
-              <option value="">{language === 'hi' ? '-- चयन करें --' : '-- Select --'}</option>
-              <option value="farmer">{language === 'hi' ? 'किसान (Farmer)' : 'Farmer'}</option>
-              <option value="student">{language === 'hi' ? 'छात्र (Student)' : 'Student'}</option>
-              <option value="agricultural_worker">{language === 'hi' ? 'खेतिहर मजदूर' : 'Agricultural Worker'}</option>
-              <option value="homemaker">{language === 'hi' ? 'गृहिणी (Homemaker)' : 'Homemaker'}</option>
-              <option value="self_employed">{language === 'hi' ? 'स्व-रोजगार' : 'Self Employed'}</option>
-              <option value="unemployed">{language === 'hi' ? 'बेरोजगार' : 'Unemployed'}</option>
+              <option value="">{lt('-- Select --', '-- चयन करें --')}</option>
+              <option value="farmer">{lt('Farmer', 'किसान (Farmer)')}</option>
+              <option value="student">{lt('Student', 'छात्र (Student)')}</option>
+              <option value="agricultural_worker">{lt('Agricultural Worker', 'खेतिहर मजदूर')}</option>
+              <option value="homemaker">{lt('Homemaker', 'गृहिणी (Homemaker)')}</option>
+              <option value="self_employed">{lt('Self Employed', 'स्व-रोजगार')}</option>
+              <option value="unemployed">{lt('Unemployed', 'बेरोजगार')}</option>
             </select>
           </div>
 
           {/* Annual Income */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
             <label className="text-xs font-bold text-slate-700 block">
-              {language === 'hi' ? fieldLabels.annual_income.hi : fieldLabels.annual_income.en}
+              {lt(fieldLabels.annual_income.en, fieldLabels.annual_income.hi)}
             </label>
             <input
               type="number"
               value={editableProfile.annual_income !== undefined && editableProfile.annual_income !== null ? editableProfile.annual_income : ''}
               onChange={(e) => handleFieldChange('annual_income', e.target.value ? parseFloat(e.target.value) : null)}
-              placeholder={language === 'hi' ? '₹ 65,000' : 'e.g. ₹65,000'}
+              placeholder={lt('e.g. ₹65,000', '₹ 65,000')}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-slate-50/50"
             />
           </div>
@@ -205,14 +203,14 @@ export default function S3_ConfirmProfileScreen() {
           {/* Landholding Hectares (always shown or dynamic) */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
             <label className="text-xs font-bold text-slate-700 block">
-              {language === 'hi' ? fieldLabels.landholding_hectares.hi : fieldLabels.landholding_hectares.en}
+              {lt(fieldLabels.landholding_hectares.en, fieldLabels.landholding_hectares.hi)}
             </label>
             <input
               type="number"
               step="0.1"
               value={editableProfile.landholding_hectares !== undefined && editableProfile.landholding_hectares !== null ? editableProfile.landholding_hectares : ''}
               onChange={(e) => handleFieldChange('landholding_hectares', e.target.value !== '' ? parseFloat(e.target.value) : null)}
-              placeholder={language === 'hi' ? '1.5 (हेक्टेयर)' : '1.5 (Hectares)'}
+              placeholder={lt('1.5 (Hectares)', '1.5 (हेक्टेयर)')}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-slate-50/50"
             />
           </div>
@@ -220,14 +218,14 @@ export default function S3_ConfirmProfileScreen() {
           {/* Student Class 12 Marks */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
             <label className="text-xs font-bold text-slate-700 block">
-              {language === 'hi' ? fieldLabels.student_class12_marks_percent.hi : fieldLabels.student_class12_marks_percent.en}
+              {lt(fieldLabels.student_class12_marks_percent.en, fieldLabels.student_class12_marks_percent.hi)}
             </label>
             <input
               type="number"
               step="0.5"
               value={editableProfile.student_class12_marks_percent !== undefined && editableProfile.student_class12_marks_percent !== null ? editableProfile.student_class12_marks_percent : ''}
               onChange={(e) => handleFieldChange('student_class12_marks_percent', e.target.value !== '' ? parseFloat(e.target.value) : null)}
-              placeholder={language === 'hi' ? '86 %' : '86 %'}
+              placeholder={lt('86 %', '86 %')}
               className="w-full p-2.5 text-sm font-semibold border rounded-lg border-slate-300 focus:border-blue-600 focus:outline-hidden bg-slate-50/50"
             />
           </div>
@@ -244,7 +242,7 @@ export default function S3_ConfirmProfileScreen() {
           {isEvaluating ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>{language === 'hi' ? 'पात्रता नियम जाँचे जा रहे हैं...' : 'Evaluating official rules...'}</span>
+              <span>{lt('Evaluating official rules...', 'पात्रता नियम जाँचे जा रहे हैं...')}</span>
             </div>
           ) : (
             <>
