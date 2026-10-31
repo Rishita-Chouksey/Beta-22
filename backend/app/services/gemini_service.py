@@ -73,6 +73,74 @@ DOCUMENT_KNOWLEDGE_BASE = {
     }
 }
 
+
+UNCATALOGED_SCHEMES = [
+    {
+        "patterns": ["post matric", "post-matric", "postmatric", "उत्तर मैट्रिक"],
+        "name_en": "Post Matric Scholarship",
+        "name_hi": "पोस्ट मैट्रिक छात्रवृत्ति (Post Matric Scholarship)",
+        "name_bn": "পোস্ট ম্যাট্রিক স্কলারশিপ (Post Matric Scholarship)",
+        "official_url": "https://scholarships.gov.in/",
+        "portal_name": "National Scholarship Portal (NSP)"
+    },
+    {
+        "patterns": ["nsp", "national scholarship portal", "राष्ट्रीय छात्रवृत्ति पोर्टल"],
+        "name_en": "National Scholarship Portal (NSP Schemes)",
+        "name_hi": "राष्ट्रीय छात्रवृत्ति पोर्टल (NSP)",
+        "name_bn": "ন্যাশনাল স্কলারশিপ পোর্টাল (NSP)",
+        "official_url": "https://scholarships.gov.in/",
+        "portal_name": "National Scholarship Portal"
+    },
+    {
+        "patterns": ["sukanya", "सुकन्या"],
+        "name_en": "Sukanya Samriddhi Yojana",
+        "name_hi": "सुकन्या समृद्धि योजना",
+        "name_bn": "সুকন্যা সমৃদ্ধি যোজনা",
+        "official_url": "https://www.indiapost.gov.in/",
+        "portal_name": "India Post / National Savings"
+    },
+    {
+        "patterns": ["kisan credit card", "kcc", "किसान क्रेडिट कार्ड"],
+        "name_en": "Kisan Credit Card (KCC)",
+        "name_hi": "किसान क्रेडिट कार्ड (KCC)",
+        "name_bn": "কিষাণ ক্রেডিট কার্ড (KCC)",
+        "official_url": "https://agricoop.nic.in/",
+        "portal_name": "Ministry of Agriculture"
+    },
+    {
+        "patterns": ["atal pension", "apy", "अटल पेंशन"],
+        "name_en": "Atal Pension Yojana (APY)",
+        "name_hi": "अटल पेंशन योजना (APY)",
+        "name_bn": "অটল পেনশন যোজনা (APY)",
+        "official_url": "https://www.npscra.nsdl.co.in/",
+        "portal_name": "PFRDA Official Portal"
+    },
+    {
+        "patterns": ["mudra", "मुद्रा योजना", "mudra loan"],
+        "name_en": "Pradhan Mantri MUDRA Yojana",
+        "name_hi": "प्रधानमंत्री मुद्रा योजना (MUDRA)",
+        "name_bn": "প্রধানমন্ত্রী মুদ্রা যোজনা",
+        "official_url": "https://www.mudra.org.in/",
+        "portal_name": "MUDRA Official Portal"
+    },
+    {
+        "patterns": ["vishwakarma", "विश्वकर्मा"],
+        "name_en": "PM Vishwakarma Yojana",
+        "name_hi": "पीएम विश्वकर्मा योजना",
+        "name_bn": "পিএম বিশ্বকর্মা যোজনা",
+        "official_url": "https://pmvishwakarma.gov.in/",
+        "portal_name": "PM Vishwakarma Portal"
+    },
+    {
+        "patterns": ["ladli laxmi", "लाड़ली लक्ष्मी", "लाडली लक्ष्मी"],
+        "name_en": "Ladli Laxmi Yojana (MP)",
+        "name_hi": "लाड़ली लक्ष्मी योजना (मध्य प्रदेश)",
+        "name_bn": "লাডলি লক্ষ্মী যোজনা",
+        "official_url": "https://ladlilaxmi.mp.gov.in/",
+        "portal_name": "MP Ladli Laxmi Portal"
+    }
+]
+
 class GeminiService:
     def __init__(self):
         self.api_key = settings.GEMINI_API_KEY
@@ -110,7 +178,7 @@ Return ONLY a valid JSON object with key "profile" containing the extracted fiel
 Citizen Text: "{text}"
 """
                 response = self.client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.8-flash",
                     contents=prompt
                 )
                 
@@ -236,7 +304,7 @@ Citizen Text: "{text}"
     def _detect_scheme_from_text(self, text: str) -> Optional[str]:
         """Maps user question text or history to verified scheme IDs."""
         t = text.lower()
-        if any(k in t for k in ["mmvy", "medhavi", "मेधावी", "विद्यार्थी योजना"]):
+        if any(k in t for k in ["mmvy", "medhavi", "मेधावी", "मुख्यमंत्री मेधावी"]):
             return "mmvy_scholarship"
         if any(k in t for k in ["ladli behna", "laadli behna", "ladli", "लाड़ली बहना", "लाडली बहना"]):
             return "ladli_behna_mp"
@@ -292,6 +360,40 @@ Citizen Text: "{text}"
                 "grounded_sources": ["https://india.gov.in/"],
                 "disclaimer": "AI guidance is grounded in official government guidelines."
             }
+
+        # 1.5 Check if query is about a specific scheme NOT currently in our verified catalog
+        for uncat in UNCATALOGED_SCHEMES:
+            if any(p in msg_lower for p in uncat["patterns"]):
+                url = uncat["official_url"]
+                portal = uncat["portal_name"]
+
+                if language == "hi":
+                    reply = (
+                        f"क्षमा करें, योजनासारथी में वर्तमान में **{uncat['name_hi']}** के नियम उपलब्ध नहीं हैं।\n\n"
+                        f"योजनासारथी वर्तमान में केवल 8 आधिकारिक रूप से सत्यापित सरकारी योजनाओं (जैसे मुख्यमंत्री मेधावी विद्यार्थी योजना - MMVY, लाड़ली बहना, पीएम किसान, आयुष्मान भारत PM-JAY, पीएम आवास ग्रामीण, संजय गांधी निराधार और इंदिरा गांधी राष्ट्रीय विधवा पेंशन) के नियम प्रदान करता है।\n\n"
+                        f"**{uncat['name_hi']}** की आधिकारिक जानकारी व ऑनलाइन आवेदन हेतु कृपया {portal} पर जाएं:\n"
+                        f"🔗 आधिकारिक पोर्टल: {url}"
+                    )
+                elif language == "bn":
+                    reply = (
+                        f"দুঃখিত, যোজনাসারথিতে বর্তমানে **{uncat['name_bn']}**-এর নিয়মাবলী অন্তর্ভুক্ত নেই।\n\n"
+                        f"যোজনাসারথি বর্তমানে ৮টি যাচাইকৃত সরকারি প্রকল্পের (MMVY মেধা বৃত্তি, লাডলি বহনা, পিএম কিষাণ, আয়ুষ্মান ভারত, পিএম আবাস গ্রামীণ ইত্যাদি) তথ্য প্রদান করে।\n\n"
+                        f"**{uncat['name_bn']}**-এর তথ্যের জন্য অনুগ্রহ করে অফিসিয়াল পোর্টালে যান:\n"
+                        f"🔗 অফিসিয়াল পোর্টাল: {url}"
+                    )
+                else:
+                    reply = (
+                        f"I apologize, but YojnaSarthi does not currently have verified rules for **{uncat['name_en']}** in our database.\n\n"
+                        f"Currently, YojnaSarthi provides audited rules for 8 verified schemes: Mukhyamantri Medhavi Vidyarthi Yojana (MMVY), Mukhyamantri Ladli Behna, PM-KISAN, Ayushman Bharat PM-JAY, PMAY-G Rural Housing, Sanjay Gandhi Niradhar, and Indira Gandhi Widow Pension.\n\n"
+                        f"For official information and applying to **{uncat['name_en']}**, please visit the {portal}:\n"
+                        f"🔗 Official Portal: {url}"
+                    )
+                AuditRepository.log_chat_interaction(msg_clean, None, "UNCATALOGED_SCHEME_QUERY", reply, language)
+                return {
+                    "reply": reply,
+                    "grounded_sources": [url],
+                    "disclaimer": "Scheme not yet in verified catalog; directed to official government portal."
+                }
 
         # 2. Scheme Identification & Follow-up Context Resolution
         detected_scheme_id = current_scheme_id or self._detect_scheme_from_text(message)
@@ -569,7 +671,7 @@ Conversation History:
 Citizen Query: "{message}"
 """
                 response = self.client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.8-flash",
                     contents=system_instruction + "\n" + prompt
                 )
                 
@@ -695,6 +797,20 @@ Citizen Query: "{message}"
         """Provides verified direct answers for specific scheme inquiries."""
         m_lower = message.lower()
         sources = []
+
+        if current_scheme:
+            # Check if user switched topic to an unrelated query or scheme
+            current_aliases = [current_scheme.id.lower(), current_scheme.name_en.lower(), current_scheme.name_hi.lower()]
+            if current_scheme.id == "mmvy_scholarship":
+                current_aliases += ["mmvy", "medhavi", "मेधावी", "विद्यार्थी"]
+            elif current_scheme.id == "pm_kisan":
+                current_aliases += ["pm kisan", "pmkisan", "किसान सम्मान"]
+            elif current_scheme.id == "ladli_behna_mp":
+                current_aliases += ["ladli", "laadli", "लाड़ली", "लाडली"]
+
+            # If user message mentions another specific scheme or scholarship not matching this scheme, clear current_scheme
+            if any(k in m_lower for k in ["scholarship", "yojana", "pension", "awas", "kisan", "ayushman"]) and not any(alias in m_lower for alias in current_aliases):
+                current_scheme = None
 
         if current_scheme:
             sources.append(current_scheme.official_source_url)

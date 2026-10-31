@@ -62,8 +62,8 @@ class CitizenProfile(BaseModel):
     
     # Agriculture / Assets
     landholding_hectares: Optional[float] = Field(None, description="Cultivable agricultural land in hectares", ge=0)
-    is_institutional_landholder: Optional[bool] = Field(None, description="Whether land is held by institutional entity")
-    holds_constitutional_post: Optional[bool] = Field(None, description="Whether applicant or family holds constitutional/govt post")
+    is_institutional_landholder: Optional[bool] = Field(default=False, description="Whether land is held by institutional entity")
+    holds_constitutional_post: Optional[bool] = Field(default=False, description="Whether applicant or family holds constitutional/govt post")
     has_pucca_house: Optional[bool] = Field(None, description="Whether family owns a pucca brick house")
     
     # Education
