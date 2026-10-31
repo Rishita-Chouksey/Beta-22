@@ -76,7 +76,11 @@ DOCUMENT_KNOWLEDGE_BASE = {
 
 UNCATALOGED_SCHEMES = [
     {
-        "patterns": ["post matric", "post-matric", "postmatric", "उत्तर मैट्रिक"],
+        "patterns": [
+            "post matric", "post-matric", "postmatric",
+            "पोस्ट मैट्रिक", "पोस्ट-मैट्रिक", "पोस्ट मटिक", "उत्तर मैट्रिक", "उत्तर-मैट्रिक",
+            "পোস্ট ম্যাট্রিক", "পোস্ট-ম্যাট্রিক"
+        ],
         "name_en": "Post Matric Scholarship",
         "name_hi": "पोस्ट मैट्रिक छात्रवृत्ति (Post Matric Scholarship)",
         "name_bn": "পোস্ট ম্যাট্রিক স্কলারশিপ (Post Matric Scholarship)",
