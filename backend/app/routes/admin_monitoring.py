@@ -152,3 +152,4 @@ async def rollback_scheme_version(
     # Reload scheme service cache
     scheme_service.load_schemes()
     return {"success": True, "message": message}
+

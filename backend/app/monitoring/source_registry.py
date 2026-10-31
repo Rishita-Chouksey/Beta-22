@@ -150,3 +150,4 @@ class SourceRegistry:
     @staticmethod
     def get_sources_for_scheme(scheme_id: str) -> List[SourceDefinition]:
         return [src for src in OFFICIAL_SOURCE_CATALOG if scheme_id in src.target_scheme_ids]
+

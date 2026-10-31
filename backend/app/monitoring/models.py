@@ -99,3 +99,4 @@ class MonitoringSummary(BaseModel):
     last_monitoring_run: Optional[str] = None
     next_scheduled_run: Optional[str] = None
     is_scheduler_running: bool = True
+
