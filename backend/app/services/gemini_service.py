@@ -294,6 +294,34 @@ FORM_TERMS_KNOWLEDGE_BASE = {
             "bn": "মেডিকেল বোর্ড কর্তৃক প্রদত্ত ইউডিআইডি কার্ড নম্বর, যাতে প্রতিবন্ধকতার শতকরা হার উল্লেখিত থাকে।"
         },
         "example": "UDID No: MP1420119900014298 (40% Loco-motor disability)"
+    },
+    "vakil_nama": {
+        "aliases": ["vakil nama", "vakalatnama", "vakalat nama", "vakil", "vakeel", "advocate", "वकालतनामा", "वकील नामा", "वकील", "वकालत पत्र", "ওয়াকালাতনামা", "উকিলনামা"],
+        "field_name": "Vakalatnama / Memorandum of Advocate Appearance",
+        "field_name_hi": "वकालतनामा (अधिवक्ता नियुक्ति अधिकार पत्र)",
+        "field_name_mr": "वकालतनामा (कायदेशीर प्रतिनिधी नियुक्ती पत्र)",
+        "field_name_bn": "ওয়াকালাতনামা / আইনজীবী নিয়োগপত্র",
+        "explanations": {
+            "hi": "राजस्व न्यायालय, तहसीलदार, एसडीएम अथवा अपीलीय अधिकरण में योजना विवाद, ज़मीन नामांतरण, या पेंशन अपील में नागरिक की ओर से अधिवक्ता/वकील नियुक्त करने का वैधानिक अधिकार पत्र।",
+            "en": "Official legal authorization document empowering an advocate/lawyer to represent a citizen before a revenue court, Tehsildar, SDM, or appellate tribunal in welfare dispute, land mutation, or appeal proceedings.",
+            "mr": "महसूल न्यायालय, तहसीलदार अथवा अपीलीय प्राधिकाऱ्यासमोर नागरिकाच्या वतीने कायदेशीर बाजू मांडण्यासाठी वकिलाची नियुक्ती करणारे अधिकृत अधिकारपत्र.",
+            "bn": "রাজস্ব আদালত, এসডিএম বা সংশ্লিষ্ট দপ্তরে আবেদনের শুনানিতে নাগরিকের পক্ষে প্রতিনিধিত্ব করার জন্য আইনজীবী নিয়োগের আইনি প্রমাণপত্র।"
+        },
+        "example": "Duly signed by applicant with ₹10 Welfare Stamp / Court Fee affixed (Obtained from Court / Bar Council / Notary)"
+    },
+    "affidavit": {
+        "aliases": ["affidavit", "shapath patra", "self declaration", "शपथ पत्र", "घोषणा पत्र", "प्रतिज्ञापत्र", "হলফনামা"],
+        "field_name": "Notarized Affidavit / Self-Declaration",
+        "field_name_hi": "शपथ पत्र / स्व-प्रमाणित घोषणा पत्र",
+        "field_name_mr": "प्रतिज्ञापत्र / स्वघोषणा पत्र",
+        "field_name_bn": "হলফনামা / স্ব-ঘোষণাপত্র",
+        "explanations": {
+            "hi": "₹10 या ₹50 के स्टांप पेपर पर नोटरी द्वारा सत्यापित वैधानिक हलफनामा (जैसे गैर-आयकर दाता होने या भूमिहीन होने की पुष्टि हेतु)।",
+            "en": "Sworn legal declaration on non-judicial stamp paper verified by an Executive Magistrate or Notary (e.g. non-taxpayer or single status).",
+            "mr": "नोटाऱ्याने प्रमाणित केलेले प्रतिज्ञापत्र, ज्यामध्ये उत्पन्नाची किंवा स्थितीची सत्यता घोषित केलेली असते.",
+            "bn": "নোটারি বা ম্যাজিস্ট্রেটের মাধ্যমে শপথপূর্বক লিখিত স্ব-ঘোষণাপত্র।"
+        },
+        "example": "Affidavit on ₹50 Stamp Paper attested by Notary Public / Oath Commissioner"
     }
 }
 
@@ -885,7 +913,7 @@ Citizen Query: "{message}"
 
                 def _call_gemini():
                     return self.client.models.generate_content(
-                        model="gemini-3.8-flash",
+                        model=getattr(settings, "GEMINI_MODEL", "gemini-2.5-flash"),
                         contents=system_instruction + "\n" + prompt
                     )
 

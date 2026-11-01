@@ -40,7 +40,7 @@ async def form_assistance(req: FormHelpRequest):
     Does not permanently store photos or PII.
     """
     res = gemini_service.explain_form(
-        field_text=req.field_text,
+        field_text=req.field_text or req.field_name,
         image_base64=req.image_base64,
         language=req.language
     )
