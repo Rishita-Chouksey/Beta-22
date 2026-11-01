@@ -35,7 +35,19 @@ export default function S1_QuestionnaireScreen() {
       const existingVal = profile[resp.question.field];
       setSelectedValue(existingVal !== undefined && existingVal !== null ? existingVal : '');
     } catch (err) {
-      console.error('Failed to load initial question:', err);
+      console.error('Failed to load initial question, using offline selector:', err);
+      try {
+        const { getNextQuestionOffline } = await import('../data/offlineQuestionSelector.js');
+        const fallback = getNextQuestionOffline(profile);
+        if (fallback?.question) {
+          setQuestionStack([{ field: fallback.question.field, questionData: fallback.question }]);
+          setCurrentIndex(0);
+          const existingVal = profile[fallback.question.field];
+          setSelectedValue(existingVal !== undefined && existingVal !== null ? existingVal : '');
+        }
+      } catch (fallbackErr) {
+        console.error('Offline question fallback failed:', fallbackErr);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -174,7 +186,7 @@ export default function S1_QuestionnaireScreen() {
     }
   };
 
-  if (isLoading && !questionData) {
+  if (!questionData) {
     return (
       <div className="max-w-2xl mx-auto w-full flex-1 flex flex-col items-center justify-center p-12 space-y-4">
         <div className="w-12 h-12 border-3 border-teal-700 border-t-transparent rounded-full animate-spin" />

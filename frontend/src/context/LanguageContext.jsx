@@ -422,6 +422,12 @@ export function LanguageProvider({ children }) {
       return enVal || hiVal || arg1[base] || '';
     }
 
+    // Guard against literal property name leaking when arg1 is null/undefined object
+    const PROPERTY_KEYS = ['title', 'subtitle', 'explanation', 'examples', 'name', 'scheme_name', 'benefit', 'deciding_reason', 'category', 'status', 'description'];
+    if (!arg1 && typeof arg2 === 'string' && PROPERTY_KEYS.includes(arg2.toLowerCase())) {
+      return '';
+    }
+
     // If called as getBilingualText(text_en, text_hi)
     if (typeof arg1 === 'string' || typeof arg2 === 'string') {
       const en = arg1 || '';
