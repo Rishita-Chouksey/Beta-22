@@ -102,7 +102,7 @@ export default function S2_FreeTextInputScreen() {
   // Initialize Speech Recognizer
   useEffect(() => {
     recognizerRef.current = createSpeechRecognizer({
-      language: language === 'en' ? 'en' : 'hi', // 'hi-IN' understands both Hindi and Hinglish
+      language: language === 'en' ? 'en-US' : language === 'mr' ? 'mr-IN' : language === 'bn' ? 'bn-IN' : 'hi-IN',
       onInterim: (text) => {
         setLiveInterim(text);
         // Automatic silence detection for hands-free speech
@@ -289,14 +289,22 @@ export default function S2_FreeTextInputScreen() {
 
   // Analyze Profile & Compute Follow-up Question
   const computeNextFollowup = (profile) => {
-    const isHi = language === 'hi' || language === 'mr';
+    const getQ = (texts) => {
+      if (language === 'mr') return texts.mr || texts.en;
+      if (language === 'bn') return texts.bn || texts.en;
+      if (language === 'hi') return texts.hi || texts.en;
+      return texts.en;
+    };
 
     // 1. Domicile State
     if (!profile.state) {
       return {
-        question: isHi
-          ? 'कृपया अपने गृह राज्य (Domicile State) का नाम बताएं, जैसे मध्य प्रदेश या महाराष्ट्र?'
-          : 'Could you please mention your state of residence, such as Madhya Pradesh or Maharashtra?',
+        question: getQ({
+          hi: 'कृपया अपने गृह राज्य (Domicile State) का नाम बताएं, जैसे मध्य प्रदेश या महाराष्ट्र?',
+          mr: 'कृपया आपल्या मूळ राज्याचे (Domicile State) नाव सांगा, जसे मध्य प्रदेश किंवा महाराष्ट्र?',
+          bn: 'অনুগ্রহ করে আপনার স্থায়ী রাজ্যের নাম বলুন, যেমন মধ্যপ্রদেশ বা মহারাষ্ট্র?',
+          en: 'Could you please mention your state of residence, such as Madhya Pradesh or Maharashtra?'
+        }),
         targetField: 'state'
       };
     }
@@ -304,9 +312,12 @@ export default function S2_FreeTextInputScreen() {
     // 2. Age
     if (!profile.age) {
       return {
-        question: isHi
-          ? 'आपकी उम्र (आयु) कितने वर्ष है?'
-          : 'Could you share your approximate age in years?',
+        question: getQ({
+          hi: 'आपकी उम्र (आयु) कितने वर्ष है?',
+          mr: 'तुमचे वय (वय वर्ष) किती आहे?',
+          bn: 'আপনার বয়স কত বছর?',
+          en: 'Could you share your approximate age in years?'
+        }),
         targetField: 'age'
       };
     }
@@ -314,9 +325,12 @@ export default function S2_FreeTextInputScreen() {
     // 3. Occupation
     if (!profile.occupation) {
       return {
-        question: isHi
-          ? 'आप क्या कार्य करते हैं? जैसे कि किसान, छात्र, गृहिणी, मजदूर, या स्वरोजगार?'
-          : 'What is your current occupation—for instance, a farmer, student, homemaker, laborer, or self-employed?',
+        question: getQ({
+          hi: 'आप क्या कार्य करते हैं? जैसे कि किसान, छात्र, गृहिणी, मजदूर, या स्वरोजगार?',
+          mr: 'तुम्ही काय काम करता? जसे की शेतकरी, विद्यार्थी, गृहिणी, कामगार किंवा स्वयंरोजगार?',
+          bn: 'আপনি কী কাজ করেন? যেমন কৃষক, ছাত্র, গৃহিণী, শ্রমিক বা স্বনিযুক্ত?',
+          en: 'What is your current occupation—for instance, a farmer, student, homemaker, laborer, or self-employed?'
+        }),
         targetField: 'occupation'
       };
     }
@@ -325,25 +339,34 @@ export default function S2_FreeTextInputScreen() {
     if (profile.occupation === 'farmer') {
       if (profile.landholding_hectares === undefined || profile.landholding_hectares === null) {
         return {
-          question: isHi
-            ? 'बहुत बढ़िया! PM-किसान योजना की पात्रता के लिए, आपके पास कितने हेक्टेयर या एकड़ कृषि भूमि है?'
-            : 'Excellent! To check PM-KISAN entitlement, approximately how much agricultural land (hectares or acres) do you own?',
+          question: getQ({
+            hi: 'बहुत बढ़िया! PM-किसान योजना की पात्रता के लिए, आपके पास कितने हेक्टेयर या एकड़ कृषि भूमि है?',
+            mr: 'उत्तम! पीएम-किसान योजनेच्या पात्रतेसाठी, तुमच्याकडे किती हेक्टर किंवा एकर शेतीजमीन आहे?',
+            bn: 'চমৎকার! পিএম-কিষাণ প্রকল্পের যোগ্যতার জন্য, আপনার কত হেক্টর বা একর কৃষিজমি আছে?',
+            en: 'Excellent! To check PM-KISAN entitlement, approximately how much agricultural land (hectares or acres) do you own?'
+          }),
           targetField: 'landholding_hectares'
         };
       }
       if (profile.has_pucca_house === undefined || profile.has_pucca_house === null) {
         return {
-          question: isHi
-            ? 'पीएम आवास योजना (PMAY-G) के लिए, क्या आपके पास पहले से पक्का मकान है, या कच्चा घर है?'
-            : 'For PM Awas Yojana (PMAY-G) housing grants, do you already own a pucca concrete house, or a kutcha dwelling?',
+          question: getQ({
+            hi: 'पीएम आवास योजना (PMAY-G) के लिए, क्या आपके पास पहले से पक्का मकान है, या कच्चा घर है?',
+            mr: 'पीएम आवास योजनेसाठी (PMAY-G), तुमच्याकडे आधीच पक्के घर आहे की कच्चे घर आहे?',
+            bn: 'পিএম আবাস যোজনার (PMAY-G) জন্য, আপনার কি ইতিমধ্যে পাকা বাড়ি আছে, নাকি কাঁচা বাড়ি?',
+            en: 'For PM Awas Yojana (PMAY-G) housing grants, do you already own a pucca concrete house, or a kutcha dwelling?'
+          }),
           targetField: 'has_pucca_house'
         };
       }
       if (profile.bpl_card_holder === undefined || profile.bpl_card_holder === null) {
         return {
-          question: isHi
-            ? 'क्या आपके परिवार के पास बीपीएल (गरीबी रेखा) राशन कार्ड है?'
-            : 'Does your family hold a BPL (Below Poverty Line) or Antyodaya ration card?',
+          question: getQ({
+            hi: 'क्या आपके परिवार के पास बीपीएल (गरीबी रेखा) राशन कार्ड है?',
+            mr: 'तुमच्या कुटुंबाकडे बीपीएल (दारिद्र्यरेषेखालील) रेशन कार्ड आहे का?',
+            bn: 'আপনার পরিবারের কি বিপিএল (দারিদ্র্যসীমার নিচে) রেশন কার্ড আছে?',
+            en: 'Does your family hold a BPL (Below Poverty Line) or Antyodaya ration card?'
+          }),
           targetField: 'bpl_card_holder'
         };
       }
@@ -353,17 +376,23 @@ export default function S2_FreeTextInputScreen() {
     if (profile.occupation === 'student') {
       if (profile.student_class12_marks_percent === undefined || profile.student_class12_marks_percent === null) {
         return {
-          question: isHi
-            ? 'मुख्यमंत्री मेधावी विद्यार्थी योजना (MMVY) के लिए, 12वीं बोर्ड परीक्षा में आपके कितने प्रतिशत (%) अंक आए हैं?'
-            : 'For the MMVY Scholarship, what percentage of marks did you secure in your Class 12th board exams?',
+          question: getQ({
+            hi: 'मुख्यमंत्री मेधावी विद्यार्थी योजना (MMVY) के लिए, 12वीं बोर्ड परीक्षा में आपके कितने प्रतिशत (%) अंक आए हैं?',
+            mr: 'मुख्यमंत्री मेधावी विद्यार्थी योजनेसाठी (MMVY), १२वी बोर्ड परीक्षेत तुम्हाला किती टक्के (%) गुण मिळाले आहेत?',
+            bn: 'মুখ্যমন্ত্রী মেধাবী শিক্ষার্থী যোজনার (MMVY) জন্য, দ্বাদশ শ্রেণীর বোর্ড পরীক্ষায় আপনি কত শতাংশ (%) নম্বর পেয়েছেন?',
+            en: 'For the MMVY Scholarship, what percentage of marks did you secure in your Class 12th board exams?'
+          }),
           targetField: 'student_class12_marks_percent'
         };
       }
       if (profile.annual_income === undefined || profile.annual_income === null) {
         return {
-          question: isHi
-            ? 'छात्रवृत्ति के आय प्रमाण पत्र हेतु, आपके परिवार की अनुमानित वार्षिक आय कितनी है (जैसे 2 लाख या 4 लाख)?'
-            : 'For the scholarship income criteria, what is your family\'s approximate annual income (e.g. ₹2 Lakhs)?',
+          question: getQ({
+            hi: 'छात्रवृत्ति के आय प्रमाण पत्र हेतु, आपके परिवार की अनुमानित वार्षिक आय कितनी है (जैसे 2 लाख या 4 लाख)?',
+            mr: 'शिष्यवृत्तीच्या उत्पन्न प्रमाणपत्रासाठी, तुमच्या कुटुंबाचे अंदाजे वार्षिक उत्पन्न किती आहे (उदा. २ लाख किंवा ४ लाख)?',
+            bn: 'স্কলারশিপের আয়ের শংসাপত্রের জন্য, আপনার পরিবারের আনুমানিক বার্ষিক আয় কত (যেমন ২ লাখ বা ৪ লাখ)?',
+            en: 'For the scholarship income criteria, what is your family\'s approximate annual income (e.g. ₹2 Lakhs)?'
+          }),
           targetField: 'annual_income'
         };
       }
@@ -373,25 +402,34 @@ export default function S2_FreeTextInputScreen() {
     if (profile.gender === 'female' || profile.marital_status === 'widow') {
       if (!profile.marital_status) {
         return {
-          question: isHi
-            ? 'लाड़ली बहना एवं सामाजिक सुरक्षा पेंशन हेतु, क्या आप विवाहित, विधवा, अथवा अविवाहित हैं?'
-            : 'For Ladli Behna and widow pensions, could you confirm your marital status (married, widowed, or single)?',
+          question: getQ({
+            hi: 'लाड़ली बहना एवं सामाजिक सुरक्षा पेंशन हेतु, क्या आप विवाहित, विधवा, अथवा अविवाहित हैं?',
+            mr: 'लाडकी बहीण आणि सामाजिक सुरक्षा पेन्शनसाठी, तुम्ही विवाहित, विधवा की अविवाहित आहात?',
+            bn: 'লাডলি বহনা ও সামাজিক সুরক্ষা পেনশনের জন্য, আপনি কি বিবাহিত, বিধবা বা অবিবাহিত?',
+            en: 'For Ladli Behna and widow pensions, could you confirm your marital status (married, widowed, or single)?'
+          }),
           targetField: 'marital_status'
         };
       }
       if (profile.annual_income === undefined || profile.annual_income === null) {
         return {
-          question: isHi
-            ? 'लाड़ली बहना (₹2.5 लाख सीमा) एवं पेंशन पात्रता के लिए, आपकी कुल वार्षिक पारिवारिक आय कितनी है?'
-            : 'For statutory income eligibility (such as Ladli Behna ₹2.5L limit), what is your approximate annual household income?',
+          question: getQ({
+            hi: 'लाड़ली बहना (₹2.5 लाख सीमा) एवं पेंशन पात्रता के लिए, आपकी कुल वार्षिक पारिवारिक आय कितनी है?',
+            mr: 'लाडकी बहीण (२.५ लाख मर्यादा) आणि पेन्शन पात्रतेसाठी, तुमचे एकूण वार्षिक कौटुंबिक उत्पन्न किती आहे?',
+            bn: 'লাডলি বহনা (২.৫ লাখ সীমা) এবং পেনশন যোগ্যতার জন্য, আপনার মোট বার্ষিক পারিবারিক আয় কত?',
+            en: 'For statutory income eligibility (such as Ladli Behna ₹2.5L limit), what is your approximate annual household income?'
+          }),
           targetField: 'annual_income'
         };
       }
       if (profile.bpl_card_holder === undefined || profile.bpl_card_holder === null) {
         return {
-          question: isHi
-            ? 'क्या आपके पास बीपीएल राशन कार्ड उपलब्ध है?'
-            : 'Do you hold a BPL ration card?',
+          question: getQ({
+            hi: 'क्या आपके पास बीपीएल राशन कार्ड उपलब्ध है?',
+            mr: 'तुमच्याकडे बीपीएल रेशन कार्ड उपलब्ध आहे का?',
+            bn: 'আপনার কাছে কি বিপিএল রেশন কার্ড আছে?',
+            en: 'Do you hold a BPL ration card?'
+          }),
           targetField: 'bpl_card_holder'
         };
       }
@@ -400,9 +438,12 @@ export default function S2_FreeTextInputScreen() {
     // 7. General Income
     if (profile.annual_income === undefined || profile.annual_income === null) {
       return {
-        question: isHi
-          ? 'सटीक सरकारी अनुदान जांच हेतु, आपकी वार्षिक पारिवारिक आय लगभग कितनी है (जैसे 60,000 या 1 लाख)?'
-          : 'To evaluate income-ceiling welfare benefits, what is your approximate annual family income?',
+        question: getQ({
+          hi: 'सटीक सरकारी अनुदान जांच हेतु, आपकी वार्षिक पारिवारिक आय लगभग कितनी है (जैसे 60,000 या 1 लाख)?',
+          mr: 'अचूक सरकारी अनुदान पडताळणीसाठी, तुमचे वार्षिक कौटुंबिक उत्पन्न अंदाजे किती आहे (उदा. ६०,००० किंवा १ लाख)?',
+          bn: 'সঠিক সরকারি অনুদান যাচাইয়ের জন্য, আপনার বার্ষিক পারিবারিক আয় আনুমানিক কত (যেমন ৬০,০০০ বা ১ লাখ)?',
+          en: 'To evaluate income-ceiling welfare benefits, what is your approximate annual family income?'
+        }),
         targetField: 'annual_income'
       };
     }
@@ -483,8 +524,10 @@ export default function S2_FreeTextInputScreen() {
         await new Promise((r) => setTimeout(r, 300));
 
         let readyMsgText = '';
-        if (language === 'hi' || language === 'mr') {
+        if (language === 'hi') {
           readyMsgText = `शानदार! आपकी प्रोफ़ाइल (${activeKeys.length} विवरण) सफलतापूर्वक दर्ज हो गई है। हम आधिकारिक सरकारी योजनाओं के नियमों के अनुसार आपकी पात्रता निकाल रहे हैं...`;
+        } else if (language === 'mr') {
+          readyMsgText = `छान! तुमचे प्रोफाइल (${activeKeys.length} तपशील) यशस्वीरित्या नोंदवले गेले आहे. आम्ही अधिकृत सरकारी योजनांच्या नियमांनुसार तुमची पात्रता तपासत आहोत...`;
         } else if (language === 'bn') {
           readyMsgText = `চমৎকার! আপনার প্রোফাইল সফলভাবে তৈরি হয়েছে। আমরা আপনার জন্য যোগ্য সরকারি প্রকল্প মূল্যায়ন করছি...`;
         } else {
@@ -583,18 +626,30 @@ export default function S2_FreeTextInputScreen() {
       const text =
         language === 'hi'
           ? 'मैं 48 साल का किसान हूँ, मध्य प्रदेश के सीहोर में रहता हूँ। मेरे पास डेढ़ हेक्टेयर जमीन है और कच्चा मकान है।'
+          : language === 'mr'
+          ? 'मी ४८ वर्षांचा शेतकरी आहे, मध्य प्रदेशातील सीहोरमध्ये राहतो. माझ्याकडे दीड हेक्टर शेतीजमीन आहे आणि कच्चे घर आहे.'
+          : language === 'bn'
+          ? 'আমি ৪৮ বছর বয়সী কৃষক, মধ্যপ্রদেশের সিহোরে থাকি। আমার কাছে দেড় হেক্টর কৃষিজমি আছে এবং কাঁচা বাড়ি রয়েছে।'
           : 'I am a 48 year old farmer living in Sehore, Madhya Pradesh with 1.5 hectares of land and a kutcha house.';
       handleCitizenTurn(text);
     } else if (personaType === 'widow') {
       const text =
         language === 'hi'
           ? 'मैं 52 वर्ष की विधवा महिला हूँ, मध्य प्रदेश में रहती हूँ। मेरे पास बीपीएल राशन कार्ड है और आय 24 हजार है।'
+          : language === 'mr'
+          ? 'मी ५२ वर्षांची विधवा महिला आहे, मध्य प्रदेशात राहते. माझ्याकडे बीपीएल रेशन कार्ड आहे आणि वार्षिक उत्पन्न २४ हजार आहे.'
+          : language === 'bn'
+          ? 'আমি ৫২ বছর বয়সী বিধবা মহিলা, মধ্যপ্রদেশে থাকি। আমার বিপিএল রেশন কার্ড আছে এবং বার্ষিক আয় ২৪ হাজার টাকা।'
           : 'I am a 52 year old widow living in Madhya Pradesh. We have a BPL ration card and annual income under 25,000 INR.';
       handleCitizenTurn(text);
     } else if (personaType === 'student') {
       const text =
         language === 'hi'
           ? 'मैं 19 साल का छात्र हूँ, मध्य प्रदेश का निवासी हूँ। 12वीं में 86% अंक आए हैं और मैंने इंजीनियरिंग में प्रवेश लिया है।'
+          : language === 'mr'
+          ? 'मी १९ वर्षांचा विद्यार्थी आहे, मध्य प्रदेशात राहतो. १२वीत ८६% गुण मिळाले आहेत आणि इंजिनिअरिंगमध्ये प्रवेश घेतला आहे.'
+          : language === 'bn'
+          ? 'আমি ১৯ বছর বয়সী ছাত্র, মধ্যপ্রদেশের বাসিন্দা। দ্বাদশ শ্রেণীতে ৮৬% নম্বর পেয়েছি এবং ইঞ্জিনিয়ারিংয়ে ভর্তি হয়েছি।'
           : 'I am a 19 year old student from MP with 86% marks in Class 12 board exams and enrolled in an engineering degree.';
       handleCitizenTurn(text);
     }
@@ -610,6 +665,10 @@ export default function S2_FreeTextInputScreen() {
     const welcome =
       language === 'hi'
         ? 'सत्र रीसेट हो गया है। अपने बारे में नए सिरे से बोलें, मैं आपकी पूरी बात सुन रहा हूँ।'
+        : language === 'mr'
+        ? 'सत्र रीसेट झाले आहे. आपल्याबद्दल पुन्हा सांगा, मी ऐकत आहे.'
+        : language === 'bn'
+        ? 'সেশন রিসেট হয়েছে। নিজের সম্পর্কে আবার বলুন, আমি শুনছি।'
         : 'Session reset. Speak naturally about yourself to begin fresh eligibility matching.';
     setConversation([
       {

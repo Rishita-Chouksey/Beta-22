@@ -93,18 +93,10 @@ export default function S4_ResultsScreen() {
 
       const newlyEligibleCount = (newEval.eligible || []).length - eligibleSchemes.length;
       if (newlyEligibleCount > 0) {
-        setVerificationSuccessMsg(
-          language === 'hi'
-            ? `🎉 सत्यापन पूर्ण! आपकी नई जानकारी से ${newlyEligibleCount} नई योजनाएं पात्रता सूची में जुड़ गई हैं!`
-            : `🎉 Verification complete! ${newlyEligibleCount} additional scheme(s) confirmed as Eligible!`
-        );
+        setVerificationSuccessMsg(lt(`Verification complete! ${newlyEligibleCount} additional scheme(s) confirmed as Eligible!`, `🎉 सत्यापन पूर्ण! आपकी नई जानकारी से ${newlyEligibleCount} नई योजनाएं पात्रता सूची में जुड़ गई हैं!`));
         setTimeout(() => setActiveTab('eligible'), 1500);
       } else {
-        setVerificationSuccessMsg(
-          language === 'hi'
-            ? '✓ सत्यापन पूर्ण! आपकी दर्ज जानकारी के आधार पर सभी योजनाओं का अंतिम निर्णय ले लिया गया है।'
-            : '✓ Verification complete! All unverified schemes have been definitively evaluated.'
-        );
+        setVerificationSuccessMsg(lt('✓ Verification complete! All unverified schemes have been definitively evaluated.', '✓ सत्यापन पूर्ण! आपकी दर्ज जानकारी के आधार पर सभी योजनाओं का अंतिम निर्णय ले लिया गया है।'));
       }
     } catch (err) {
       console.error('Error processing verification answers:', err);
@@ -231,7 +223,7 @@ export default function S4_ResultsScreen() {
               onClick={() => setActiveTab('eligible')}
               className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition whitespace-nowrap cursor-pointer"
             >
-              {language === 'hi' ? 'पात्र योजनाएं देखें →' : 'View Eligible Schemes →'}
+              {lt('View Eligible Schemes →', 'पात्र योजनाएं देखें →')}
             </button>
           </div>
         )}
@@ -332,21 +324,17 @@ export default function S4_ResultsScreen() {
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 border border-amber-400">
-                    ⚡ {language === 'hi' ? 'पात्रता सत्यापन' : 'Action Needed'}
+                    ⚡ {lt('Action Needed', 'पात्रता सत्यापन')}
                   </span>
                   <span className="text-xs font-bold text-amber-900">
-                    {notSureSchemes.length} {language === 'hi' ? 'योजनाएं सत्यापन की प्रतीक्षा में' : 'schemes pending verification'}
+                    {notSureSchemes.length} {lt('schemes pending verification', 'योजनाएं सत्यापन की प्रतीक्षा में')}
                   </span>
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                  {language === 'hi'
-                    ? 'अधूरी जानकारी की सत्यापन प्रश्नावली भरें'
-                    : 'Complete Verification Questionnaire for Pending Schemes'}
+                  {lt('Complete Verification Questionnaire for Pending Schemes', 'अधूरी जानकारी की सत्यापन प्रश्नावली भरें')}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
-                  {language === 'hi'
-                    ? `आपके द्वारा ${allMissingFields.length} विवरण उपलब्ध कराने पर हमारा नियम इंजन तुरंत तय कर देगा कि आप इन योजनाओं के लिए पात्र हैं या नहीं।`
-                    : `Answering ${allMissingFields.length} missing questions will allow the deterministic rule engine to finalize eligibility for all pending schemes.`}
+                  {lt(`Answering ${allMissingFields.length} missing questions will allow the deterministic rule engine to finalize eligibility for all pending schemes.`, `आपके द्वारा ${allMissingFields.length} विवरण उपलब्ध कराने पर हमारा नियम इंजन तुरंत तय कर देगा कि आप इन योजनाओं के लिए पात्र हैं या नहीं।`)}
                 </p>
               </div>
 
@@ -356,9 +344,7 @@ export default function S4_ResultsScreen() {
               >
                 <Sparkles className="w-4 h-4" />
                 <span>
-                  {showBatchVerification
-                    ? (language === 'hi' ? 'प्रश्नावली बंद करें' : 'Hide Questionnaire')
-                    : (language === 'hi' ? 'प्रश्नावली शुरू करें (अभी सत्यापित करें)' : 'Start Verification Questionnaire')}
+                  {showBatchVerification ? lt('Hide Questionnaire', 'प्रश्नावली बंद करें') : lt('Start Verification Questionnaire', 'प्रश्नावली शुरू करें (अभी सत्यापित करें)')}
                 </span>
               </button>
             </div>
@@ -369,11 +355,7 @@ export default function S4_ResultsScreen() {
                 missingFields={allMissingFields}
                 onComplete={() => {
                   setShowBatchVerification(false);
-                  setRecentResolutionNotice(
-                    language === 'hi'
-                      ? 'सत्यापन पूर्ण! नियम इंजन द्वारा आपकी अंतिम पात्रता निर्धारित कर दी गई है।'
-                      : 'Verification complete! Your definitive eligibility has been computed.'
-                  );
+                  setRecentResolutionNotice(lt('Verification complete! Your definitive eligibility has been computed.', 'सत्यापन पूर्ण! नियम इंजन द्वारा आपकी अंतिम पात्रता निर्धारित कर दी गई है।'));
                 }}
                 onCancel={() => setShowBatchVerification(false)}
               />
@@ -502,11 +484,7 @@ export default function S4_ResultsScreen() {
                           targetSchemeName={name}
                           onComplete={() => {
                             setActiveInlineVerifySchemeId(null);
-                            setRecentResolutionNotice(
-                              language === 'hi'
-                                ? `${name} की पात्रता निर्धारित हो गई है!`
-                                : `Eligibility for ${name} has been evaluated!`
-                            );
+                            setRecentResolutionNotice(lt(`Eligibility for ${name} has been evaluated!`, `${name} की पात्रता निर्धारित हो गई है!`));
                           }}
                           onCancel={() => setActiveInlineVerifySchemeId(null)}
                         />
@@ -548,9 +526,7 @@ export default function S4_ResultsScreen() {
                         >
                           <Sparkles className="w-3.5 h-3.5" />
                           <span>
-                            {isInlineVerifying
-                              ? (language === 'hi' ? 'बंद करें' : 'Close')
-                              : (language === 'hi' ? 'सत्यापित करें' : 'Verify Now')}
+                            {isInlineVerifying ? lt('Close', 'बंद करें') : lt('Verify Now', 'सत्यापित करें')}
                           </span>
                         </button>
                       )}

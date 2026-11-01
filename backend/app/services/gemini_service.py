@@ -84,6 +84,7 @@ UNCATALOGED_SCHEMES = [
         "name_en": "Post Matric Scholarship",
         "name_hi": "पोस्ट मैट्रिक छात्रवृत्ति (Post Matric Scholarship)",
         "name_bn": "পোস্ট ম্যাট্রিক স্কলারশিপ (Post Matric Scholarship)",
+        "name_mr": "पोस्ट मॅट्रिक शिष्यवृत्ती (Post Matric Scholarship)",
         "official_url": "https://scholarships.gov.in/",
         "portal_name": "National Scholarship Portal (NSP)"
     },
@@ -92,6 +93,7 @@ UNCATALOGED_SCHEMES = [
         "name_en": "National Scholarship Portal (NSP Schemes)",
         "name_hi": "राष्ट्रीय छात्रवृत्ति पोर्टल (NSP)",
         "name_bn": "ন্যাশনাল স্কলারশিপ পোর্টাল (NSP)",
+        "name_mr": "राष्ट्रीय शिष्यवृत्ती पोर्टल (NSP)",
         "official_url": "https://scholarships.gov.in/",
         "portal_name": "National Scholarship Portal"
     },
@@ -100,6 +102,7 @@ UNCATALOGED_SCHEMES = [
         "name_en": "Sukanya Samriddhi Yojana",
         "name_hi": "सुकन्या समृद्धि योजना",
         "name_bn": "সুকন্যা সমৃদ্ধি যোজনা",
+        "name_mr": "सुकन्या समृद्धी योजना",
         "official_url": "https://www.indiapost.gov.in/",
         "portal_name": "India Post / National Savings"
     },
@@ -108,6 +111,7 @@ UNCATALOGED_SCHEMES = [
         "name_en": "Kisan Credit Card (KCC)",
         "name_hi": "किसान क्रेडिट कार्ड (KCC)",
         "name_bn": "কিষাণ ক্রেডিট কার্ড (KCC)",
+        "name_mr": "किसान क्रेडिट कार्ड (KCC)",
         "official_url": "https://agricoop.nic.in/",
         "portal_name": "Ministry of Agriculture"
     },
@@ -116,6 +120,7 @@ UNCATALOGED_SCHEMES = [
         "name_en": "Atal Pension Yojana (APY)",
         "name_hi": "अटल पेंशन योजना (APY)",
         "name_bn": "অটল পেনশন যোজনা (APY)",
+        "name_mr": "अटल पेन्शन योजना (APY)",
         "official_url": "https://www.npscra.nsdl.co.in/",
         "portal_name": "PFRDA Official Portal"
     },
@@ -124,6 +129,7 @@ UNCATALOGED_SCHEMES = [
         "name_en": "Pradhan Mantri MUDRA Yojana",
         "name_hi": "प्रधानमंत्री मुद्रा योजना (MUDRA)",
         "name_bn": "প্রধানমন্ত্রী মুদ্রা যোজনা",
+        "name_mr": "प्रधानमंत्री मुद्रा योजना (MUDRA)",
         "official_url": "https://www.mudra.org.in/",
         "portal_name": "MUDRA Official Portal"
     },
@@ -132,6 +138,7 @@ UNCATALOGED_SCHEMES = [
         "name_en": "PM Vishwakarma Yojana",
         "name_hi": "पीएम विश्वकर्मा योजना",
         "name_bn": "পিএম বিশ্বকর্মা যোজনা",
+        "name_mr": "पीएम विश्वकर्मा योजना",
         "official_url": "https://pmvishwakarma.gov.in/",
         "portal_name": "PM Vishwakarma Portal"
     },
@@ -140,6 +147,7 @@ UNCATALOGED_SCHEMES = [
         "name_en": "Ladli Laxmi Yojana (MP)",
         "name_hi": "लाड़ली लक्ष्मी योजना (मध्य प्रदेश)",
         "name_bn": "লাডলি লক্ষ্মী যোজনা",
+        "name_mr": "लाडली लक्ष्मी योजना (मध्य प्रदेश)",
         "official_url": "https://ladlilaxmi.mp.gov.in/",
         "portal_name": "MP Ladli Laxmi Portal"
     }
@@ -388,10 +396,13 @@ Citizen Text: "{text}"
         is_pure_greeting = msg_lower in greetings or (len(msg_lower) < 10 and any(msg_lower.startswith(g) for g in ["hi", "hello", "नमस्ते"]))
         if is_pure_greeting and (not history or len(history) == 0):
             reply_hi = "नमस्ते! मैं योजनासारथी आधिकारिक सरकारी योजना सहायक हूँ। आप मुझसे किसी भी सरकारी योजना (जैसे MMVY, लाड़ली बहना, पीएम किसान, आयुष्मान), आवश्यक दस्तावेज़ (जैसे आय या मूल निवास प्रमाण पत्र), अथवा पात्रता नियमों के बारे में पूछ सकते हैं।"
+            reply_mr = "नमस्ते! मी तुमचा योजनासारथी अधिकृत सरकारी योजना सहाय्यक आहे. तुम्ही मला कोणत्याही सरकारी योजनेबद्दल (जसे की MMVY, लाडकी बहीण, पीएम किसान, आयुष्मान), आवश्यक कागदपत्रे किंवा पात्रता नियमांबद्दल विचारू शकता."
+            reply_bn = "নমস্কার! আমি আপনার যোজনা সারথী অফিসিয়াল সরকারি প্রকল্প সহকারী। আপনি আমাকে যে কোনও সরকারি প্রকল্প (যেমন MMVY, লাডলি বহনা, পিএম কিষাণ, আয়ুষ্মান), প্রয়োজনীয় কাগজপত্র বা যোগ্যতার নিয়ম সম্পর্কে জিজ্ঞাসা করতে পারেন।"
             reply_en = "Namaste! I am your YojnaSarthi Government Scheme Assistant. You can ask me anything about government schemes (MMVY, Ladli Behna, PM-KISAN, Ayushman), required documents, income limits, or application procedures."
-            AuditRepository.log_chat_interaction(msg_clean, None, "GREETING", reply_hi if language == "hi" else reply_en, language)
+            chosen_reply = reply_mr if language == "mr" else (reply_bn if language == "bn" else (reply_hi if language == "hi" else reply_en))
+            AuditRepository.log_chat_interaction(msg_clean, None, "GREETING", chosen_reply, language)
             return {
-                "reply": reply_hi if language == "hi" else reply_en,
+                "reply": chosen_reply,
                 "grounded_sources": ["https://india.gov.in/"],
                 "disclaimer": "AI guidance is grounded in official government guidelines."
             }
@@ -405,14 +416,21 @@ Citizen Text: "{text}"
                 if language == "hi":
                     reply = (
                         f"क्षमा करें, योजनासारथी में वर्तमान में **{uncat['name_hi']}** के नियम उपलब्ध नहीं हैं।\n\n"
-                        f"योजनासारथी वर्तमान में केवल 8 आधिकारिक रूप से सत्यापित सरकारी योजनाओं (जैसे मुख्यमंत्री मेधावी विद्यार्थी योजना - MMVY, लाड़ली बहना, पीएम किसान, आयुष्मान भारत PM-JAY, पीएम आवास ग्रामीण, संजय गांधी निराधार और इंदिरा गांधी राष्ट्रीय विधवा पेंशन) के नियम प्रदान करता है।\n\n"
+                        f"योजनासारथी वर्तमान में आधिकारिक रूप से सत्यापित सरकारी योजनाओं के नियम प्रदान करता है।\n\n"
                         f"**{uncat['name_hi']}** की आधिकारिक जानकारी व ऑनलाइन आवेदन हेतु कृपया {portal} पर जाएं:\n"
                         f"🔗 आधिकारिक पोर्टल: {url}"
+                    )
+                elif language == "mr":
+                    reply = (
+                        f"क्षमस्व, योजनासारथीमध्ये सध्या **{uncat.get('name_mr', uncat['name_en'])}** चे नियम उपलब्ध नाहीत.\n\n"
+                        f"योजनासारथी सध्या अधिकृतपणे सत्यापित सरकारी योजनांचे नियम प्रदान करते.\n\n"
+                        f"**{uncat.get('name_mr', uncat['name_en'])}** च्या अधिकृत माहिती व ऑनलाइन अर्जासाठी कृपया {portal} ला भेट द्या:\n"
+                        f"🔗 अधिकृत पोर्टल: {url}"
                     )
                 elif language == "bn":
                     reply = (
                         f"দুঃখিত, যোজনাসারথিতে বর্তমানে **{uncat['name_bn']}**-এর নিয়মাবলী অন্তর্ভুক্ত নেই।\n\n"
-                        f"যোজনাসারথি বর্তমানে ৮টি যাচাইকৃত সরকারি প্রকল্পের (MMVY মেধা বৃত্তি, লাডলি বহনা, পিএম কিষাণ, আয়ুষ্মান ভারত, পিএম আবাস গ্রামীণ ইত্যাদি) তথ্য প্রদান করে।\n\n"
+                        f"যোজনাসারথি বর্তমানে যাচাইকৃত সরকারি প্রকল্পের তথ্য প্রদান করে।\n\n"
                         f"**{uncat['name_bn']}**-এর তথ্যের জন্য অনুগ্রহ করে অফিসিয়াল পোর্টালে যান:\n"
                         f"🔗 অফিসিয়াল পোর্টাল: {url}"
                     )
@@ -706,7 +724,7 @@ CRITICAL INSTRUCTIONS:
 2. Ground your entire answer strictly in the official scheme knowledge and verified rules provided. Never invent benefits, deadlines, or unverified claims.
 3. Understand conversational context and follow-up questions from the conversation history.
 4. If asked about a scheme not in our verified library, state that YojnaSarthi only has audited rules for our current schemes (MMVY, Ladli Behna, PM-KISAN, PMAY-G, Ayushman PM-JAY, Widow Pensions) and direct them to india.gov.in.
-5. Answer simply, warmly, and respectfully in {'Hindi' if language == 'hi' else 'English'}.
+5. Answer simply, warmly, and respectfully in {'Hindi (हिन्दी)' if language == 'hi' else ('Marathi (मराठी)' if language == 'mr' else ('Bengali (বাংলা)' if language == 'bn' else 'English'))}.
 6. Always mention the official portal link and helpline when providing scheme guidance.
 """
                 prompt = f"""

@@ -24,7 +24,7 @@ export default function VerificationQuestionnaire({
   onCancel = null,
   compact = false
 }) {
-  const { language, t } = useLanguage();
+  const { language, t, lt, getBilingualText } = useLanguage();
   const { profile, updateProfile, setEvaluationResults } = useSession();
 
   // Initialize answers from current profile if any
@@ -57,11 +57,7 @@ export default function VerificationQuestionnaire({
     // Verify at least one field has an answer
     const answeredCount = Object.keys(answers).filter((k) => answers[k] !== undefined && answers[k] !== '').length;
     if (answeredCount === 0) {
-      setErrorMsg(
-        language === 'hi'
-          ? 'कृपया पात्रता तय करने के लिए कम से कम एक जानकारी दर्ज करें।'
-          : 'Please answer at least one question to evaluate eligibility.'
-      );
+      setErrorMsg(lt('Please provide at least one detail to determine eligibility.', 'कृपया पात्रता तय करने के लिए कम से कम एक जानकारी दर्ज करें।'));
       return;
     }
 
@@ -119,11 +115,7 @@ export default function VerificationQuestionnaire({
       }
     } catch (err) {
       console.error('Verification evaluation error:', err);
-      setErrorMsg(
-        language === 'hi'
-          ? 'सत्यापन गणना में त्रुटि हुई। कृपया पुनः प्रयास करें।'
-          : 'Error occurred during deterministic rule evaluation. Please try again.'
-      );
+      setErrorMsg(lt('Error evaluating verification rules. Please try again.', 'सत्यापन गणना में त्रुटि हुई। कृपया पुनः प्रयास करें।'));
     } finally {
       setIsSubmitting(false);
     }
@@ -142,14 +134,10 @@ export default function VerificationQuestionnaire({
           </div>
           <div className="flex-1">
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
-              {language === 'hi'
-                ? 'सत्यापन पूर्ण! अंतिम निर्णय प्राप्त हो गया है।'
-                : 'Verification Complete! Final Decision Calculated.'}
+              {lt('Verification Complete! Final eligibility computed.', 'सत्यापन पूर्ण! अंतिम निर्णय प्राप्त हो गया है।')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600">
-              {language === 'hi'
-                ? 'आपकी दर्ज की गई जानकारी को ऑडिटेड नियम इंजन द्वारा सत्यापित कर लिया गया है।'
-                : 'Your confirmed answers have been evaluated with deterministic certainty.'}
+              {lt('Your updated information has been verified through our deterministic rule engine.', 'आपकी दर्ज की गई जानकारी को ऑडिटेड नियम इंजन द्वारा सत्यापित कर लिया गया है।')}
             </p>
           </div>
         </div>
@@ -175,16 +163,14 @@ export default function VerificationQuestionnaire({
                     : 'bg-amber-200 text-amber-900 border-amber-400'
                 }`}
               >
-                {isNowEligible && (language === 'hi' ? '✓ संभावित पात्र (Likely Eligible)' : 'Likely Eligible')}
-                {isNowNotEligible && (language === 'hi' ? '✗ अपात्र (Not Eligible)' : 'Not Eligible')}
-                {!isNowEligible && !isNowNotEligible && (language === 'hi' ? 'सत्यापन प्रगति पर' : 'In Progress')}
+                {isNowEligible && lt('✓ Likely Eligible', '✓ संभावित पात्र (Likely Eligible)')}
+                {isNowNotEligible && lt('✗ Not Eligible', '✗ अपात्र (Not Eligible)')}
+                {!isNowEligible && !isNowNotEligible && lt('In Progress', 'सत्यापन प्रगति पर')}
               </span>
             </div>
             {successInfo.scheme && (
               <p className="text-xs mt-2 leading-relaxed opacity-90">
-                {language === 'hi'
-                  ? successInfo.scheme.deciding_reason_hi
-                  : successInfo.scheme.deciding_reason_en}
+                {getBilingualText(successInfo.scheme, 'deciding_reason') || lt(successInfo.scheme.deciding_reason_en, successInfo.scheme.deciding_reason_hi)}
               </p>
             )}
           </div>
@@ -192,16 +178,14 @@ export default function VerificationQuestionnaire({
 
         <div className="flex items-center justify-between gap-3 pt-2">
           <div className="text-xs text-slate-500">
-            {language === 'hi'
-              ? `कुल पात्र योजनाएं: ${successInfo.eligibleCount} | शेष सत्यापन: ${successInfo.remainingNotSure}`
-              : `Total eligible: ${successInfo.eligibleCount} | Pending verification: ${successInfo.remainingNotSure}`}
+            {lt(`Total eligible: ${successInfo.eligibleCount} | Pending verification: ${successInfo.remainingNotSure}`, `कुल पात्र योजनाएं: ${successInfo.eligibleCount} | शेष सत्यापन: ${successInfo.remainingNotSure}`)}
           </div>
           {onCancel && (
             <button
               onClick={onCancel}
               className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition"
             >
-              {language === 'hi' ? 'बंद करें (Close)' : 'Done'}
+              {lt('Done', 'बंद करें (Close)')}
             </button>
           )}
         </div>
@@ -218,27 +202,19 @@ export default function VerificationQuestionnaire({
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-200 text-amber-950 border border-amber-400">
               <HelpCircle className="w-3.5 h-3.5 text-amber-800" />
               <span>
-                {language === 'hi' ? 'सत्यापन प्रश्नावली' : 'Verification Questionnaire'}
+                {lt('Verification Questionnaire', 'सत्यापन प्रश्नावली')}
               </span>
             </span>
             <span className="text-xs text-amber-900 font-semibold">
-              {missingFields.length} {language === 'hi' ? 'अधूरी जानकारी' : 'Missing Information'}
+              {missingFields.length} {lt('Missing Information', 'अधूरी जानकारी')}
             </span>
           </div>
 
           <h3 className="text-base sm:text-lg font-bold text-slate-900">
-            {targetSchemeName
-              ? (language === 'hi'
-                  ? `${targetSchemeName} की अंतिम पात्रता हेतु आवश्यक जानकारी`
-                  : `Complete Information for ${targetSchemeName}`)
-              : (language === 'hi'
-                  ? 'योजनाओं की अंतिम पात्रता निश्चित करने के लिए जानकारी दर्ज करें'
-                  : 'Answer Unknown Questions to Finalize Eligibility')}
+            {targetSchemeName ? lt(`Complete Information for ${targetSchemeName}`, `${targetSchemeName} की अंतिम पात्रता हेतु आवश्यक जानकारी`) : lt('Answer Unknown Questions to Finalize Eligibility', 'योजनाओं की अंतिम पात्रता निश्चित करने के लिए जानकारी दर्ज करें')}
           </h3>
           <p className="text-xs text-slate-600">
-            {language === 'hi'
-              ? 'ये विवरण भरते ही हमारा नियम इंजन तुरंत तय करेगा कि आप इस योजना के लिए पात्र हैं या नहीं।'
-              : 'Providing these details allows our deterministic rule engine to compute an immediate definitive verdict.'}
+            {lt('Providing these details allows our deterministic rule engine to compute an immediate definitive verdict.', 'ये विवरण भरते ही हमारा नियम इंजन तुरंत तय करेगा कि आप इस योजना के लिए पात्र हैं या नहीं।')}
           </p>
         </div>
 
@@ -284,7 +260,7 @@ export default function VerificationQuestionnaire({
                   {q.options && q.options.length > 0 ? (
                     q.options.map((opt) => {
                       const isSelected = currentVal === opt.value;
-                      const optLabel = opt[`label_${language}`] || opt.label_hi || opt.label_en;
+                      const optLabel = getBilingualText(opt, 'label') || opt[`label_${language}`] || opt.label_hi || opt.label_en;
                       return (
                         <button
                           key={String(opt.value)}
@@ -312,7 +288,7 @@ export default function VerificationQuestionnaire({
                             : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                         }`}
                       >
-                        {language === 'hi' ? 'हाँ (Yes)' : 'Yes'}
+                        {lt('Yes', 'हाँ (Yes)')}
                       </button>
                       <button
                         type="button"
@@ -323,7 +299,7 @@ export default function VerificationQuestionnaire({
                             : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                         }`}
                       >
-                        {language === 'hi' ? 'नहीं (No)' : 'No'}
+                        {lt('No', 'नहीं (No)')}
                       </button>
                     </>
                   )}
@@ -334,7 +310,7 @@ export default function VerificationQuestionnaire({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                   {q.options.map((opt) => {
                     const isSelected = currentVal === opt.value;
-                    const optLabel = opt[`label_${language}`] || opt.label_hi || opt.label_en;
+                    const optLabel = getBilingualText(opt, 'label') || opt[`label_${language}`] || opt.label_hi || opt.label_en;
                     return (
                       <button
                         key={String(opt.value)}
@@ -362,7 +338,7 @@ export default function VerificationQuestionnaire({
                       min={q.min || 0}
                       max={q.max || 9999999}
                       step="any"
-                      placeholder={language === 'hi' ? 'संख्या दर्ज करें...' : 'Enter value...'}
+                      placeholder={lt('Enter value...', 'संख्या दर्ज करें...')}
                       value={currentVal !== undefined && currentVal !== null ? currentVal : ''}
                       onChange={(e) => handleValueChange(field, e.target.value !== '' ? parseFloat(e.target.value) : '')}
                       className="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm font-semibold bg-white"
@@ -377,7 +353,7 @@ export default function VerificationQuestionnaire({
                   {q.presets && q.presets.length > 0 && (
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="text-[11px] text-slate-400 font-medium">
-                        {language === 'hi' ? 'सुझाव:' : 'Presets:'}
+                        {lt('Presets:', 'सुझाव:')}
                       </span>
                       {q.presets.map((preset) => (
                         <button
@@ -408,9 +384,7 @@ export default function VerificationQuestionnaire({
       {/* Footer Submit CTA */}
       <div className="flex items-center justify-between gap-3 pt-2">
         <span className="text-xs text-slate-500 font-medium hidden sm:inline-block">
-          {language === 'hi'
-            ? '✓ निर्णय 100% सटीक नियम इंजन द्वारा निकाला जाता है'
-            : '✓ Verdict computed mathematically by deterministic rule engine'}
+          {lt('Verdict computed mathematically by deterministic rule engine', '✓ निर्णय 100% सटीक नियम इंजन द्वारा निकाला जाता है')}
         </span>
 
         <button
@@ -422,15 +396,13 @@ export default function VerificationQuestionnaire({
           {isSubmitting ? (
             <>
               <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>{language === 'hi' ? 'गणना हो रही है...' : 'Evaluating Rules...'}</span>
+              <span>{lt('Evaluating Rules...', 'गणना हो रही है...')}</span>
             </>
           ) : (
             <>
               <ShieldCheck className="w-4 h-4" />
               <span>
-                {language === 'hi'
-                  ? 'जानकारी जमा करें एवं अंतिम पात्रता जानें'
-                  : 'Submit & Finalize Decision'}
+                {lt('Submit & Finalize Decision', 'जानकारी जमा करें एवं अंतिम पात्रता जानें')}
               </span>
               <ArrowRight className="w-4 h-4" />
             </>

@@ -56,8 +56,28 @@ export default function ChatbotDrawer() {
     { label: '🌸 Ladli Behna Yojana', text: 'What is Ladli Behna Yojana and its benefits?' }
   ];
 
-  // English is the source; Bengali is generated offline from it.
-  const quickPrompts = language === 'hi' ? quickPromptsHi : quickPromptsEn.map((p) => ({ label: tr(p.label), text: tr(p.text) }));
+  const quickPromptsMr = [
+    { label: '🎓 MMVY शिष्यवृत्ती काय आहे?', text: 'MMVY शिष्यवृत्ती काय आहे आणि त्यासाठी पात्रता काय आहे?' },
+    { label: '👩 विधवा महिलांसाठी योजना', text: 'विधवा महिलांसाठी कोणत्या सरकारी योजना उपलब्ध आहेत?' },
+    { label: '🌾 शेतकऱ्यांसाठी योजना', text: 'शेतकऱ्यांसाठी कोणत्या कल्याणकारी योजना उपलब्ध आहेत?' },
+    { label: '📑 उत्पन्न दाखला कसा काढायचा?', text: 'उत्पन्न दाखला कसा आणि कुठून काढायचा?' },
+    { label: '💰 दोन शिष्यवृत्ती एकत्र मिळतात का?', text: 'दोन शिष्यवृत्ती एकाच वेळी मिळू शकतात का?' },
+    { label: '🌸 लाडकी बहीण योजना', text: 'लाडकी बहीण योजनेची पात्रता आणि लाभ काय आहेत?' }
+  ];
+
+  const quickPromptsBn = [
+    { label: '🎓 MMVY স্কলারশিপ কী?', text: 'MMVY কী এবং এর জন্য কী যোগ্যতা প্রয়োজন?' },
+    { label: '👩 বিধবাদের জন্য প্রকল্প', text: 'বিধবা মহিলাদের জন্য কী কী সরকারি প্রকল্প উপলব্ধ?' },
+    { label: '🌾 কৃষকদের জন্য প্রকল্প', text: 'কৃষকদের জন্য কোন কোন কল্যাণমূলক প্রকল্প রয়েছে?' },
+    { label: '📑 আয়ের শংসাপত্র কীভাবে পাবেন?', text: 'আয়ের শংসাপত্র কীভাবে এবং কোথা থেকে পাবেন?' },
+    { label: '💰 একসাথে ২টি স্কলারশিপ পাওয়া যায়?', text: 'একসাথে দুটি স্কলারশিপ কি পাওয়া সম্ভব?' },
+    { label: '🌸 লাডলি বহনা যোজনা', text: 'লাডলি বহনা যোজনার যোগ্যতা ও সুবিধা কী কী?' }
+  ];
+
+  const quickPrompts =
+    language === 'hi' ? quickPromptsHi :
+    language === 'mr' ? quickPromptsMr :
+    language === 'bn' ? quickPromptsBn : quickPromptsEn;
 
   const sendMessageWithText = async (textToSend) => {
     const query = textToSend.trim();
