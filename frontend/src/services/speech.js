@@ -29,8 +29,12 @@ function prepareTextForSpeech(text, lang) {
       prepared = prepared.replace(pattern, replacement);
     }
   }
-  // Remove markdown bold asterisks and bullets
-  prepared = prepared.replace(/[*#_~`]/g, '').replace(/•/g, ', ');
+  // Remove markdown bold asterisks, bullets, backticks
+  prepared = prepared
+    .replace(/[*#_~`]/g, '')
+    .replace(/•/g, ', ')
+    .replace(/\s+/g, ' ')
+    .trim();
   return prepared;
 }
 
@@ -63,7 +67,7 @@ export function getBestVoice(lang = 'hi') {
         v.name.toLowerCase().includes('मराठी')
     );
     if (marathiVoice) return marathiVoice;
-    // Graceful fallback to Indian Hindi voice if Marathi OS pack not installed
+    // Fallback to Hindi voice if Marathi not found
     const hiFallback = voices.find((v) => v.lang.toLowerCase().startsWith('hi'));
     if (hiFallback) return hiFallback;
   } else if (lang === 'bn') {
@@ -88,7 +92,7 @@ export function getBestVoice(lang = 'hi') {
     );
     if (hindiVoice) return hindiVoice;
   } else {
-    // Search for en-IN first, then general en
+    // English
     const indianEnglish = voices.find(
       (v) =>
         v.lang.toLowerCase() === 'en-in' ||
@@ -97,7 +101,6 @@ export function getBestVoice(lang = 'hi') {
         v.name.toLowerCase().includes('heera')
     );
     if (indianEnglish) return indianEnglish;
-
     const anyEnglish = voices.find((v) => v.lang.toLowerCase().startsWith('en'));
     if (anyEnglish) return anyEnglish;
   }
@@ -105,7 +108,7 @@ export function getBestVoice(lang = 'hi') {
   return null;
 }
 
-let currentAudio = null;
+let speechWatchdogTimer = null;
 
 function speakWithBrowserSynthesis(cleanText, lang = 'hi', onEnd = null) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
@@ -114,11 +117,22 @@ function speakWithBrowserSynthesis(cleanText, lang = 'hi', onEnd = null) {
     return;
   }
 
-  window.speechSynthesis.cancel();
+  // Cancel any ongoing speech
+  try {
+    window.speechSynthesis.cancel();
+  } catch (_) {}
+
+  if (speechWatchdogTimer) {
+    clearTimeout(speechWatchdogTimer);
+    speechWatchdogTimer = null;
+  }
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
+  // Keep global reference to prevent Chromium garbage-collection audio cutoff bug
+  window.__activeSpeechUtterance = utterance;
+
   utterance.lang = getLocaleCode(lang);
-  utterance.rate = lang === 'en' ? 0.95 : 0.90; // Slightly measured rate for maximum clarity
+  utterance.rate = lang === 'en' ? 1.0 : 0.95;
   utterance.pitch = 1.0;
 
   const bestVoice = getBestVoice(lang);
@@ -127,20 +141,59 @@ function speakWithBrowserSynthesis(cleanText, lang = 'hi', onEnd = null) {
   }
 
   let hasEnded = false;
+  let keepAliveTimer = null;
+
   const safeEnd = () => {
     if (!hasEnded) {
       hasEnded = true;
+      if (speechWatchdogTimer) {
+        clearTimeout(speechWatchdogTimer);
+        speechWatchdogTimer = null;
+      }
+      if (keepAliveTimer) {
+        clearInterval(keepAliveTimer);
+        keepAliveTimer = null;
+      }
+      window.__activeSpeechUtterance = null;
       if (onEnd) onEnd();
     }
   };
 
   utterance.onend = safeEnd;
   utterance.onerror = (e) => {
-    console.warn('Speech synthesis error/interrupted:', e);
+    console.warn('Speech synthesis notice:', e);
     safeEnd();
   };
 
-  window.speechSynthesis.speak(utterance);
+  // Keep Chromium synthesis active (prevents speech cut-off on longer sentences)
+  keepAliveTimer = setInterval(() => {
+    if (!hasEnded && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      } else {
+        clearInterval(keepAliveTimer);
+      }
+    } else {
+      clearInterval(keepAliveTimer);
+    }
+  }, 4000);
+
+  // Watchdog timer: safety net allowing ample time (250ms/char, min 15s) so sentences are NEVER cut off mid-speech
+  const expectedDurationMs = Math.max(15000, cleanText.length * 250);
+  speechWatchdogTimer = setTimeout(() => {
+    if (!hasEnded) {
+      console.warn('Speech synthesis watchdog maximum timeout reached, completing turn.');
+      safeEnd();
+    }
+  }, expectedDurationMs);
+
+  try {
+    window.speechSynthesis.speak(utterance);
+  } catch (err) {
+    console.warn('Speech synthesis speak exception:', err);
+    safeEnd();
+  }
 }
 
 // Speech Synthesis (Text-to-Speech) using native browser SpeechSynthesis engine
@@ -157,22 +210,22 @@ export function speakText(text, lang = 'hi', onEnd = null) {
 }
 
 export function stopSpeaking() {
-  if (currentAudio) {
-    try {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-    } catch (_) {}
-    currentAudio = null;
+  if (speechWatchdogTimer) {
+    clearTimeout(speechWatchdogTimer);
+    speechWatchdogTimer = null;
   }
+  window.__activeSpeechUtterance = null;
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+    } catch (_) {}
   }
 }
 
-// Speech Recognition (Speech-to-Text) with continuous manual recording
+// Speech Recognition (Speech-to-Text) with robust live capture and continuous audio support
 export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, onError, onStateChange }) {
   if (typeof window === 'undefined') {
-    return { isSupported: false, start: () => { }, stop: () => { } };
+    return { isSupported: false, start: () => {}, stop: () => {}, cancel: () => {} };
   }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -183,18 +236,26 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
       start: () => {
         if (onError) onError('browser_unsupported');
       },
-      stop: () => { },
+      stop: () => {},
+      cancel: () => {},
     };
   }
 
   let recognition = null;
   let isIntentionallyListening = false;
   let accumulatedTranscript = '';
+  let latestLiveTranscript = '';
 
   const initRecognition = () => {
-    recognition = new SpeechRecognition();
+    try {
+      recognition = new SpeechRecognition();
+    } catch (e) {
+      console.warn('SpeechRecognition initialization error:', e);
+      return;
+    }
+
     recognition.lang = getLocaleCode(language);
-    recognition.continuous = true; // DO NOT auto-stop on silence!
+    recognition.continuous = true; // Listen continuously until user pauses or clicks stop
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
@@ -204,53 +265,49 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
 
     recognition.onresult = (event) => {
       let interim = '';
-      let newlyFinalized = '';
+      let finalized = '';
 
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
+      for (let i = 0; i < event.results.length; ++i) {
         const item = event.results[i];
         if (item.isFinal) {
-          newlyFinalized += item[0].transcript + ' ';
+          finalized += item[0].transcript + ' ';
         } else {
           interim += item[0].transcript;
         }
       }
 
-      if (newlyFinalized) {
-        accumulatedTranscript += newlyFinalized;
-      }
+      accumulatedTranscript = finalized;
+      const fullCurrentText = (finalized + interim).trim();
+      latestLiveTranscript = fullCurrentText;
 
-      const currentLive = (accumulatedTranscript + interim).trim();
       if (onInterim) {
-        onInterim(currentLive);
+        onInterim(fullCurrentText);
       }
     };
 
     recognition.onerror = (event) => {
-      console.warn('Speech recognition warning:', event.error);
+      console.warn('Speech recognition event:', event.error);
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         isIntentionallyListening = false;
         if (onError) onError('permission_denied');
         if (onStateChange) onStateChange(false);
       } else if (event.error === 'no-speech') {
-        // Natural user pause, do not stop recording!
+        // User paused briefly, keep listening
       } else if (event.error === 'network') {
         if (onError) onError('network_error');
       }
     };
 
     recognition.onend = () => {
-      // If user did NOT manually press stop, auto-restart seamlessly
       if (isIntentionallyListening) {
-        try {
-          recognition.start();
-        } catch (e) {
-          // Restart quickly
-          setTimeout(() => {
-            if (isIntentionallyListening) {
-              try { recognition.start(); } catch (_) { }
-            }
-          }, 250);
-        }
+        // Automatically reconnect if browser closed the connection while user is still speaking
+        setTimeout(() => {
+          if (isIntentionallyListening && recognition) {
+            try {
+              recognition.start();
+            } catch (_) {}
+          }
+        }, 150);
       } else {
         if (onStateChange) onStateChange(false);
       }
@@ -263,32 +320,50 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
     isSupported: true,
     start: () => {
       accumulatedTranscript = '';
+      latestLiveTranscript = '';
       isIntentionallyListening = true;
+
       try {
-        recognition.start();
+        recognition?.start();
       } catch (err) {
-        console.warn('Recognition start exception:', err);
+        if (err.name !== 'InvalidStateError') {
+          console.warn('Restarting recognition engine:', err);
+          try {
+            recognition?.abort();
+            setTimeout(() => {
+              if (isIntentionallyListening) {
+                try {
+                  recognition?.start();
+                } catch (_) {}
+              }
+            }, 100);
+          } catch (_) {}
+        }
       }
     },
     stop: () => {
       isIntentionallyListening = false;
       try {
-        recognition.stop();
+        recognition?.stop();
       } catch (err) {
-        console.warn('Recognition stop exception:', err);
+        console.warn('Recognition stop notice:', err);
       }
       if (onStateChange) onStateChange(false);
+
+      // Give priority to accumulated transcript, then latestLiveTranscript
+      const finalResult = (accumulatedTranscript || latestLiveTranscript).trim();
       if (onFinal) {
-        onFinal(accumulatedTranscript.trim());
+        onFinal(finalResult);
       }
     },
     cancel: () => {
       isIntentionallyListening = false;
       accumulatedTranscript = '';
+      latestLiveTranscript = '';
       try {
-        recognition.abort();
-      } catch (_) { }
+        recognition?.abort();
+      } catch (_) {}
       if (onStateChange) onStateChange(false);
-    }
+    },
   };
 }

@@ -49,7 +49,18 @@ export default function S2_FreeTextInputScreen() {
   const recognizerRef = useRef(null);
   const chatScrollRef = useRef(null);
   const silenceTimerRef = useRef(null);
-  const lastSpokenTextRef = useRef('');
+  const latestInterimRef = useRef('');
+  const handleCitizenTurnRef = useRef(null);
+  const isHandsFreeRef = useRef(isHandsFree);
+  const [speechError, setSpeechError] = useState('');
+
+  useEffect(() => {
+    handleCitizenTurnRef.current = handleCitizenTurn;
+  });
+
+  useEffect(() => {
+    isHandsFreeRef.current = isHandsFree;
+  }, [isHandsFree]);
 
   // Initial AI Voice Welcome
   useEffect(() => {
@@ -77,7 +88,7 @@ export default function S2_FreeTextInputScreen() {
       setVoiceState('speaking');
       speakText(welcomeText, language, () => {
         setVoiceState('idle');
-        if (isHandsFree) {
+        if (isHandsFreeRef.current) {
           setTimeout(() => startListening(), 400);
         }
       });
@@ -99,40 +110,59 @@ export default function S2_FreeTextInputScreen() {
     }
   }, [conversation, liveInterim, voiceState]);
 
-  // Initialize Speech Recognizer
+  // Initialize Speech Recognizer (Configured once per language; never aborted during active speech)
   useEffect(() => {
     recognizerRef.current = createSpeechRecognizer({
-      language: language === 'en' ? 'en-US' : language === 'mr' ? 'mr-IN' : language === 'bn' ? 'bn-IN' : 'hi-IN',
+      language: language === 'en' ? 'en' : language === 'mr' ? 'mr' : language === 'bn' ? 'bn' : 'hi',
       onInterim: (text) => {
+        latestInterimRef.current = text;
         setLiveInterim(text);
+        setSpeechError('');
+
         // Automatic silence detection for hands-free speech
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-        if (text.trim().length > 3) {
+        if (isHandsFreeRef.current && text.trim().length > 2) {
           silenceTimerRef.current = setTimeout(() => {
             if (recognizerRef.current) {
               recognizerRef.current.stop();
             }
-          }, 1400);
+          }, 1600);
         }
       },
       onFinal: (finalText) => {
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-        const textToProcess = (finalText || liveInterim || lastSpokenTextRef.current).trim();
+        const textToProcess = (finalText || latestInterimRef.current || '').trim();
+        latestInterimRef.current = '';
         setLiveInterim('');
-        lastSpokenTextRef.current = '';
+
         if (textToProcess) {
-          handleCitizenTurn(textToProcess);
+          if (handleCitizenTurnRef.current) {
+            handleCitizenTurnRef.current(textToProcess);
+          }
         } else {
           setVoiceState('idle');
         }
       },
       onError: (err) => {
         console.warn('Speech recognition warning:', err);
+        if (err === 'permission_denied') {
+          setSpeechError(
+            language === 'hi'
+              ? 'माइक्रोफ़ोन की अनुमति नहीं मिली। कृपया ब्राउज़र सेटिंग्स में माइक्रोफ़ोन की अनुमति (Allow) दें।'
+              : 'Microphone permission denied. Please allow microphone access in your browser.'
+          );
+        } else if (err === 'browser_unsupported') {
+          setSpeechError(
+            language === 'hi'
+              ? 'यह ब्राउज़र आवाज़ पहचान का समर्थन नहीं करता। कृपया Google Chrome या Microsoft Edge का उपयोग करें।'
+              : 'Speech recognition is not supported in this browser. Please use Chrome or Edge.'
+          );
+        }
         setVoiceState('idle');
       },
       onStateChange: (active) => {
-        if (!active && voiceState === 'listening') {
-          // Handled via onFinal
+        if (active) {
+          setVoiceState('listening');
         }
       },
     });
@@ -143,12 +173,14 @@ export default function S2_FreeTextInputScreen() {
       }
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
-  }, [language, liveInterim, voiceState, accumulatedProfile, isHandsFree]);
+  }, [language]);
 
   // Start Mic Listening
   const startListening = () => {
     stopSpeaking();
     setLiveInterim('');
+    latestInterimRef.current = '';
+    setSpeechError('');
     setVoiceState('listening');
     try {
       recognizerRef.current?.start();
@@ -574,11 +606,11 @@ export default function S2_FreeTextInputScreen() {
         setVoiceState('speaking');
         speakText(nextFollowup.question, language, () => {
           setVoiceState('idle');
-          // Auto-prompt mic for smooth hands-free conversational flow
-          if (isHandsFree) {
+          // Grace period after assistant finishes question before auto-opening mic
+          if (isHandsFreeRef.current) {
             setTimeout(() => {
               startListening();
-            }, 350);
+            }, 600);
           }
         });
       } else {
@@ -927,6 +959,11 @@ export default function S2_FreeTextInputScreen() {
               <p className="text-xs text-slate-400">
                 {lt('Tap microphone to speak, or use quick voice examples below', 'माइक दबाकर बोलें या नीचे दिए उदाहरण चुनें')}
               </p>
+            )}
+            {speechError && (
+              <div className="mt-3 p-2.5 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-200 text-xs text-center animate-fade-in flex items-center justify-center gap-2">
+                <span>⚠️ {speechError}</span>
+              </div>
             )}
           </div>
         </div>

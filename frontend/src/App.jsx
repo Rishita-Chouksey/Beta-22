@@ -25,8 +25,8 @@ function MainAppContent() {
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-100 selection:text-blue-900">
       <Header />
 
-      {/* Main Content Responsive Wrapper */}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col">
+      {/* Main Content Responsive Wrapper (Full-width on S0 landing for grand civic portal look) */}
+      <main className={`flex-1 w-full flex flex-col ${currentScreen === 'S0' ? 'w-full p-0 m-0' : 'max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8'}`}>
         {currentScreen === 'S0' && <S0_StartScreen />}
         {currentScreen === 'S1' && <S1_QuestionnaireScreen />}
         {currentScreen === 'S2' && <S2_FreeTextInputScreen />}
@@ -39,36 +39,38 @@ function MainAppContent() {
         {currentScreen === 'S9' && <S9_AdminMonitoringScreen />}
       </main>
 
-      {/* Global Civic Footer */}
-      <footer className="no-print border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-700">YojnaSarthi</span>
-            <span>•</span>
-            <span>
-              {lt('Citizen Welfare & Public Scheme Assistance', 'नागरिक कल्याण एवं सार्वजनिक योजना सहायता')}
-            </span>
+      {/* Global Civic Footer (Rendered on sub-screens; S0 has its own full-width majestic civic footer) */}
+      {currentScreen !== 'S0' && (
+        <footer className="no-print border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+          <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-slate-700">YojnaSarthi</span>
+              <span>•</span>
+              <span>
+                {lt('Citizen Welfare & Public Scheme Assistance', 'नागरिक कल्याण एवं सार्वजनिक योजना सहायता')}
+              </span>
+            </div>
+            <div className="flex items-center gap-4 text-[11px] text-slate-400">
+              <span>
+                {lt('Verified Official Rules', 'सत्यापित सरकारी नियम')}
+              </span>
+              <span>•</span>
+              <span>
+                {lt('Zero Data Retention', 'शून्य डेटा संचयन (Zero Retention)')}
+              </span>
+              <span>•</span>
+              <button
+                onClick={() => setCurrentScreen('S9')}
+                className="text-slate-500 hover:text-teal-700 flex items-center gap-1 transition cursor-pointer"
+                title="Admin Scheme Intelligence Monitor"
+              >
+                <Shield className="w-3 h-3 text-teal-600" />
+                <span>{lt('Admin Monitor', 'प्रशासनिक निगरानी')}</span>
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-slate-400">
-            <span>
-              {lt('Verified Official Rules', 'सत्यापित सरकारी नियम')}
-            </span>
-            <span>•</span>
-            <span>
-              {lt('Zero Data Retention', 'शून्य डेटा संचयन (Zero Retention)')}
-            </span>
-            <span>•</span>
-            <button
-              onClick={() => setCurrentScreen('S9')}
-              className="text-slate-500 hover:text-teal-700 flex items-center gap-1 transition cursor-pointer"
-              title="Admin Scheme Intelligence Monitor"
-            >
-              <Shield className="w-3 h-3 text-teal-600" />
-              <span>{lt('Admin Monitor', 'प्रशासनिक निगरानी')}</span>
-            </button>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* Global Modals & Floating Drawers */}
       <ChatbotDrawer />

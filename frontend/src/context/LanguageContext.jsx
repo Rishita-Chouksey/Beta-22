@@ -114,27 +114,38 @@ export function LanguageProvider({ children }) {
     if (language === 'en') return en || '';
     if (language === 'hi') return !isBlank(hi) ? hi : (en || '');
 
+    // Allow object: lt({ en: '...', hi: '...', mr: '...', bn: '...' })
+    if (typeof en === 'object' && en !== null && !Array.isArray(en)) {
+      return en[language] || en.hi || en.en || '';
+    }
+
     let mrArg = null;
     let bnArg = null;
+
     if (arg4 !== undefined) {
       mrArg = arg3;
       bnArg = arg4;
     } else if (arg3 !== undefined) {
-      bnArg = arg3;
+      // Check if arg3 has Bengali Unicode script [\u0980-\u09FF]
+      if (/[\u0980-\u09FF]/.test(arg3)) {
+        bnArg = arg3;
+      } else {
+        mrArg = arg3;
+      }
     }
 
     if (language === 'mr') {
       if (!isBlank(mrArg)) return mrArg;
       const hit = lookup(en, 'mr') || lookup(hi, 'mr');
       if (!isBlank(hit)) return hit;
-      return en || hi || '';
+      return hi || en || '';
     }
 
     if (language === 'bn') {
       if (!isBlank(bnArg)) return bnArg;
       const hit = lookup(en, 'bn') || lookup(hi, 'bn');
       if (!isBlank(hit)) return hit;
-      return en || hi || '';
+      return hi || en || '';
     }
 
     return en || '';
@@ -144,34 +155,16 @@ export function LanguageProvider({ children }) {
    * Pick the right language from dynamic backend data.
    * e.g., getBilingualText(scheme, 'name')
    * or getBilingualText(name_en, name_hi)
-   * or getBilingualText(['Wheat', 'Rice'])
    */
   const getBilingualText = (arg1, arg2) => {
-    // Array of objects or strings
-    if (Array.isArray(arg1)) {
-      return arg1.map((item) =>
-        typeof item === 'string'
-          ? (lookup(item, language) || item)
-          : getBilingualText(item, arg2)
-      );
-    }
-
-    if (arg1 && typeof arg1 === 'object') {
+    if (arg1 && typeof arg1 === 'object' && !Array.isArray(arg1)) {
       const base = arg2;
       // 1. Direct language field: e.g. name_mr, benefit_mr, title_mr, label_mr, name_bn
       const localized = arg1[`${base}_${language}`];
-      if (Array.isArray(localized) ? localized.length > 0 : !isBlank(localized)) {
-        return localized;
-      }
+      if (!isBlank(localized)) return localized;
 
       const enVal = arg1[`${base}_en`];
       const hiVal = arg1[`${base}_hi`];
-
-      // Array values (like examples, rules, procedures)
-      if (Array.isArray(enVal) || Array.isArray(hiVal)) {
-        const srcArray = Array.isArray(enVal) && enVal.length > 0 ? enVal : (Array.isArray(hiVal) ? hiVal : []);
-        return srcArray.map((item) => (typeof item === 'string' ? (lookup(item, language) || item) : item));
-      }
 
       // 2. Language is Marathi ('mr')
       if (language === 'mr') {

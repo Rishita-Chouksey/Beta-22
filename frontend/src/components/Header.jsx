@@ -17,7 +17,7 @@ export default function Header() {
       {/* Subtle National Civic Top Accent */}
       <div className="h-0.5 w-full bg-gradient-to-r from-amber-500 via-blue-400 to-emerald-500 opacity-90" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
         {/* Brand / Logo */}
         <div
           onClick={() => setCurrentScreen('S0')}
