@@ -52,6 +52,9 @@ export default function S2_FreeTextInputScreen() {
   const latestInterimRef = useRef('');
   const handleCitizenTurnRef = useRef(null);
   const isHandsFreeRef = useRef(isHandsFree);
+  const isProcessingRef = useRef(false);
+  const lastProcessedTextRef = useRef('');
+  const lastProcessedTimeRef = useRef(0);
   const [speechError, setSpeechError] = useState('');
 
   useEffect(() => {
@@ -115,6 +118,7 @@ export default function S2_FreeTextInputScreen() {
     recognizerRef.current = createSpeechRecognizer({
       language: language === 'en' ? 'en' : language === 'mr' ? 'mr' : language === 'bn' ? 'bn' : 'hi',
       onInterim: (text) => {
+        if (isProcessingRef.current) return;
         latestInterimRef.current = text;
         setLiveInterim(text);
         setSpeechError('');
@@ -123,7 +127,7 @@ export default function S2_FreeTextInputScreen() {
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         if (isHandsFreeRef.current && text.trim().length > 2) {
           silenceTimerRef.current = setTimeout(() => {
-            if (recognizerRef.current) {
+            if (recognizerRef.current && !isProcessingRef.current) {
               recognizerRef.current.stop();
             }
           }, 1600);
@@ -135,12 +139,13 @@ export default function S2_FreeTextInputScreen() {
         latestInterimRef.current = '';
         setLiveInterim('');
 
-        if (textToProcess) {
-          if (handleCitizenTurnRef.current) {
-            handleCitizenTurnRef.current(textToProcess);
-          }
-        } else {
-          setVoiceState('idle');
+        if (!textToProcess || isProcessingRef.current) {
+          if (!isProcessingRef.current) setVoiceState('idle');
+          return;
+        }
+
+        if (handleCitizenTurnRef.current) {
+          handleCitizenTurnRef.current(textToProcess);
         }
       },
       onError: (err) => {
@@ -177,6 +182,7 @@ export default function S2_FreeTextInputScreen() {
 
   // Start Mic Listening
   const startListening = () => {
+    if (isProcessingRef.current) return;
     stopSpeaking();
     setLiveInterim('');
     latestInterimRef.current = '';
@@ -486,13 +492,38 @@ export default function S2_FreeTextInputScreen() {
 
   // Main Multi-Turn Processing Flow with Animated Moment of Processing
   const handleCitizenTurn = async (speechText) => {
-    if (!speechText.trim()) return;
+    const trimmed = (speechText || '').trim();
+    if (!trimmed) return;
+
+    // Strict deduplication guard to prevent duplicate messages and speech cut-offs
+    const now = Date.now();
+    if (isProcessingRef.current) {
+      console.warn('Ignored turn: already processing an active turn.');
+      return;
+    }
+    if (
+      lastProcessedTextRef.current.toLowerCase() === trimmed.toLowerCase() &&
+      now - lastProcessedTimeRef.current < 10000
+    ) {
+      console.warn('Ignored duplicate utterance received in quick succession:', trimmed);
+      return;
+    }
+
+    isProcessingRef.current = true;
+    lastProcessedTextRef.current = trimmed;
+    lastProcessedTimeRef.current = now;
+
+    // Immediately cancel recognizer and silence timer so mic doesn't record during processing/speaking
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    if (recognizerRef.current) {
+      recognizerRef.current.cancel();
+    }
 
     // 1. Add Citizen Message
     const userMsg = {
       id: `user-${Date.now()}`,
       sender: 'citizen',
-      text: speechText,
+      text: trimmed,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
@@ -576,14 +607,10 @@ export default function S2_FreeTextInputScreen() {
 
         setConversation((prev) => [...prev, aiReadyMsg]);
 
-        if (isAudioEnabled) {
-          setVoiceState('speaking');
-          speakText(readyMsgText, language, () => {
-            handleFinalEvaluation(merged);
-          });
-        } else {
-          setTimeout(() => handleFinalEvaluation(merged), 900);
-        }
+        // Direct instant navigation to S4 Results without blocking user on lengthy speech audio
+        setTimeout(() => {
+          handleFinalEvaluation(merged);
+        }, 350);
         return;
       }
 
@@ -606,20 +633,25 @@ export default function S2_FreeTextInputScreen() {
         setVoiceState('speaking');
         speakText(nextFollowup.question, language, () => {
           setVoiceState('idle');
+          isProcessingRef.current = false;
           // Grace period after assistant finishes question before auto-opening mic
           if (isHandsFreeRef.current) {
             setTimeout(() => {
-              startListening();
-            }, 600);
+              if (!isProcessingRef.current && !window.__isAssistantSpeaking) {
+                startListening();
+              }
+            }, 850);
           }
         });
       } else {
         setVoiceState('idle');
+        isProcessingRef.current = false;
       }
     } catch (err) {
       console.error('Turn processing error:', err);
       setVoiceState('idle');
       setProcessingStage(0);
+      isProcessingRef.current = false;
     }
   };
 

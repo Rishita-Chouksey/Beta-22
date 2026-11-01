@@ -293,8 +293,11 @@ def get_db_connection() -> sqlite3.Connection:
     global _tables_initialized
     os.makedirs(DB_DIR, exist_ok=True)
     conn = sqlite3.connect(DB_PATH, check_same_thread=False, timeout=10.0)
-    conn.execute("PRAGMA journal_mode = DELETE;")
-    conn.execute("PRAGMA busy_timeout = 30000;")
+    try:
+        conn.execute("PRAGMA journal_mode = WAL;")
+    except Exception:
+        pass
+    conn.execute("PRAGMA busy_timeout = 10000;")
     conn.row_factory = sqlite3.Row
     if not _tables_initialized:
         _tables_initialized = True
@@ -309,7 +312,6 @@ def get_db_connection() -> sqlite3.Connection:
 def init_db():
     """Initializes database schema and tables."""
     conn = get_db_connection()
-    init_db_schema(conn)
     conn.close()
     logger.info(f"Database initialized successfully at {DB_PATH}")
 

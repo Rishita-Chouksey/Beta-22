@@ -113,6 +113,7 @@ class FormHelpRequest(BaseModel):
 class FormFieldExplanation(BaseModel):
     field_name: str
     field_name_hi: Optional[str] = None
+    field_name_mr: Optional[str] = None
     field_name_bn: Optional[str] = None
     explanation: str
     example: str

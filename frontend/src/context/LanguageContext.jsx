@@ -119,6 +119,20 @@ export function LanguageProvider({ children }) {
       return en[language] || en.hi || en.en || '';
     }
 
+    // Allow array: translate each item in array for mr / bn
+    if (Array.isArray(en)) {
+      const baseArr = Array.isArray(hi) ? hi : en;
+      if (language === 'hi') return Array.isArray(hi) ? hi : en;
+      if (language === 'en') return en;
+      return baseArr.map((item) => {
+        if (typeof item === 'string') {
+          const hit = lookup(item, language);
+          return !isBlank(hit) ? hit : item;
+        }
+        return item;
+      });
+    }
+
     let mrArg = null;
     let bnArg = null;
 

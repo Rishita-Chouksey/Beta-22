@@ -58,6 +58,8 @@ class Settings(BaseModel):
     
     # Caching TTL
     SCHEME_CACHE_TTL_SECONDS: int = int(os.getenv("SCHEME_CACHE_TTL_SECONDS", "3600"))
+    TRANSLATION_CACHE_TTL_SECONDS: int = int(os.getenv("TRANSLATION_CACHE_TTL_SECONDS", "86400"))
+    CORS_ALLOWED_ORIGINS: str = os.getenv("CORS_ALLOWED_ORIGINS", "*")
     
     # Schemes data directory
     SCHEMES_DIR: Path = Path(__file__).resolve().parent.parent / "data" / "schemes"

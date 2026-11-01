@@ -333,6 +333,42 @@ def evaluate_scheme(scheme: SchemeDefinition, profile: CitizenProfile, verified_
         machine_translated=scheme.machine_translated
     )
 
+def is_scheme_relevant_to_profile(scheme: SchemeDefinition, profile: CitizenProfile) -> bool:
+    """
+    Checks if a scheme is relevant to the citizen's core demographic / persona.
+    Prevents cluttering Not Eligible / Not Sure lists with obviously irrelevant schemes
+    (e.g., student scholarships for a 52-year-old widow, or farmer schemes for a non-farmer).
+    """
+    # 1. Farmer schemes: If citizen has specified an occupation that is NOT farmer, farmer-only schemes are irrelevant
+    scheme_requires_farmer = any(
+        rule.field == "occupation" and rule.operator in ["eq", "in"] and "farmer" in str(rule.value)
+        for rule in scheme.rules
+    )
+    if scheme_requires_farmer and profile.occupation and profile.occupation != "farmer":
+        return False
+
+    # 2. Student / Education schemes: If citizen has specified an occupation that is NOT student (or age >= 35), youth scholarships are irrelevant
+    scheme_requires_student = any(
+        (rule.field == "occupation" and "student" in str(rule.value)) or
+        (rule.field == "enrolled_higher_education" and rule.value is True) or
+        (rule.field == "student_class12_marks_percent")
+        for rule in scheme.rules
+    )
+    if scheme_requires_student:
+        if (profile.occupation and profile.occupation != "student") or (profile.age and profile.age >= 35):
+            return False
+
+    # 3. Female / Widow exclusive schemes: If citizen is male, exclusive female schemes are irrelevant
+    scheme_requires_female = any(
+        (rule.field == "gender" and rule.value == "female") or
+        (rule.field == "marital_status" and rule.value == "widow")
+        for rule in scheme.rules
+    )
+    if scheme_requires_female and profile.gender and profile.gender == "male":
+        return False
+
+    return True
+
 def evaluate_all_schemes(schemes: List[SchemeDefinition], profile: CitizenProfile, verified_reference_date: Optional[date] = None) -> OverallEvaluationResponse:
     """
     Evaluates all schemes deterministically.
@@ -341,20 +377,29 @@ def evaluate_all_schemes(schemes: List[SchemeDefinition], profile: CitizenProfil
     2. Not sure
     3. Not eligible
     4. No current rules
+    Filters out schemes irrelevant to citizen's persona from not_sure/not_eligible.
     """
     eligible = []
     not_sure = []
     not_eligible = []
     no_rules = []
+    other_ineligible_count = 0
 
     for scheme in schemes:
         res = evaluate_scheme(scheme, profile, verified_reference_date)
+        is_relevant = is_scheme_relevant_to_profile(scheme, profile)
+        res.is_relevant_to_persona = is_relevant
+
         if res.status == "ELIGIBLE":
             eligible.append(res)
         elif res.status == "NOT ELIGIBLE":
             not_eligible.append(res)
+            if not is_relevant:
+                other_ineligible_count += 1
         elif res.status == "NOT SURE":
             not_sure.append(res)
+            if not is_relevant:
+                other_ineligible_count += 1
         elif res.status == "NO CURRENT RULES":
             no_rules.append(res)
 
@@ -366,6 +411,7 @@ def evaluate_all_schemes(schemes: List[SchemeDefinition], profile: CitizenProfil
         not_eligible=not_eligible,
         no_rules=no_rules,
         total_evaluated=len(schemes),
+        other_ineligible_count=other_ineligible_count,
         active_profile_summary=profile.model_dump(exclude_none=True),
         contradictions=contradictions
     )

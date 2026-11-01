@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useSession } from '../context/SessionContext';
 import VerificationQuestionnaire from '../components/VerificationQuestionnaire';
@@ -13,11 +13,9 @@ import {
   AlertCircle,
   RefreshCw,
   Sparkles,
-  ShieldCheck,
-  Building2,
   AlertTriangle,
-  ArrowRight,
-  Eye
+  Layers,
+  Filter
 } from 'lucide-react';
 import AudioSpeaker from '../components/AudioSpeaker';
 
@@ -25,17 +23,16 @@ export default function S4_ResultsScreen() {
   const { language, t, lt, getBilingualText } = useLanguage();
   const {
     evaluationResults,
-    setEvaluationResults,
     setCurrentScreen,
-    setActiveSchemeModal,
-    profile,
-    updateProfile
+    setActiveSchemeModal
   } = useSession();
 
-  const [activeTab, setActiveTab] = useState('eligible');
+  // 'all' by default as requested: All in One unified results dashboard
+  const [activeTab, setActiveTab] = useState('all');
   const [showBatchVerification, setShowBatchVerification] = useState(false);
   const [activeInlineVerifySchemeId, setActiveInlineVerifySchemeId] = useState(null);
   const [recentResolutionNotice, setRecentResolutionNotice] = useState(null);
+  const [showAllIneligible, setShowAllIneligible] = useState(false);
 
   const eligibleSchemes = evaluationResults?.eligible || [];
   const notSureSchemes = evaluationResults?.not_sure || [];
@@ -43,12 +40,21 @@ export default function S4_ResultsScreen() {
   const noRulesSchemes = evaluationResults?.no_rules || [];
   const contradictions = evaluationResults?.contradictions || [];
 
+  const relevantNotEligible = notEligibleSchemes.filter((s) => s.is_relevant_to_persona !== false);
+  const hiddenIneligibleCount = notEligibleSchemes.length - relevantNotEligible.length;
+  const displayedNotEligible = (showAllIneligible || hiddenIneligibleCount === 0) ? notEligibleSchemes : relevantNotEligible;
+
+  const relevantNotSure = notSureSchemes.filter((s) => s.is_relevant_to_persona !== false);
+  const hiddenNotSureCount = notSureSchemes.length - relevantNotSure.length;
+  const displayedNotSure = (showAllIneligible || hiddenNotSureCount === 0) ? notSureSchemes : relevantNotSure;
+
+  const totalSchemesCount = eligibleSchemes.length + displayedNotSure.length + displayedNotEligible.length + noRulesSchemes.length;
+
   // Gather all unique missing fields across all not_sure schemes
   const allMissingFields = Array.from(
     new Set(notSureSchemes.flatMap((s) => s.missing_fields || []))
   );
 
-  // Navigate to complete full-page view for the scheme
   const handleOpenDetails = (schemeResult) => {
     setActiveSchemeModal(schemeResult);
     setCurrentScreen('S5');
@@ -58,101 +64,209 @@ export default function S4_ResultsScreen() {
     setCurrentScreen('S6');
   };
 
-  const handleAnswerChange = (field, val) => {
-    setMissingAnswers((prev) => ({
-      ...prev,
-      [field]: val
-    }));
-  };
-
-  const handleProcessMissingAnswers = async (e) => {
-    e?.preventDefault();
-    if (Object.keys(missingAnswers).length === 0) return;
-
-    setIsProcessingVerification(true);
-    setVerificationSuccessMsg(null);
-
-    try {
-      const updatedProfile = {
-        ...profile,
-        ...missingAnswers,
-        confirmed_fields: Array.from(
-          new Set([...(profile.confirmed_fields || []), ...Object.keys(missingAnswers)])
-        )
-      };
-
-      // 1. Update session profile
-      updateProfile(updatedProfile);
-
-      // 2. Deterministically re-evaluate all schemes with newly confirmed attributes
-      const newEval = await evaluateCitizenProfile(updatedProfile);
-      setEvaluationResults(newEval);
-
-      // Clear local answered staging
-      setMissingAnswers({});
-
-      const newlyEligibleCount = (newEval.eligible || []).length - eligibleSchemes.length;
-      if (newlyEligibleCount > 0) {
-        setVerificationSuccessMsg(lt(`Verification complete! ${newlyEligibleCount} additional scheme(s) confirmed as Eligible!`, `🎉 सत्यापन पूर्ण! आपकी नई जानकारी से ${newlyEligibleCount} नई योजनाएं पात्रता सूची में जुड़ गई हैं!`));
-        setTimeout(() => setActiveTab('eligible'), 1500);
-      } else {
-        setVerificationSuccessMsg(lt('✓ Verification complete! All unverified schemes have been definitively evaluated.', '✓ सत्यापन पूर्ण! आपकी दर्ज जानकारी के आधार पर सभी योजनाओं का अंतिम निर्णय ले लिया गया है।'));
-      }
-    } catch (err) {
-      console.error('Error processing verification answers:', err);
-    } finally {
-      setIsProcessingVerification(false);
-    }
-  };
-
-  const getActiveList = () => {
-    switch (activeTab) {
-      case 'eligible':
-        return eligibleSchemes;
-      case 'not_sure':
-        return notSureSchemes;
-      case 'not_eligible':
-        return notEligibleSchemes;
-      case 'no_rules':
-        return noRulesSchemes;
-      default:
-        return eligibleSchemes;
-    }
-  };
-
-  const activeList = getActiveList();
-
   const getStatusBadge = (status) => {
     switch (status) {
       case 'ELIGIBLE':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
             <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{lt('Likely Eligible', 'संभावित पात्र (Likely Eligible)')}</span>
+            <span>{lt('Likely Eligible', 'संभावित पात्र')}</span>
           </span>
         );
       case 'NOT SURE':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300">
             <HelpCircle className="w-3.5 h-3.5 text-amber-600" />
-            <span>{lt('Needs Verification', 'सत्यापन आवश्यक (Needs Verification)')}</span>
+            <span>{lt('Needs Verification', 'सत्यापन आवश्यक')}</span>
           </span>
         );
       case 'NOT ELIGIBLE':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-800 border border-rose-300">
             <XCircle className="w-3.5 h-3.5 text-rose-600" />
-            <span>{lt('Not Eligible', 'अपात्र (Not Eligible)')}</span>
+            <span>{lt('Not Eligible', 'अपात्र')}</span>
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300">
             <AlertCircle className="w-3.5 h-3.5 text-slate-500" />
-            <span>{lt('No Current Rules', 'वर्तमान नियम उपलब्ध नहीं')}</span>
+            <span>{lt('No Current Rules', 'नियम प्रतीक्षारत')}</span>
           </span>
         );
     }
+  };
+
+  // Render a single scheme card
+  const renderSchemeCard = (scheme) => {
+    const name = lt(scheme.scheme_name_en, scheme.scheme_name_hi);
+    const reason = lt(scheme.deciding_reason_en, scheme.deciding_reason_hi);
+    const benefit = lt(scheme.benefit_en, scheme.benefit_hi);
+    const isInlineVerifying = activeInlineVerifySchemeId === scheme.scheme_id;
+    const schemeMissingFields = scheme.missing_fields || [];
+
+    return (
+      <div
+        key={scheme.scheme_id}
+        className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:shadow-md hover:border-teal-400 transition-all flex flex-col justify-between gap-4 cursor-pointer"
+        onClick={() => handleOpenDetails(scheme)}
+      >
+        <div className="space-y-3.5">
+          {/* Header tags & status badge */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                {scheme.level === 'central' ? t('central_scheme') : t('state_scheme')}
+              </span>
+              <span className="text-xs font-semibold text-slate-500">
+                {lt(scheme.category, scheme.category_hi || scheme.category, scheme.category_bn)}
+              </span>
+            </div>
+
+            {getStatusBadge(scheme.status)}
+          </div>
+
+          {/* Scheme Name */}
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug hover:text-teal-700 transition">
+            {name}
+          </h3>
+
+          {/* Benefit Highlight */}
+          <div className="bg-teal-50/60 border border-teal-100 rounded-xl p-3 text-xs sm:text-sm text-teal-950 font-medium leading-relaxed">
+            💰 {benefit}
+          </div>
+
+          {/* Deciding Reason Box */}
+          <div className="space-y-1.5 text-xs text-slate-700 bg-slate-50 border border-slate-100 p-3 rounded-xl">
+            <p className="font-semibold text-slate-900">
+              {scheme.status === 'ELIGIBLE' && '✓ ' + (lt('Why recommended: ', 'पात्रता कारण: '))}
+              {scheme.status === 'NOT ELIGIBLE' && '✗ ' + (lt('Reason not eligible: ', 'अपात्रता कारण: '))}
+              {scheme.status === 'NOT SURE' && '? ' + (lt('Verification required: ', 'सत्यापन कारण: '))}
+              {scheme.status === 'NO CURRENT RULES' && '! ' + (lt('Unverified: ', 'असत्यापित: '))}
+              <span className="font-normal text-slate-700">{reason}</span>
+            </p>
+          </div>
+
+          {/* Conditions Breakdown Preview */}
+          {(() => {
+            const satList = getBilingualText({ ...scheme, satisfied_conditions_en: scheme.satisfied_conditions_en?.length ? scheme.satisfied_conditions_en : scheme.satisfied_conditions }, 'satisfied_conditions');
+            const unkList = getBilingualText({ ...scheme, unknown_conditions_en: scheme.unknown_conditions_en?.length ? scheme.unknown_conditions_en : scheme.unknown_conditions }, 'unknown_conditions');
+            const failList = getBilingualText({ ...scheme, failed_conditions_en: scheme.failed_conditions_en?.length ? scheme.failed_conditions_en : scheme.failed_conditions }, 'failed_conditions');
+
+            return (
+              <div className="space-y-2 pt-1 border-t border-slate-100 text-xs">
+                {satList && satList.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="font-bold text-emerald-800 text-[11px] block">
+                      ✓ {t('satisfied_conditions_label')}:
+                    </span>
+                    <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                      {satList.slice(0, 3).map((sc, sIdx) => (
+                        <li key={sIdx}>{sc}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {unkList && unkList.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="font-bold text-amber-800 text-[11px] block">
+                      ? {t('unknown_conditions_label')}:
+                    </span>
+                    <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                      {unkList.map((uc, uIdx) => (
+                        <li key={uIdx}>{uc}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {failList && failList.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="font-bold text-rose-800 text-[11px] block">
+                      ✗ {t('failed_conditions_label')}:
+                    </span>
+                    <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                      {failList.map((fc, fIdx) => (
+                        <li key={fIdx}>{fc}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Scheme-Specific Inline Verification Questionnaire */}
+          {isInlineVerifying && schemeMissingFields.length > 0 && (
+            <div
+              className="pt-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <VerificationQuestionnaire
+                missingFields={schemeMissingFields}
+                targetSchemeId={scheme.scheme_id}
+                targetSchemeName={name}
+                onComplete={() => {
+                  setActiveInlineVerifySchemeId(null);
+                  setRecentResolutionNotice(lt(`Eligibility for ${name} has been evaluated!`, `${name} की पात्रता निर्धारित हो गई है!`));
+                }}
+                onCancel={() => setActiveInlineVerifySchemeId(null)}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Card Footer: Metadata and Action Buttons */}
+        <div
+          className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3 text-xs flex-wrap"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center gap-3 text-slate-500">
+            <span className="flex items-center gap-1 font-medium text-[11px]">
+              <Calendar className="w-3.5 h-3.5 text-slate-400" />
+              <span>{t('verified_on')}: {scheme.last_verified_date}</span>
+            </span>
+
+            {scheme.official_source_url && (
+              <a
+                href={scheme.official_source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-teal-700 hover:text-teal-900 inline-flex items-center gap-1 font-semibold hover:underline text-[11px]"
+              >
+                <span>{t('official_source')}</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {scheme.status === 'NOT SURE' && schemeMissingFields.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveInlineVerifySchemeId(isInlineVerifying ? null : scheme.scheme_id)}
+                className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition inline-flex items-center gap-1 shadow-2xs cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>
+                  {isInlineVerifying ? lt('Close', 'बंद करें') : lt('Verify Now', 'सत्यापित करें')}
+                </span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => handleOpenDetails(scheme)}
+              className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition inline-flex items-center gap-1 shadow-2xs cursor-pointer"
+            >
+              <span>{t('view_details')}</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -254,8 +368,25 @@ export default function S4_ResultsScreen() {
           </div>
         )}
 
-        {/* Tab Navigation Pill Bar */}
+        {/* Unified Tab & Filter Navigation Bar */}
         <div className="flex items-center gap-1.5 p-1.5 bg-slate-200/80 rounded-xl overflow-x-auto">
+          {/* All-in-One Dashboard Tab */}
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`flex-1 min-w-[140px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'all'
+                ? 'bg-slate-900 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5 text-teal-400" />
+            <span>{lt('All Schemes (All-in-One)', 'सभी योजनाएं (एक साथ)')}</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${activeTab === 'all' ? 'bg-slate-800 text-teal-300' : 'bg-slate-300 text-slate-800'}`}>
+              {totalSchemesCount}
+            </span>
+          </button>
+
+          {/* Likely Eligible Filter Tab */}
           <button
             onClick={() => setActiveTab('eligible')}
             className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
@@ -271,6 +402,7 @@ export default function S4_ResultsScreen() {
             </span>
           </button>
 
+          {/* Needs Verification Filter Tab */}
           <button
             onClick={() => setActiveTab('not_sure')}
             className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
@@ -282,10 +414,11 @@ export default function S4_ResultsScreen() {
             <HelpCircle className="w-3.5 h-3.5 text-amber-600" />
             <span>{t('tab_not_sure')}</span>
             <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full text-[10px] font-extrabold">
-              {notSureSchemes.length}
+              {displayedNotSure.length}
             </span>
           </button>
 
+          {/* Not Eligible Filter Tab */}
           <button
             onClick={() => setActiveTab('not_eligible')}
             className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
@@ -297,256 +430,266 @@ export default function S4_ResultsScreen() {
             <XCircle className="w-3.5 h-3.5 text-rose-600" />
             <span>{t('tab_not_eligible')}</span>
             <span className="px-2 py-0.5 bg-rose-100 text-rose-800 rounded-full text-[10px] font-extrabold">
-              {notEligibleSchemes.length}
+              {displayedNotEligible.length}
             </span>
           </button>
 
-          <button
-            onClick={() => setActiveTab('no_rules')}
-            className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-              activeTab === 'no_rules'
-                ? 'bg-white text-slate-800 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <AlertCircle className="w-3.5 h-3.5 text-slate-500" />
-            <span>{t('tab_no_rules')}</span>
-            <span className="px-2 py-0.5 bg-slate-200 text-slate-700 rounded-full text-[10px] font-extrabold">
-              {noRulesSchemes.length}
-            </span>
-          </button>
+          {/* No Rules Filter Tab */}
+          {noRulesSchemes.length > 0 && (
+            <button
+              onClick={() => setActiveTab('no_rules')}
+              className={`flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                activeTab === 'no_rules'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-slate-500" />
+              <span>{t('tab_no_rules')}</span>
+              <span className="px-2 py-0.5 bg-slate-200 text-slate-700 rounded-full text-[10px] font-extrabold">
+                {noRulesSchemes.length}
+              </span>
+            </button>
+          )}
         </div>
 
-        {/* 1. Interactive Verification Questionnaire Callout (for "Needs Verification" Tab) */}
-        {activeTab === 'not_sure' && notSureSchemes.length > 0 && allMissingFields.length > 0 && (
-          <div className="space-y-4">
-            <div className="bg-gradient-to-r from-amber-500/15 via-amber-100/40 to-amber-50 border-2 border-amber-300 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1 flex-1">
+        {/* SECTION 1: ALL-IN-ONE VIEW (DEFAULT) */}
+        {activeTab === 'all' && (
+          <div className="space-y-10">
+            {/* 1A. LIKELY ELIGIBLE SECTION */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-emerald-200/80 pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 border border-amber-400">
-                    ⚡ {lt('Action Needed', 'पात्रता सत्यापन')}
-                  </span>
-                  <span className="text-xs font-bold text-amber-900">
-                    {notSureSchemes.length} {lt('schemes pending verification', 'योजनाएं सत्यापन की प्रतीक्षा में')}
+                  <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <span>{lt('Likely Eligible Schemes', 'संभावित पात्र योजनाएं')}</span>
+                  </h2>
+                  <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 font-extrabold text-xs rounded-full border border-emerald-300">
+                    {eligibleSchemes.length}
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                  {lt('Complete Verification Questionnaire for Pending Schemes', 'अधूरी जानकारी की सत्यापन प्रश्नावली भरें')}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
-                  {lt(`Answering ${allMissingFields.length} missing questions will allow the deterministic rule engine to finalize eligibility for all pending schemes.`, `आपके द्वारा ${allMissingFields.length} विवरण उपलब्ध कराने पर हमारा नियम इंजन तुरंत तय कर देगा कि आप इन योजनाओं के लिए पात्र हैं या नहीं।`)}
-                </p>
+                <span className="text-xs text-slate-500 hidden sm:inline">
+                  {lt('Meets verified statutory criteria', 'सत्यापित पात्रता मानदंडों के अनुसार')}
+                </span>
               </div>
 
-              <button
-                onClick={() => setShowBatchVerification((prev) => !prev)}
-                className="w-full sm:w-auto px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap min-h-[44px]"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>
-                  {showBatchVerification ? lt('Hide Questionnaire', 'प्रश्नावली बंद करें') : lt('Start Verification Questionnaire', 'प्रश्नावली शुरू करें (अभी सत्यापित करें)')}
-                </span>
-              </button>
+              {eligibleSchemes.length === 0 ? (
+                <div className="text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-xs text-slate-500">
+                  {lt('No schemes currently match all criteria. Complete pending verifications below.', 'वर्तमान में कोई योजना पूरी तरह मेल नहीं खाती। नीचे दिए गए सत्यापन पूरे करें।')}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {eligibleSchemes.map(renderSchemeCard)}
+                </div>
+              )}
             </div>
 
-            {/* Batch Verification Questionnaire Container */}
-            {showBatchVerification && (
-              <VerificationQuestionnaire
-                missingFields={allMissingFields}
-                onComplete={() => {
-                  setShowBatchVerification(false);
-                  setRecentResolutionNotice(lt('Verification complete! Your definitive eligibility has been computed.', 'सत्यापन पूर्ण! नियम इंजन द्वारा आपकी अंतिम पात्रता निर्धारित कर दी गई है।'));
-                }}
-                onCancel={() => setShowBatchVerification(false)}
-              />
+            {/* 1B. NEEDS VERIFICATION SECTION */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-amber-200/80 pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-amber-600" />
+                    <span>{lt('Needs Verification / Additional Information', 'सत्यापन आवश्यक / अधूरी जानकारी')}</span>
+                  </h2>
+                  <span className="px-2.5 py-0.5 bg-amber-100 text-amber-900 font-extrabold text-xs rounded-full border border-amber-300">
+                    {displayedNotSure.length}
+                  </span>
+                </div>
+                {allMissingFields.length > 0 && (
+                  <button
+                    onClick={() => setShowBatchVerification((prev) => !prev)}
+                    className="text-xs font-bold text-amber-800 hover:text-amber-950 inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                    <span>{showBatchVerification ? lt('Hide Questionnaire', 'प्रश्नावली छुपाएं') : lt('Verify All at Once', 'एक साथ सभी सत्यापित करें')}</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Batch Questionnaire inside All-in-One view */}
+              {showBatchVerification && allMissingFields.length > 0 && (
+                <div className="mb-4">
+                  <VerificationQuestionnaire
+                    missingFields={allMissingFields}
+                    onComplete={() => {
+                      setShowBatchVerification(false);
+                      setRecentResolutionNotice(lt('Verification complete! Your definitive eligibility has been updated.', 'सत्यापन पूर्ण! आपकी अंतिम पात्रता अद्यतन कर दी गई है।'));
+                    }}
+                    onCancel={() => setShowBatchVerification(false)}
+                  />
+                </div>
+              )}
+
+              {displayedNotSure.length === 0 ? (
+                <div className="text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-xs text-slate-500">
+                  {lt('No pending schemes require verification.', 'कोई लंबित योजना सत्यापन की प्रतीक्षा में नहीं है।')}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {displayedNotSure.map(renderSchemeCard)}
+                </div>
+              )}
+            </div>
+
+            {/* 1C. NOT ELIGIBLE SECTION */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-rose-200/80 pb-2 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-rose-400"></div>
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <XCircle className="w-5 h-5 text-rose-600" />
+                    <span>{lt('Not Eligible Schemes', 'अपात्र योजनाएं')}</span>
+                  </h2>
+                  <span className="px-2.5 py-0.5 bg-rose-100 text-rose-800 font-extrabold text-xs rounded-full border border-rose-300">
+                    {displayedNotEligible.length}
+                  </span>
+                </div>
+
+                {hiddenIneligibleCount > 0 && (
+                  <button
+                    onClick={() => setShowAllIneligible((prev) => !prev)}
+                    className="text-xs font-semibold text-slate-600 hover:text-slate-900 inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-lg transition"
+                  >
+                    <Filter className="w-3 h-3 text-slate-500" />
+                    <span>
+                      {showAllIneligible
+                        ? lt('Hide Irrelevant Schemes', 'अन्य योजनाएं छुपाएं')
+                        : lt(`Show All Schemes (+${hiddenIneligibleCount} other demographics)`, `सभी योजनाएं देखें (+${hiddenIneligibleCount} अन्य श्रेणियां)`)}
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              {displayedNotEligible.length === 0 ? (
+                <div className="text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-xs text-slate-500">
+                  {lt('No ineligible schemes for your current profile.', 'आपकी वर्तमान प्रोफाइल के लिए कोई अपात्र योजना नहीं है।')}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {displayedNotEligible.map(renderSchemeCard)}
+                </div>
+              )}
+            </div>
+
+            {/* 1D. NO CURRENT RULES (IF PRESENT) */}
+            {noRulesSchemes.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-slate-500" />
+                    <h2 className="text-base font-extrabold text-slate-700">
+                      {lt('Additional Catalog Schemes (Pending Codification)', 'अन्य सूचीबद्ध योजनाएं')}
+                    </h2>
+                    <span className="px-2 py-0.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-full">
+                      {noRulesSchemes.length}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {noRulesSchemes.map(renderSchemeCard)}
+                </div>
+              </div>
             )}
           </div>
         )}
 
-        {/* Scheme Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {activeList.length === 0 ? (
-            <div className="col-span-full text-center py-12 bg-white border border-slate-200 rounded-2xl space-y-2 shadow-2xs">
-              <div className="text-3xl">📋</div>
-              <p className="text-sm font-semibold text-slate-600">
-                {t('no_schemes_in_category')}
-              </p>
-            </div>
-          ) : (
-            activeList.map((scheme) => {
-              const name = lt(scheme.scheme_name_en, scheme.scheme_name_hi);
-              const reason = lt(scheme.deciding_reason_en, scheme.deciding_reason_hi);
-              const benefit = lt(scheme.benefit_en, scheme.benefit_hi);
-              const isInlineVerifying = activeInlineVerifySchemeId === scheme.scheme_id;
-              const schemeMissingFields = scheme.missing_fields || [];
+        {/* SECTION 2: FILTERED SINGLE TAB VIEWS */}
+        {activeTab !== 'all' && (
+          <div className="space-y-6">
+            {/* If Not Sure Tab is active, show batch questionnaire helper */}
+            {activeTab === 'not_sure' && notSureSchemes.length > 0 && allMissingFields.length > 0 && (
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-amber-500/15 via-amber-100/40 to-amber-50 border-2 border-amber-300 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 border border-amber-400">
+                        ⚡ {lt('Action Needed', 'पात्रता सत्यापन')}
+                      </span>
+                      <span className="text-xs font-bold text-amber-900">
+                        {notSureSchemes.length} {lt('schemes pending verification', 'योजनाएं सत्यापन की प्रतीक्षा में')}
+                      </span>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                      {lt('Complete Verification Questionnaire for Pending Schemes', 'अधूरी जानकारी की सत्यापन प्रश्नावली भरें')}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+                      {lt(`Answering ${allMissingFields.length} missing questions will allow the deterministic rule engine to finalize eligibility.`, `आपके द्वारा ${allMissingFields.length} विवरण उपलब्ध कराने पर हमारा नियम इंजन तुरंत तय कर देगा कि आप इन योजनाओं के लिए पात्र हैं या नहीं।`)}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setShowBatchVerification((prev) => !prev)}
+                    className="w-full sm:w-auto px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap min-h-[44px]"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>
+                      {showBatchVerification ? lt('Hide Questionnaire', 'प्रश्नावली बंद करें') : lt('Start Verification Questionnaire', 'प्रश्नावली शुरू करें (अभी सत्यापित करें)')}
+                    </span>
+                  </button>
+                </div>
+
+                {showBatchVerification && (
+                  <VerificationQuestionnaire
+                    missingFields={allMissingFields}
+                    onComplete={() => {
+                      setShowBatchVerification(false);
+                      setRecentResolutionNotice(lt('Verification complete! Your definitive eligibility has been computed.', 'सत्यापन पूर्ण! नियम इंजन द्वारा आपकी अंतिम पात्रता निर्धारित कर दी गई है।'));
+                    }}
+                    onCancel={() => setShowBatchVerification(false)}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Persona toggle for not eligible tab */}
+            {activeTab === 'not_eligible' && hiddenIneligibleCount > 0 && (
+              <div className="flex items-center justify-between p-3 bg-slate-100 rounded-xl text-xs text-slate-600">
+                <span>
+                  {lt(`Showing ${displayedNotEligible.length} schemes relevant to your profile. ${hiddenIneligibleCount} schemes for other demographics are hidden.`, `आपकी प्रोफाइल के अनुसार ${displayedNotEligible.length} योजनाएं दिख रही हैं।`)}
+                </span>
+                <button
+                  onClick={() => setShowAllIneligible((prev) => !prev)}
+                  className="font-bold text-teal-700 hover:underline cursor-pointer"
+                >
+                  {showAllIneligible ? lt('Show relevant only', 'केवल प्रासंगिक दिखाएं') : lt('Show all', 'सभी दिखाएं')}
+                </button>
+              </div>
+            )}
+
+            {/* Grid for selected tab */}
+            {(() => {
+              const list =
+                activeTab === 'eligible'
+                  ? eligibleSchemes
+                  : activeTab === 'not_sure'
+                  ? displayedNotSure
+                  : activeTab === 'not_eligible'
+                  ? displayedNotEligible
+                  : noRulesSchemes;
+
+              if (list.length === 0) {
+                return (
+                  <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl space-y-2 shadow-2xs">
+                    <div className="text-3xl">📋</div>
+                    <p className="text-sm font-semibold text-slate-600">
+                      {t('no_schemes_in_category')}
+                    </p>
+                  </div>
+                );
+              }
 
               return (
-                <div
-                  key={scheme.scheme_id}
-                  className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:shadow-md hover:border-teal-400 transition-all flex flex-col justify-between gap-4 cursor-pointer"
-                  onClick={() => handleOpenDetails(scheme)}
-                >
-                  <div className="space-y-3.5">
-                    {/* Header tags & status badge */}
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                          {scheme.level === 'central' ? t('central_scheme') : t('state_scheme')}
-                        </span>
-                        <span className="text-xs font-semibold text-slate-500">
-                          {lt(scheme.category, scheme.category_hi || scheme.category, scheme.category_bn)}
-                        </span>
-                      </div>
-
-                      {getStatusBadge(scheme.status)}
-                    </div>
-
-                    {/* Scheme Name */}
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug hover:text-teal-700 transition">
-                      {name}
-                    </h3>
-
-                    {/* Benefit Highlight */}
-                    <div className="bg-teal-50/60 border border-teal-100 rounded-xl p-3 text-xs sm:text-sm text-teal-950 font-medium leading-relaxed">
-                      💰 {benefit}
-                    </div>
-
-                    {/* Deciding Reason Box */}
-                    <div className="space-y-1.5 text-xs text-slate-700 bg-slate-50 border border-slate-100 p-3 rounded-xl">
-                      <p className="font-semibold text-slate-900">
-                        {scheme.status === 'ELIGIBLE' && '✓ ' + (lt('Why recommended: ', 'पात्रता कारण: '))}
-                        {scheme.status === 'NOT ELIGIBLE' && '✗ ' + (lt('Reason not eligible: ', 'अपात्रता कारण: '))}
-                        {scheme.status === 'NOT SURE' && '? ' + (lt('Verification required: ', 'सत्यापन कारण: '))}
-                        {scheme.status === 'NO CURRENT RULES' && '! ' + (lt('Unverified: ', 'असत्यापित: '))}
-                        <span className="font-normal text-slate-700">{reason}</span>
-                      </p>
-                    </div>
-
-                    {/* Conditions Breakdown Preview */}
-                    {(() => {
-                      const satList = getBilingualText({ ...scheme, satisfied_conditions_en: scheme.satisfied_conditions_en?.length ? scheme.satisfied_conditions_en : scheme.satisfied_conditions }, 'satisfied_conditions');
-                      const unkList = getBilingualText({ ...scheme, unknown_conditions_en: scheme.unknown_conditions_en?.length ? scheme.unknown_conditions_en : scheme.unknown_conditions }, 'unknown_conditions');
-                      const failList = getBilingualText({ ...scheme, failed_conditions_en: scheme.failed_conditions_en?.length ? scheme.failed_conditions_en : scheme.failed_conditions }, 'failed_conditions');
-
-                      return (
-                        <div className="space-y-2 pt-1 border-t border-slate-100 text-xs">
-                          {satList && satList.length > 0 && (
-                            <div className="space-y-1">
-                              <span className="font-bold text-emerald-800 text-[11px] block">
-                                ✓ {t('satisfied_conditions_label')}:
-                              </span>
-                              <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
-                                {satList.slice(0, 3).map((sc, sIdx) => (
-                                  <li key={sIdx}>{sc}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {unkList && unkList.length > 0 && (
-                            <div className="space-y-1">
-                              <span className="font-bold text-amber-800 text-[11px] block">
-                                ? {t('unknown_conditions_label')}:
-                              </span>
-                              <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
-                                {unkList.map((uc, uIdx) => (
-                                  <li key={uIdx}>{uc}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {failList && failList.length > 0 && (
-                            <div className="space-y-1">
-                              <span className="font-bold text-rose-800 text-[11px] block">
-                                ✗ {t('failed_conditions_label')}:
-                              </span>
-                              <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
-                                {failList.map((fc, fIdx) => (
-                                  <li key={fIdx}>{fc}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
-
-                    {/* Scheme-Specific Inline Verification Questionnaire */}
-                    {isInlineVerifying && schemeMissingFields.length > 0 && (
-                      <div
-                        className="pt-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <VerificationQuestionnaire
-                          missingFields={schemeMissingFields}
-                          targetSchemeId={scheme.scheme_id}
-                          targetSchemeName={name}
-                          onComplete={() => {
-                            setActiveInlineVerifySchemeId(null);
-                            setRecentResolutionNotice(lt(`Eligibility for ${name} has been evaluated!`, `${name} की पात्रता निर्धारित हो गई है!`));
-                          }}
-                          onCancel={() => setActiveInlineVerifySchemeId(null)}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Card Footer: Metadata and Action Buttons */}
-                  <div
-                    className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3 text-xs flex-wrap"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="flex items-center gap-3 text-slate-500">
-                      <span className="flex items-center gap-1 font-medium text-[11px]">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{t('verified_on')}: {scheme.last_verified_date}</span>
-                      </span>
-
-                      {scheme.official_source_url && (
-                        <a
-                          href={scheme.official_source_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-teal-700 hover:text-teal-900 inline-flex items-center gap-1 font-semibold hover:underline text-[11px]"
-                        >
-                          <span>{t('official_source')}</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* If in NOT SURE: Show instant verify button */}
-                      {scheme.status === 'NOT SURE' && schemeMissingFields.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => setActiveInlineVerifySchemeId(isInlineVerifying ? null : scheme.scheme_id)}
-                          className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition inline-flex items-center gap-1 shadow-2xs cursor-pointer"
-                        >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>
-                            {isInlineVerifying ? lt('Close', 'बंद करें') : lt('Verify Now', 'सत्यापित करें')}
-                          </span>
-                        </button>
-                      )}
-
-                      {/* Complete Full-Page View Button */}
-                      <button
-                        type="button"
-                        onClick={() => handleOpenDetails(scheme)}
-                        className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition inline-flex items-center gap-1 shadow-2xs cursor-pointer"
-                      >
-                        <span>{t('view_details')}</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {list.map(renderSchemeCard)}
                 </div>
               );
-            })
-          )}
-        </div>
+            })()}
+          </div>
+        )}
       </div>
     </div>
   );

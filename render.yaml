@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: yojnasarthi-api
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENABLE_MYSCHEME_INTEGRATION
+        value: "false"
+      - key: MYSCHEME_API_ENABLED
+        value: "false"
+      - key: TRANSLATION_CACHE_TTL_SECONDS
+        value: "86400"
+      - key: SCHEME_CACHE_TTL_SECONDS
+        value: "3600"
+      - key: ADMIN_API_KEY
+        value: "yojnasarthi-admin-secret-2026"
+

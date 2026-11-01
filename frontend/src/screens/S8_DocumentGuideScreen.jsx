@@ -89,13 +89,13 @@ export default function S8_DocumentGuideScreen() {
   };
 
   const categories = [
-    { id: 'all', label_en: 'All Documents', label_hi: 'सभी दस्तावेज़' },
-    { id: 'Identity', label_en: 'Identity', label_hi: 'पहचान प्रमाण' },
-    { id: 'Revenue', label_en: 'Revenue & Income', label_hi: 'आय एवं राजस्व' },
-    { id: 'Residence', label_en: 'Residence / Domicile', label_hi: 'मूल निवास' },
-    { id: 'Social Security', label_en: 'Social Security', label_hi: 'सामाजिक सुरक्षा' },
-    { id: 'Land', label_en: 'Land Records', label_hi: 'भूमि अभिलेख' },
-    { id: 'Education', label_en: 'Education', label_hi: 'शिक्षा प्रमाण' }
+    { id: 'all', label_en: 'All Documents', label_hi: 'सभी दस्तावेज़', label_mr: 'सर्व कागदपत्रे', label_bn: 'সকল নথিপত্র' },
+    { id: 'Identity', label_en: 'Identity', label_hi: 'पहचान प्रमाण', label_mr: 'ओळख पुरावा', label_bn: 'পরিচয় प्रमाण' },
+    { id: 'Revenue', label_en: 'Revenue & Income', label_hi: 'आय एवं राजस्व', label_mr: 'उत्पन्न व महसूल', label_bn: 'আয় ও রাজস্ব' },
+    { id: 'Residence', label_en: 'Residence / Domicile', label_hi: 'मूल निवास', label_mr: 'अधिवास (डोमिसाईल)', label_bn: 'স্থায়ী বাসস্থান' },
+    { id: 'Social Security', label_en: 'Social Security', label_hi: 'सामाजिक सुरक्षा', label_mr: 'सामाजिक सुरक्षा', label_bn: 'সামাজিক সুরক্ষা' },
+    { id: 'Land', label_en: 'Land Records', label_hi: 'भूमि अभिलेख', label_mr: 'जमीन महसूल नोंदी', label_bn: 'জমির রেকর্ড' },
+    { id: 'Education', label_en: 'Education', label_hi: 'शिक्षा प्रमाण', label_mr: 'शैक्षणिक प्रमाणपत्रे', label_bn: 'শিক্ষাগত प्रमाणपत्र' }
   ];
 
   const filteredDocs = documents.filter((doc) => {
@@ -466,7 +466,7 @@ export default function S8_DocumentGuideScreen() {
                     : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                {lt(cat.label_en, cat.label_hi)}
+                {lt(cat.label_en, cat.label_hi, cat.label_mr, cat.label_bn)}
               </button>
             ))}
           </div>

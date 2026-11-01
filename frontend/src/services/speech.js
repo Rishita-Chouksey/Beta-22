@@ -127,6 +127,9 @@ function speakWithBrowserSynthesis(cleanText, lang = 'hi', onEnd = null) {
     speechWatchdogTimer = null;
   }
 
+  // Set global flag indicating assistant is speaking to block mic audio reflection
+  window.__isAssistantSpeaking = true;
+
   const utterance = new SpeechSynthesisUtterance(cleanText);
   // Keep global reference to prevent Chromium garbage-collection audio cutoff bug
   window.__activeSpeechUtterance = utterance;
@@ -146,6 +149,7 @@ function speakWithBrowserSynthesis(cleanText, lang = 'hi', onEnd = null) {
   const safeEnd = () => {
     if (!hasEnded) {
       hasEnded = true;
+      window.__isAssistantSpeaking = false;
       if (speechWatchdogTimer) {
         clearTimeout(speechWatchdogTimer);
         speechWatchdogTimer = null;
@@ -165,19 +169,16 @@ function speakWithBrowserSynthesis(cleanText, lang = 'hi', onEnd = null) {
     safeEnd();
   };
 
-  // Keep Chromium synthesis active (prevents speech cut-off on longer sentences)
+  // Keep Chromium synthesis active without stuttering: only resume if browser paused unexpectedly
   keepAliveTimer = setInterval(() => {
     if (!hasEnded && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.pause();
+      if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
-      } else {
-        clearInterval(keepAliveTimer);
       }
     } else {
       clearInterval(keepAliveTimer);
     }
-  }, 4000);
+  }, 3000);
 
   // Watchdog timer: safety net allowing ample time (250ms/char, min 15s) so sentences are NEVER cut off mid-speech
   const expectedDurationMs = Math.max(15000, cleanText.length * 250);
@@ -188,12 +189,17 @@ function speakWithBrowserSynthesis(cleanText, lang = 'hi', onEnd = null) {
     }
   }, expectedDurationMs);
 
-  try {
-    window.speechSynthesis.speak(utterance);
-  } catch (err) {
-    console.warn('Speech synthesis speak exception:', err);
-    safeEnd();
-  }
+  // Small 60ms tick ensures Chromium finishes clearing its previous speech queue cleanly
+  setTimeout(() => {
+    try {
+      if (!hasEnded && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.speak(utterance);
+      }
+    } catch (err) {
+      console.warn('Speech synthesis speak exception:', err);
+      safeEnd();
+    }
+  }, 60);
 }
 
 // Speech Synthesis (Text-to-Speech) using native browser SpeechSynthesis engine
@@ -210,6 +216,7 @@ export function speakText(text, lang = 'hi', onEnd = null) {
 }
 
 export function stopSpeaking() {
+  window.__isAssistantSpeaking = false;
   if (speechWatchdogTimer) {
     clearTimeout(speechWatchdogTimer);
     speechWatchdogTimer = null;
@@ -264,6 +271,9 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
     };
 
     recognition.onresult = (event) => {
+      // If recognition is not actively listening or assistant is speaking, ignore to prevent echoing audio
+      if (!isIntentionallyListening || window.__isAssistantSpeaking) return;
+
       let interim = '';
       let finalized = '';
 
@@ -280,7 +290,7 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
       const fullCurrentText = (finalized + interim).trim();
       latestLiveTranscript = fullCurrentText;
 
-      if (onInterim) {
+      if (onInterim && isIntentionallyListening) {
         onInterim(fullCurrentText);
       }
     };
@@ -342,6 +352,7 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
       }
     },
     stop: () => {
+      if (!isIntentionallyListening) return;
       isIntentionallyListening = false;
       try {
         recognition?.stop();
@@ -350,9 +361,19 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
       }
       if (onStateChange) onStateChange(false);
 
-      // Give priority to accumulated transcript, then latestLiveTranscript
+      // If assistant is currently speaking, do not fire onFinal to avoid echoing assistant's speech
+      if (window.__isAssistantSpeaking) {
+        accumulatedTranscript = '';
+        latestLiveTranscript = '';
+        return;
+      }
+
+      // Compute result and clear buffers immediately to prevent duplicate replay
       const finalResult = (accumulatedTranscript || latestLiveTranscript).trim();
-      if (onFinal) {
+      accumulatedTranscript = '';
+      latestLiveTranscript = '';
+
+      if (onFinal && finalResult) {
         onFinal(finalResult);
       }
     },

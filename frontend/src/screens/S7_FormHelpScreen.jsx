@@ -22,15 +22,54 @@ export default function S7_FormHelpScreen() {
 
   const [inputField, setInputField] = useState('');
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [analyzedFromPhoto, setAnalyzedFromPhoto] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [explanations, setExplanations] = useState(null);
   const [generalAdvice, setGeneralAdvice] = useState('');
 
   const quickCommonFields = [
-    { label_hi: 'खसरा / खतौनी नंबर', label_en: 'Khasra Number', val: 'खसरा / खतौनी क्रमांक' },
-    { label_hi: 'आधार एनपीसीआई / डीबीटी', label_en: 'NPCI / DBT Seeding', val: 'आधार बैंक डीबीटी मैपिंग' },
-    { label_hi: 'समग्र आईडी', label_en: 'Samagra ID', val: 'समग्र परिवार एवं सदस्य आईडी' },
-    { label_hi: 'राशन कार्ड क्रमांक', label_en: 'Ration Card No.', val: 'राशन कार्ड क्रमांक' }
+    {
+      label_en: 'Khasra Number',
+      label_hi: 'खसरा / खतौनी नंबर',
+      label_mr: 'सातबारा / खसरा नंबर',
+      label_bn: 'খতিয়ান / দাগ নম্বর',
+      val: 'खसरा / खतौनी क्रमांक'
+    },
+    {
+      label_en: 'NPCI / DBT Seeding',
+      label_hi: 'आधार एनपीसीआई / डीबीटी',
+      label_mr: 'आधार बँक डीबीटी मॅपिंग',
+      label_bn: 'আধার ব্যাঙ্ক ডিবিটি ম্যাপিং',
+      val: 'आधार बैंक डीबीटी मैपिंग'
+    },
+    {
+      label_en: 'Samagra ID',
+      label_hi: 'समग्र आईडी',
+      label_mr: 'समग्र कुटुंब व सदस्य आयडी',
+      label_bn: 'সমগ্র পরিবার ও সদস্য আইডি',
+      val: 'समग्र परिवार एवं सदस्य आईडी'
+    },
+    {
+      label_en: 'Ration Card No.',
+      label_hi: 'राशन कार्ड क्रमांक',
+      label_mr: 'रेशन कार्ड क्रमांक',
+      label_bn: 'রেশন কার্ড নম্বর',
+      val: 'राशन कार्ड क्रमांक'
+    },
+    {
+      label_en: 'Income Certificate',
+      label_hi: 'आय प्रमाण पत्र',
+      label_mr: 'उत्पन्न दाखला',
+      label_bn: 'আয়ের শংসাপত্র',
+      val: 'आय प्रमाण पत्र'
+    },
+    {
+      label_en: 'Domicile Certificate',
+      label_hi: 'मूल निवास प्रमाण पत्र',
+      label_mr: 'अधिवास दाखला',
+      label_bn: 'আবাসিক শংসাপত্র',
+      val: 'मूल निवास प्रमाण पत्र'
+    }
   ];
 
   const handlePhotoUpload = (e) => {
@@ -38,16 +77,20 @@ export default function S7_FormHelpScreen() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPhotoPreview(reader.result);
+        const base64Data = reader.result;
+        setPhotoPreview(base64Data);
+        setAnalyzedFromPhoto(true);
+        // Automatically analyze photo fields immediately without requiring manual click
+        handleExplain(inputField, base64Data);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleExplain = async (fieldToUse = inputField) => {
+  const handleExplain = async (fieldToUse = inputField, photoToUse = photoPreview) => {
     setIsAnalyzing(true);
     try {
-      const resp = await requestFormHelp(fieldToUse || null, photoPreview || null, language);
+      const resp = await requestFormHelp(fieldToUse || null, photoToUse || null, language);
       setExplanations(resp.explanations || []);
       setGeneralAdvice(resp.general_guidance || '');
     } catch (err) {
@@ -108,6 +151,12 @@ export default function S7_FormHelpScreen() {
                   type="text"
                   value={inputField}
                   onChange={(e) => setInputField(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleExplain(inputField, photoPreview);
+                    }
+                  }}
                   placeholder={t('form_field_input_placeholder')}
                   className="w-full text-sm sm:text-base p-3.5 pl-10 border border-slate-300 rounded-xl focus:border-blue-600 focus:outline-hidden bg-slate-50/50 min-h-[48px]"
                 />
@@ -137,11 +186,11 @@ export default function S7_FormHelpScreen() {
                   type="button"
                   onClick={() => {
                     setInputField(q.val);
-                    handleExplain(q.val);
+                    handleExplain(q.val, photoPreview);
                   }}
                   className="text-xs font-semibold bg-slate-100 hover:bg-blue-50 hover:text-blue-900 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 transition-colors"
                 >
-                  {lt(q.label_en, q.label_hi)}
+                  {lt(q.label_en, q.label_hi, q.label_mr, q.label_bn)}
                 </button>
               ))}
             </div>
@@ -167,13 +216,22 @@ export default function S7_FormHelpScreen() {
                   alt="Form preview"
                   className="w-10 h-10 object-cover rounded-lg border border-slate-300 shadow-2xs"
                 />
-                <button
-                  type="button"
-                  onClick={() => setPhotoPreview(null)}
-                  className="text-xs text-rose-600 font-bold underline"
-                >
-                  {lt('Remove Photo', 'फोटो हटाएं')}
-                </button>
+                <div className="flex flex-col">
+                  <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    {lt('Photo Analyzed', 'फोटो का विश्लेषण पूर्ण', 'फोटोचे विश्लेषण पूर्ण', 'ছবির বিশ্লেষণ সম্পন্ন')}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPhotoPreview(null);
+                      setAnalyzedFromPhoto(false);
+                    }}
+                    className="text-xs text-rose-600 font-bold underline text-left cursor-pointer"
+                  >
+                    {lt('Remove Photo', 'फोटो हटाएं', 'फोटो काढा', 'ছবি সরান')}
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -181,10 +239,15 @@ export default function S7_FormHelpScreen() {
 
         {/* Results / Explanations Display */}
         {isAnalyzing ? (
-          <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl">
+          <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl shadow-xs">
             <div className="w-8 h-8 border-3 border-blue-700 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm font-semibold text-slate-600">
-              {lt('Analyzing terminology with AI assistant...', 'सरकारी शब्दावली का सरल विश्लेषण हो रहा है...')}
+            <p className="text-sm font-semibold text-slate-700">
+              {lt(
+                'Analyzing official form terminology with AI assistant...',
+                'सरकारी शब्दावली एवं फॉर्म कॉलम का सरल विश्लेषण हो रहा है...',
+                'शासकीय अर्ज व शब्दावलीचे सोप्या भाषेत विश्लेषण करत आहोत...',
+                'সরকারি পরিভাষা ও ফর্মের তথ্যের সহজ বিশ্লেষণ করা হচ্ছে...'
+              )}
             </p>
           </div>
         ) : explanations && (
@@ -192,32 +255,42 @@ export default function S7_FormHelpScreen() {
             {generalAdvice && (
               <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-xs sm:text-sm text-emerald-950 leading-relaxed font-medium">
                 <strong className="text-emerald-900 block mb-0.5">
-                  {lt('💡 Administrative Tip: ', '💡 महत्वपूर्ण आधिकारिक सलाह: ')}
+                  {lt('💡 Administrative Tip: ', '💡 महत्वपूर्ण आधिकारिक सलाह: ', '💡 महत्त्वाची प्रशासकीय सूचना: ', '💡 গুরুত্বপূর্ণ সরকারি পরামর্শ: ')}
                 </strong>
                 {generalAdvice}
               </div>
             )}
 
             <div className="space-y-3">
-              {explanations.map((item, idx) => (
-                <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2 shadow-xs">
-                  <div className="flex items-center justify-between gap-2">
-                    <h4 className="font-bold text-base text-blue-950">
-                      {lt(item.field_name, item.field_name_hi || item.field_name)}
-                    </h4>
-                    <AudioSpeaker text={`${item.field_name}। ${item.explanation}`} className="w-7 h-7" />
+              {explanations.map((item, idx) => {
+                const titleText = language === 'mr'
+                  ? (item.field_name_mr || item.field_name_hi || item.field_name)
+                  : language === 'bn'
+                  ? (item.field_name_bn || item.field_name_hi || item.field_name)
+                  : language === 'hi'
+                  ? (item.field_name_hi || item.field_name)
+                  : item.field_name;
+
+                return (
+                  <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2 shadow-xs hover:border-blue-300 transition-colors">
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="font-bold text-base text-blue-950">
+                        {titleText}
+                      </h4>
+                      <AudioSpeaker text={`${titleText}। ${item.explanation}`} className="w-7 h-7" />
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                      {item.explanation}
+                    </p>
+                    <div className="text-xs text-slate-600 bg-slate-50 border border-slate-100 p-3 rounded-xl">
+                      <strong className="text-slate-900 block mb-0.5">
+                        {lt('Example Value: ', 'फॉर्म में क्या भरें (उदाहरण): ', 'अर्जात काय भरावे (उदाहरण): ', 'ফর্মে কী লিখবেন (উদাহরণ): ')}
+                      </strong>
+                      {item.example}
+                    </div>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                    {item.explanation}
-                  </p>
-                  <div className="text-xs text-slate-600 bg-slate-50 border border-slate-100 p-3 rounded-xl">
-                    <strong className="text-slate-900 block mb-0.5">
-                      {lt('Example Value: ', 'फॉर्म में क्या भरें (उदाहरण): ')}
-                    </strong>
-                    {item.example}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

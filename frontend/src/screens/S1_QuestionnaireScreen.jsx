@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useSession } from '../context/SessionContext';
 import { fetchNextQuestion, evaluateCitizenProfile } from '../services/api';
-import { ArrowLeft, ArrowRight, SkipForward, Check, HelpCircle, Info, Lightbulb, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, SkipForward, Check, HelpCircle, Info, Lightbulb, Sparkles, Search } from 'lucide-react';
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S1_QuestionnaireScreen() {
@@ -15,6 +15,7 @@ export default function S1_QuestionnaireScreen() {
   const [selectedValue, setSelectedValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [showExplanation, setShowExplanation] = useState(true);
+  const [searchFilter, setSearchFilter] = useState('');
 
   // Initial load
   useEffect(() => {
@@ -267,8 +268,113 @@ export default function S1_QuestionnaireScreen() {
 
           {/* Input Controls */}
           <div>
-            {/* Options grid for choices */}
-            {(questionData?.type === 'single_choice' || questionData?.type === 'boolean') && questionData?.options && (
+            {/* Searchable Picker for State/UT or large option sets */}
+            {questionData?.type === 'searchable_picker' && questionData?.options && (
+              <div className="space-y-4">
+                {/* Search Bar */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchFilter}
+                    onChange={(e) => setSearchFilter(e.target.value)}
+                    placeholder={lt(
+                      'Search state or UT (e.g. Madhya Pradesh, Maharashtra, West Bengal)...',
+                      'राज्य या केंद्र शासित प्रदेश खोजें (उदा. मध्य प्रदेश, महाराष्ट्र, उत्तर प्रदेश)...',
+                      'राज्य शोधा (उदा. महाराष्ट्र, मध्य प्रदेश)...',
+                      'রাজ্য খুঁজুন (যেমন পশ্চিমবঙ্গ, মধ্যপ্রদেশ)...'
+                    )}
+                    className="w-full text-sm sm:text-base p-3.5 pl-10 border-2 border-slate-300 rounded-xl focus:border-teal-600 focus:outline-hidden bg-slate-50/50 min-h-[48px]"
+                  />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                </div>
+
+                {/* Popular Quick Pills */}
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                    {lt('Quick Select:', 'शीघ्र चयन:')}
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { val: 'MP', en: 'Madhya Pradesh', hi: 'मध्य प्रदेश' },
+                      { val: 'MH', en: 'Maharashtra', hi: 'महाराष्ट्र' },
+                      { val: 'UP', en: 'Uttar Pradesh', hi: 'उत्तर प्रदेश' },
+                      { val: 'WB', en: 'West Bengal', hi: 'पश्चिम बंगाल' },
+                      { val: 'BR', en: 'Bihar', hi: 'बिहार' },
+                      { val: 'RJ', en: 'Rajasthan', hi: 'राजस्थान' },
+                      { val: 'DL', en: 'Delhi', hi: 'दिल्ली' }
+                    ].map((st, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => handleSelectOption(st.val)}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+                          selectedValue === st.val
+                            ? 'bg-teal-700 text-white border-teal-700 shadow-2xs'
+                            : 'bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-900 border-slate-200'
+                        }`}
+                      >
+                        {lt(st.en, st.hi)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Scrollable Options Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+                  {questionData.options
+                    .filter((opt) => {
+                      if (!searchFilter.trim()) return true;
+                      const q = searchFilter.toLowerCase();
+                      return (
+                        opt.value.toLowerCase().includes(q) ||
+                        (opt.label_en && opt.label_en.toLowerCase().includes(q)) ||
+                        (opt.label_hi && opt.label_hi.toLowerCase().includes(q)) ||
+                        (opt.label_mr && opt.label_mr.toLowerCase().includes(q)) ||
+                        (opt.label_bn && opt.label_bn.toLowerCase().includes(q))
+                      );
+                    })
+                    .map((opt, idx) => {
+                      const isSelected = selectedValue === opt.value;
+                      const label = language === 'hi'
+                        ? opt.label_hi
+                        : language === 'bn'
+                        ? (opt.label_bn || opt.label_hi || opt.label_en)
+                        : language === 'mr'
+                        ? (opt.label_mr || opt.label_hi || opt.label_en)
+                        : opt.label_en;
+
+                      return (
+                        <div
+                          key={idx}
+                          onClick={() => handleSelectOption(opt.value)}
+                          className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between gap-3 min-h-[50px] ${
+                            isSelected
+                              ? 'border-teal-700 bg-teal-50/70 shadow-xs'
+                              : 'border-slate-200 hover:border-teal-300 hover:bg-slate-50/70 bg-white'
+                          }`}
+                          role="radio"
+                          aria-checked={isSelected}
+                          tabIndex={0}
+                        >
+                          <span className={`text-sm ${isSelected ? 'text-teal-950 font-bold' : 'text-slate-900 font-semibold'}`}>
+                            {label}
+                          </span>
+                          <div
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                              isSelected ? 'border-teal-700 bg-teal-700 text-white' : 'border-slate-300'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3 h-3 stroke-3" />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* Options grid for choices (single_choice / boolean / fallback) */}
+            {questionData?.type !== 'searchable_picker' && (questionData?.type === 'single_choice' || questionData?.type === 'boolean' || questionData?.options) && questionData?.options && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {questionData.options.map((opt, idx) => {
                   const isSelected = selectedValue === opt.value;

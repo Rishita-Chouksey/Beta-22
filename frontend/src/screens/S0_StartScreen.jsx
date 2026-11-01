@@ -220,20 +220,20 @@ export default function S0_StartScreen() {
         onMouseLeave={() => setIsPaused(false)}
         className="w-full relative min-h-[520px] sm:min-h-[620px] flex flex-col justify-between overflow-hidden bg-[#060e1d]"
       >
-        {/* Full-bleed Background Images with 3s Smooth Crossfade */}
+        {/* Full-bleed Background Images with 3s Smooth Crossfade & Enhanced Contrast */}
         <div className="absolute inset-0 z-0">
           {slides.map((s, idx) => (
             <img
               key={s.id}
               src={s.img}
               alt={s.tag}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out contrast-[1.08] saturate-[1.05] brightness-[0.92] ${
                 idx === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'
               }`}
             />
           ))}
-          {/* Reduced, clean subtle gradient so pictures are clear & vibrant */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/50 to-slate-950/30" />
+          {/* Subtle directional gradient: dark on left for text readability, clear & vibrant on right for the photo */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-black/20" />
         </div>
 
         {/* Previous / Next Arrow Controls (Inspired by myscheme.gov.in) */}

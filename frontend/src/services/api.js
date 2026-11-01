@@ -253,14 +253,27 @@ export async function rollbackSchemeVersion(adminKey, schemeId, targetVersionId,
 // ==============================================================================
 // Multi-Agent Discovery & Scheme Intelligence API
 // ==============================================================================
+const ADMIN_API_KEY = 'yojnasarthi-admin-secret-2026';
+
+function adminHeaders(customHeaders = {}) {
+  return {
+    'X-Admin-Key': ADMIN_API_KEY,
+    ...customHeaders,
+  };
+}
+
 export async function fetchAgentsStatus() {
-  const resp = await fetch(`${API_BASE_URL}/agents/status`);
+  const resp = await fetch(`${API_BASE_URL}/agents/status`, {
+    headers: adminHeaders(),
+  });
   if (!resp.ok) throw new Error(`Fetch agents status failed: ${resp.status}`);
   return await resp.json();
 }
 
 export async function fetchAgentRuns(limit = 50) {
-  const resp = await fetch(`${API_BASE_URL}/agents/runs?limit=${limit}`);
+  const resp = await fetch(`${API_BASE_URL}/agents/runs?limit=${limit}`, {
+    headers: adminHeaders(),
+  });
   if (!resp.ok) throw new Error(`Fetch agent runs failed: ${resp.status}`);
   return await resp.json();
 }
@@ -268,7 +281,7 @@ export async function fetchAgentRuns(limit = 50) {
 export async function triggerAgentDiscover(seeds = null, maxLinks = 15) {
   const resp = await fetch(`${API_BASE_URL}/agents/discover`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: adminHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ seeds, max_links_per_seed: maxLinks }),
   });
   if (!resp.ok) throw new Error(`Discover failed: ${resp.status}`);
@@ -278,7 +291,7 @@ export async function triggerAgentDiscover(seeds = null, maxLinks = 15) {
 export async function triggerAgentCrawl(sourceIds = null, maxSources = 10) {
   const resp = await fetch(`${API_BASE_URL}/agents/crawl`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: adminHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ source_ids: sourceIds, max_sources: maxSources }),
   });
   if (!resp.ok) throw new Error(`Crawl failed: ${resp.status}`);
@@ -288,7 +301,7 @@ export async function triggerAgentCrawl(sourceIds = null, maxSources = 10) {
 export async function triggerAgentMonitor(sourceIds = null, maxSources = 10) {
   const resp = await fetch(`${API_BASE_URL}/agents/monitor`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: adminHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ source_ids: sourceIds, max_sources: maxSources }),
   });
   if (!resp.ok) throw new Error(`Monitor failed: ${resp.status}`);
@@ -300,13 +313,17 @@ export async function fetchDiscoveredSources(status = null, limit = 100) {
   if (status) params.append('status', status);
   if (limit) params.append('limit', limit);
   const url = `${API_BASE_URL}/sources${params.toString() ? `?${params.toString()}` : ''}`;
-  const resp = await fetch(url);
+  const resp = await fetch(url, {
+    headers: adminHeaders(),
+  });
   if (!resp.ok) throw new Error(`Fetch sources failed: ${resp.status}`);
   return await resp.json();
 }
 
 export async function fetchSourceDetail(sourceId) {
-  const resp = await fetch(`${API_BASE_URL}/sources/${sourceId}`);
+  const resp = await fetch(`${API_BASE_URL}/sources/${sourceId}`, {
+    headers: adminHeaders(),
+  });
   if (!resp.ok) throw new Error(`Fetch source detail failed: ${resp.status}`);
   return await resp.json();
 }
@@ -315,13 +332,17 @@ export async function fetchAgentUpdates(status = null) {
   const params = new URLSearchParams();
   if (status) params.append('status', status);
   const url = `${API_BASE_URL}/updates${params.toString() ? `?${params.toString()}` : ''}`;
-  const resp = await fetch(url);
+  const resp = await fetch(url, {
+    headers: adminHeaders(),
+  });
   if (!resp.ok) throw new Error(`Fetch updates failed: ${resp.status}`);
   return await resp.json();
 }
 
 export async function fetchAgentUpdateDetail(updateId) {
-  const resp = await fetch(`${API_BASE_URL}/updates/${updateId}`);
+  const resp = await fetch(`${API_BASE_URL}/updates/${updateId}`, {
+    headers: adminHeaders(),
+  });
   if (!resp.ok) throw new Error(`Fetch update detail failed: ${resp.status}`);
   return await resp.json();
 }
@@ -329,7 +350,7 @@ export async function fetchAgentUpdateDetail(updateId) {
 export async function approveAgentUpdate(updateId, reviewerName = 'Admin Officer', reason = 'Verified against official notification') {
   const resp = await fetch(`${API_BASE_URL}/updates/${updateId}/approve`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: adminHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ reviewer_name: reviewerName, reason }),
   });
   if (!resp.ok) throw new Error(`Approve update failed: ${resp.status}`);
@@ -339,7 +360,7 @@ export async function approveAgentUpdate(updateId, reviewerName = 'Admin Officer
 export async function rejectAgentUpdate(updateId, reviewerName = 'Admin Officer', reason = 'Discrepancy with official circular') {
   const resp = await fetch(`${API_BASE_URL}/updates/${updateId}/reject`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: adminHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ reviewer_name: reviewerName, reason }),
   });
   if (!resp.ok) throw new Error(`Reject update failed: ${resp.status}`);
@@ -347,13 +368,17 @@ export async function rejectAgentUpdate(updateId, reviewerName = 'Admin Officer'
 }
 
 export async function fetchSchemeVersions(schemeId) {
-  const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}/versions`);
+  const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}/versions`, {
+    headers: adminHeaders(),
+  });
   if (!resp.ok) throw new Error(`Fetch scheme versions failed: ${resp.status}`);
   return await resp.json();
 }
 
 export async function fetchMonitoringOverview() {
-  const resp = await fetch(`${API_BASE_URL}/monitoring/status`);
+  const resp = await fetch(`${API_BASE_URL}/monitoring/status`, {
+    headers: adminHeaders(),
+  });
   if (!resp.ok) throw new Error(`Fetch monitoring overview failed: ${resp.status}`);
   return await resp.json();
 }

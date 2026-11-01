@@ -52,70 +52,124 @@ const AGENT_METADATA = {
   source_discovery: {
     titleEn: '1. Source Discovery Agent',
     titleHi: '1. स्रोत खोज एजेंट (Source Discovery)',
+    titleMr: '1. स्रोत शोध एजंट (Source Discovery)',
+    titleBn: '1. উৎস সন্ধান এজেন্ট (Source Discovery)',
     descEn: 'Discovers public government portals, seed links (data.gov.in, eseva.mp.gov.in), and circular PDFs.',
     descHi: 'सरकारी पोर्टलों, डेटासेट और पीडीएफ सर्कुलर की स्वचालित खोज करता है।',
+    descMr: 'शासकीय पोर्टल्स, डेटासेट आणि परिपत्रक पीडीएफ आपोआप शोधतो.',
+    descBn: 'সরকারি পোর্টাল, ডেটাসেট এবং সার্কুলার পিডিএফ স্বয়ংক্রিয়ভাবে সন্ধান করে।',
     icon: Globe,
   },
   crawling: {
     titleEn: '2. Crawling Agent',
     titleHi: '2. क्रॉलिंग एजेंट (Crawling Agent)',
+    titleMr: '2. क्रॉलिंग एजंट (Crawling Agent)',
+    titleBn: '2. ক্রলিং এজেন্ট (Crawling Agent)',
     descEn: 'Fetches HTML & PDFs via legacy-resilient SSL HTTPX client; parses clean text using BeautifulSoup & PyMuPDF.',
     descHi: 'एसएसएल-सक्षम क्लाइंट से वेबपेज व पीडीएफ डाउनलोड कर टेक्स्ट निकालता है।',
+    descMr: 'एसएसएल-सक्षम क्लायंटद्वारे वेबपेज आणि पीडीएफ डाउनलोड करून मजकूर काढतो.',
+    descBn: 'এসএসএল-সক্ষম ক্লায়েন্টের মাধ্যমে ওয়েবপেজ ও পিডিএফ ডাউনলোড করে টেক্সট বের করে।',
     icon: FileText,
   },
   change_detection: {
     titleEn: '3. Change Detection Agent',
     titleHi: '3. परिवर्तन पहचान एजेंट (Change Detection)',
+    titleMr: '3. बदल शोध एजंट (Change Detection)',
+    titleBn: '3. পরিবর্তন সনাক্তকরণ এজেন্ট (Change Detection)',
     descEn: 'Computes cryptographic SHA-256 hashes, maintains snapshot history, and detects textual diffs.',
     descHi: 'SHA-256 हैश तुलना से नए व संशोधित नियमों की सटीक पहचान करता है।',
+    descMr: 'क्रिप्टोग्राफिक SHA-256 हॅशच्या मदतीने नवीन आणि सुधारित नियम शोधतो.',
+    descBn: 'ক্রিপ্টোগ্রাফিক SHA-256 হ্যাশ তুলনার মাধ্যমে নতুন ও সংশোধিত নিয়ম সনাক্ত করে।',
     icon: Activity,
   },
   information_extraction: {
     titleEn: '4. Information Extraction Agent',
     titleHi: '4. सूचना निष्कर्षण एजेंट (Extraction)',
+    titleMr: '4. माहिती निष्कर्षण एजंट (Extraction)',
+    titleBn: '4. তথ্য নিষ্কাশন এজেন্ট (Extraction)',
     descEn: 'Extracts eligibility criteria, benefits, documents, and steps via Gemini + deterministic fallback.',
     descHi: 'पात्रता, लाभ, आवश्यक दस्तावेज और आवेदन प्रक्रिया की निष्पक्ष निष्कर्षण करता है।',
+    descMr: 'पात्रता निकष, फायदे, कागदपत्रे आणि अर्ज प्रक्रियेची माहिती काढतो.',
+    descBn: 'যোগ্যতার মাপকাঠি, সুবিধা, প্রয়োজনীয় নথি এবং আবেদন প্রক্রিয়ার তথ্য বের করে।',
     icon: Sparkles,
   },
   classification: {
     titleEn: '5. Classification Agent',
     titleHi: '5. वर्गीकरण एजेंट (Classification)',
+    titleMr: '5. वर्गीकरण एजंट (Classification)',
+    titleBn: '5. শ্রেণীকরণ এজেন্ট (Classification)',
     descEn: 'Categorizes updates: NEW_SCHEME, ELIGIBILITY_CHANGE, BENEFIT_CHANGE, DOCUMENT_CHANGE, DEADLINE_CHANGE.',
     descHi: 'परिवर्तनों को नीतिगत श्रेणियों (पात्रता, लाभ, दस्तावेज, अंतिम तिथि) में बांटता है।',
+    descMr: 'बदलांचे धोरणात्मक श्रेणींमध्ये वर्गीकरण करतो (पात्रता, लाभ, कागदपत्रे).',
+    descBn: 'আপডেটগুলিকে নীতিগত শ্রেণীতে বিভক্ত করে (যোগ্যতা, সুবিধা, নথি, শেষ তারিখ)।',
     icon: Layers,
   },
   evidence_validation: {
     titleEn: '6. Evidence Validation Agent',
     titleHi: '6. साक्ष्य सत्यापन एजेंट (Evidence Validation)',
+    titleMr: '6. पुरावा पडताळणी एजंट (Evidence Validation)',
+    titleBn: '6. প্রমাণ যাচাইকরণ এজেন্ট (Evidence Validation)',
     descEn: 'Verifies exact quote citations against crawled source, flags UNKNOWNs, and computes confidence score.',
     descHi: 'दावों का मूल स्रोत से मिलान करता है और अनिश्चित तथ्यों को UNKNOWN चिह्नित करता है।',
+    descMr: 'दाव्यांचे मूळ स्रोताशी पडताळणी करतो आणि पुष्टी नसलेल्या बाबी नोंदवतो.',
+    descBn: 'দাবিগুলিকে মূল উৎসের সাথে যাচাই করে এবং অনিশ্চিত তথ্য চিহ্নিত করে।',
     icon: FileCheck,
   },
   policy_review_gate: {
     titleEn: '7. Policy Review Gate',
     titleHi: '7. नीति समीक्षा द्वार (Policy Review Gate)',
+    titleMr: '7. धोरण पुनरावलोकन द्वार (Policy Review Gate)',
+    titleBn: '7. নীতি পর্যালোচনা গেট (Policy Review Gate)',
     descEn: 'Human-in-the-loop safety firewall. Prevents unauthorized rule modifications to citizen eligibility.',
     descHi: 'मानव स्वीकृति द्वार: बिना जांच व अनुमोदन के कोई भी नियम सीधे लागू नहीं होता।',
+    descMr: 'मानवी मंजुरी द्वार: अधिकृत पडताळणीशिवाय कोणताही नियम लागू होत नाही.',
+    descBn: 'মানব অনুমোদন গেট: যাচাই ও অনুমোদন ছাড়া কোনো নিয়ম সরাসরি প্রয়োগ হয় না।',
     icon: ShieldCheck,
   },
   publishing_service: {
     titleEn: '8. Publishing Service',
     titleHi: '8. प्रकाशन सेवा (Publishing Service)',
+    titleMr: '8. प्रकाशन सेवा (Publishing Service)',
+    titleBn: '8. প্রকাশনা সেবা (Publishing Service)',
     descEn: 'Atomically commits approved changes to the SQLite catalog and records immutable scheme versions.',
     descHi: 'स्वीकृत योजनाओं को कैटलॉग में अपडेट करता है और अपरिवर्तनीय संस्करण सुरक्षित रखता है।',
+    descMr: 'मंजूर योजना कॅटलॉगमध्ये समाविष्ट करतो आणि अपरिवर्तनीय आवृत्ती नोंदवतो.',
+    descBn: 'অনুমোদিত স্কিম ক্যাটালগে যুক্ত করে এবং অপরিবর্তনীয় সংস্করণ সংরক্ষণ করে।',
     icon: Database,
   },
   monitoring_agent: {
     titleEn: '9. Monitoring Agent',
     titleHi: '9. निगरानी समन्वयक (Monitoring Agent)',
+    titleMr: '9. देखरेख समन्वयक (Monitoring Agent)',
+    titleBn: '9. পর্যবেক্ষণ সমন্বয়ক (Monitoring Agent)',
     descEn: 'Coordinates end-to-end monitoring cycles, periodic rechecking, and execution logging.',
     descHi: 'सभी 9 एजेंटों के चक्र को समन्वित करता है और नियमित निगरानी सुनिश्चित करता है।',
+    descMr: 'सर्व ९ एजंट्सच्या चक्राचे समन्वय साधतो आणि नियमित तपासणी करतो.',
+    descBn: 'সমস্ত ৯টি এজেন্টের চক্র সমন্বয় করে এবং নিয়মিত পর্যবেক্ষণ নিশ্চিত করে।',
     icon: Cpu,
   },
 };
 
 export default function S9_AdminMonitoringScreen() {
-  const { language } = useLanguage();
+  const { language, t, lt } = useLanguage();
+
+  const getAgentTitle = (key) => {
+    const m = AGENT_METADATA[key];
+    if (!m) return key;
+    if (language === 'bn') return m.titleBn || m.titleHi || m.titleEn;
+    if (language === 'mr') return m.titleMr || m.titleHi || m.titleEn;
+    if (language === 'hi') return m.titleHi || m.titleEn;
+    return m.titleEn;
+  };
+
+  const getAgentDesc = (key) => {
+    const m = AGENT_METADATA[key];
+    if (!m) return '';
+    if (language === 'bn') return m.descBn || m.descHi || m.descEn;
+    if (language === 'mr') return m.descMr || m.descHi || m.descEn;
+    if (language === 'hi') return m.descHi || m.descEn;
+    return m.descEn;
+  };
   const { setCurrentScreen } = useSession();
 
   // Authentication states for Restricted Administrative Portal
@@ -401,9 +455,12 @@ export default function S9_AdminMonitoringScreen() {
                 YojnaSarthi Intelligence Monitor
               </h2>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                {language === 'hi'
-                  ? 'बहु-एजेंट निगरानी एवं नीति समीक्षा द्वार हेतु प्रशासनिक अधिकारी प्रमाणीकरण आवश्यक है।'
-                  : 'Authorized Public Policy Officers, System Evaluators & Nodal Administrators Only.'}
+                {lt(
+                  'Authorized Public Policy Officers, System Evaluators & Nodal Administrators Only.',
+                  'बहु-एजेंट निगरानी एवं नीति समीक्षा द्वार हेतु प्रशासनिक अधिकारी प्रमाणीकरण आवश्यक है।',
+                  'बहु-एजंट देखरेख आणि धोरण पुनरावलोकन द्वारासाठी प्रशासकीय अधिकारी प्रमाणीकरण आवश्यक आहे.',
+                  'বহু-এজেন্ট পর্যবেক্ষণ ও নীতি পর্যালোচনা গেটের জন্য প্রশাসনিক কর্মকর্তা প্রমাণীকরণ আবশ্যক।'
+                )}
               </p>
             </div>
           </div>
@@ -418,7 +475,7 @@ export default function S9_AdminMonitoringScreen() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 block">
-                {language === 'hi' ? 'अधिकारी आईडी / यूज़रनेम' : 'Officer ID / Username'}
+                {lt('Officer ID / Username', 'अधिकारी आईडी / यूज़रनेम', 'अधिकारी आयडी / वापरकर्तानाव', 'কর্মকর্তা আইডি / ব্যবহারকারীর নাম')}
               </label>
               <div className="relative">
                 <input
@@ -435,7 +492,7 @@ export default function S9_AdminMonitoringScreen() {
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 block">
-                {language === 'hi' ? 'सुरक्षा पासवर्ड' : 'Security Password'}
+                {lt('Security Password', 'सुरक्षा पासवर्ड', 'सुरक्षा पासवर्ड', 'নিরাপত্তা পাসওয়ার্ড')}
               </label>
               <div className="relative">
                 <input
@@ -486,7 +543,7 @@ export default function S9_AdminMonitoringScreen() {
                 className="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
               >
                 <Lock className="w-4 h-4 text-teal-400" />
-                <span>{language === 'hi' ? 'डैशबोर्ड अनलॉक करें' : 'Unlock Dashboard'}</span>
+                <span>{lt('Unlock Dashboard', 'डैशबोर्ड अनलॉक करें', 'डॅशबोर्ड अनलॉक करा', 'ড্যাশবোর্ড আনলক করুন')}</span>
               </button>
 
               <button
@@ -494,7 +551,7 @@ export default function S9_AdminMonitoringScreen() {
                 onClick={() => setCurrentScreen('S0')}
                 className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-xs transition-colors cursor-pointer text-center"
               >
-                {language === 'hi' ? 'नागरिक पोर्टल पर लौटें' : 'Return to Citizen Portal'}
+                {lt('Return to Citizen Portal', 'नागरिक पोर्टल पर लौटें', 'नागरिक पोर्टलवर परत जा', 'নাগরিক পোর্টালে ফিরে যান')}
               </button>
             </div>
           </form>
@@ -512,7 +569,7 @@ export default function S9_AdminMonitoringScreen() {
             <button
               onClick={() => setCurrentScreen('S0')}
               className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition"
-              title={language === 'hi' ? 'वापस जाएं' : 'Back to Home'}
+              title={lt('Back to Home', 'वापस जाएं', 'घरी परत जा', 'হোমে ফিরে যান')}
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -520,12 +577,12 @@ export default function S9_AdminMonitoringScreen() {
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
                   <ShieldCheck className="w-3 h-3 mr-1" />
-                  {language === 'hi' ? 'स्वायत्त बहु-एजेंट प्रणाली' : 'Autonomous Multi-Agent System'}
+                  {lt('Autonomous Multi-Agent System', 'स्वायत्त बहु-एजेंट प्रणाली', 'स्वायत्त बहु-एजंट प्रणाली', 'স্বায়ত্তশাসিত বহু-এজেন্ট সিস্টেম')}
                 </span>
                 <span className="text-xs text-slate-400">• YojnaSarthi v2.0</span>
               </div>
               <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
-                {language === 'hi' ? 'योजना इंटेलिजेंस एवं बहु-एजेंट निगरानी डैशबोर्ड' : 'Scheme Intelligence & Agent Monitoring'}
+                {lt('Scheme Intelligence & Agent Monitoring', 'योजना इंटेलिजेंस एवं बहु-एजेंट निगरानी डैशबोर्ड', 'योजना बुद्धिमत्ता आणि एजंट देखरेख डॅशबोर्ड', 'স্কিম ইন্টেলিজেন্স এবং এজেন্ট মনিটরিং ড্যাশবোর্ড')}
               </h1>
             </div>
           </div>
@@ -538,7 +595,7 @@ export default function S9_AdminMonitoringScreen() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition disabled:opacity-50"
             >
               <Globe className="w-3.5 h-3.5" />
-              {language === 'hi' ? 'स्रोत खोजें' : 'Discover Sources'}
+              {lt('Discover Sources', 'स्रोत खोजें', 'स्रोत शोधा', 'উৎস সন্ধান করুন')}
             </button>
             <button
               onClick={handleRunCrawler}
@@ -546,7 +603,7 @@ export default function S9_AdminMonitoringScreen() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition disabled:opacity-50"
             >
               <FileText className="w-3.5 h-3.5" />
-              {language === 'hi' ? 'क्रॉल चलाएं' : 'Run Crawler'}
+              {lt('Run Crawler', 'क्रॉल चलाएं', 'क्रॉल चालवा', 'ক্রলার চালান')}
             </button>
             <button
               onClick={handleRunMonitoring}
@@ -554,7 +611,7 @@ export default function S9_AdminMonitoringScreen() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition disabled:opacity-50"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              {language === 'hi' ? 'पूर्ण निगरानी चलाएं' : 'Run Monitoring'}
+              {lt('Run Monitoring', 'पूर्ण निगरानी चलाएं', 'पूर्ण देखरेख चालवा', 'সম্পূর্ণ পর্যবেক্ষণ চালান')}
             </button>
             <button
               onClick={loadAllData}
@@ -576,7 +633,7 @@ export default function S9_AdminMonitoringScreen() {
                 title="Lock & Logout"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span>{language === 'hi' ? 'लॉगआउट' : 'Lock Portal'}</span>
+                <span>{lt('Lock Portal', 'लॉगआउट', 'लॉगआउट', 'লগআউট')}</span>
               </button>
             </div>
           </div>
@@ -605,7 +662,7 @@ export default function S9_AdminMonitoringScreen() {
               onClick={() => setActionNotification(null)}
               className="text-xs opacity-70 hover:opacity-100 underline ml-3"
             >
-              {language === 'hi' ? 'बंद करें' : 'Dismiss'}
+              {lt('Dismiss', 'बंद करें', 'बंद करा', 'খারিজ করুন')}
             </button>
           </div>
         </div>
@@ -616,11 +673,11 @@ export default function S9_AdminMonitoringScreen() {
         {/* Navigation Tabs */}
         <div className="flex border-b border-slate-200 space-x-2 overflow-x-auto pb-px">
           {[
-            { id: 'overview', labelEn: 'Overview & Status', labelHi: 'अवलोकन व सारांश', icon: Activity },
-            { id: 'agents', labelEn: 'Agent Execution Panel (9)', labelHi: '9 एजेंट निष्पादन पैनल', icon: Cpu },
-            { id: 'sources', labelEn: `Source Explorer (${sources.length})`, labelHi: `स्रोत एक्सप्लोरर (${sources.length})`, icon: Globe },
-            { id: 'updates', labelEn: `Change Review Gate (${updates.filter(u => u.review_status === 'PENDING').length} Pending)`, labelHi: `नीति समीक्षा द्वार (${updates.filter(u => u.review_status === 'PENDING').length} लंबित)`, icon: ShieldCheck },
-            { id: 'history', labelEn: 'Version History', labelHi: 'संस्करण इतिहास', icon: History },
+            { id: 'overview', labelEn: 'Overview & Status', labelHi: 'अवलोकन व सारांश', labelMr: 'आढावा आणि स्थिती', labelBn: 'সংক্ষিপ্ত বিবরণ ও স্থিতি', icon: Activity },
+            { id: 'agents', labelEn: 'Agent Execution Panel (9)', labelHi: '9 एजेंट निष्पादन पैनल', labelMr: '९ एजंट अंमलबजावणी पॅनेल', labelBn: '৯ এজেন্ট সম্পাদন প্যানেল', icon: Cpu },
+            { id: 'sources', labelEn: `Source Explorer (${sources.length})`, labelHi: `स्रोत एक्सप्लोरर (${sources.length})`, labelMr: `स्रोत एक्सप्लोरर (${sources.length})`, labelBn: `উৎস অন্বেষণ (${sources.length})`, icon: Globe },
+            { id: 'updates', labelEn: `Change Review Gate (${updates.filter(u => u.review_status === 'PENDING').length} Pending)`, labelHi: `नीति समीक्षा द्वार (${updates.filter(u => u.review_status === 'PENDING').length} लंबित)`, labelMr: `बदल पुनरावलोकन द्वार (${updates.filter(u => u.review_status === 'PENDING').length} प्रलंबित)`, labelBn: `নীতি পর্যালোচনা গেট (${updates.filter(u => u.review_status === 'PENDING').length} অপেক্ষমাণ)`, icon: ShieldCheck },
+            { id: 'history', labelEn: 'Version History', labelHi: 'संस्करण इतिहास', labelMr: 'आवृत्ती इतिहास', labelBn: 'সংস্করণ इतिहास', icon: History },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -635,7 +692,7 @@ export default function S9_AdminMonitoringScreen() {
                 }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
-                <span>{language === 'hi' ? tab.labelHi : tab.labelEn}</span>
+                <span>{lt(tab.labelEn, tab.labelHi, tab.labelMr, tab.labelBn)}</span>
               </button>
             );
           })}
@@ -650,7 +707,7 @@ export default function S9_AdminMonitoringScreen() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {language === 'hi' ? 'कुल खोजे गए स्रोत' : 'Total Sources'}
+                  {lt('Total Sources', 'कुल खोजे गए स्रोत', 'एकूण स्रोत', 'মোট উৎস')}
                 </span>
                 <div className="text-2xl font-bold text-slate-900 mt-1">{overview.total_discovered_sources}</div>
                 <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
@@ -660,7 +717,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {language === 'hi' ? 'सक्रिय मॉनिटर' : 'Monitored Sources'}
+                  {lt('Monitored Sources', 'सक्रिय मॉनिटर', 'सक्रिय स्रोत', 'পর্যবেক্ষিত উৎস')}
                 </span>
                 <div className="text-2xl font-bold text-emerald-600 mt-1">{overview.successfully_monitored_sources}</div>
                 <div className="text-[11px] text-emerald-600/80 mt-1 flex items-center gap-1">
@@ -670,7 +727,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {language === 'hi' ? 'खोजे गए योजना नियम' : 'Discovered Schemes'}
+                  {lt('Discovered Schemes', 'खोजे गए योजना नियम', 'शोधलेल्या योजना', 'আবিষ্কৃত স্কিম')}
                 </span>
                 <div className="text-2xl font-bold text-blue-600 mt-1">{overview.schemes_discovered}</div>
                 <div className="text-[11px] text-blue-600/80 mt-1 flex items-center gap-1">
@@ -680,7 +737,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-amber-200 bg-amber-50/20 shadow-2xs">
                 <span className="text-xs font-medium text-amber-800">
-                  {language === 'hi' ? 'समीक्षा हेतु लंबित' : 'Pending Updates'}
+                  {lt('Pending Updates', 'समीक्षा हेतु लंबित', 'पुनरावलोकनासाठी प्रलंबित', 'অপেক্ষমাণ আপডেট')}
                 </span>
                 <div className="text-2xl font-bold text-amber-700 mt-1">{overview.pending_updates}</div>
                 <div className="text-[11px] text-amber-700 mt-1 flex items-center gap-1">
@@ -690,7 +747,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {language === 'hi' ? 'स्वीकृत व प्रकाशित' : 'Approved Updates'}
+                  {lt('Approved Updates', 'स्वीकृत व प्रकाशित', 'मंजूर व प्रकाशित', 'অনুমোদিত ও প্রকাশিত')}
                 </span>
                 <div className="text-2xl font-bold text-emerald-700 mt-1">{overview.approved_updates}</div>
                 <div className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1">
@@ -700,7 +757,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {language === 'hi' ? 'विफल एजेंट रन' : 'Failed Agent Runs'}
+                  {lt('Failed Agent Runs', 'विफल एजेंट रन', 'अयशस्वी एजंट रन', 'ব্যর্থ এজেন্ট রান')}
                 </span>
                 <div className="text-2xl font-bold text-rose-600 mt-1">{overview.failed_agent_runs}</div>
                 <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
@@ -714,12 +771,20 @@ export default function S9_AdminMonitoringScreen() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-base font-semibold text-slate-900">
-                    {language === 'hi' ? 'स्वायत्त बहु-एजेंट पाइपलाइन कार्यप्रणाली' : 'Autonomous Multi-Agent Intelligence Pipeline'}
+                    {lt(
+                      'Autonomous Multi-Agent Intelligence Pipeline',
+                      'स्वायत्त बहु-एजेंट पाइपलाइन कार्यप्रणाली',
+                      'स्वायत्त बहु-एजंट बुद्धिमत्ता पाइपलाइन',
+                      'স্বায়ত্তশাসিত বহু-এজেন্ট বুদ্ধিমত্তা পাইপলাইন'
+                    )}
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    {language === 'hi'
-                      ? '9 विशिष्ट एजेंट क्रमिक रूप से सार्वजनिक स्रोतों से नियम निकालते हैं एवं साक्ष्य की पुष्टि के बाद ही मानव समीक्षा हेतु प्रस्तुत करते हैं।'
-                      : '9 specialized Python agents autonomously discover, crawl, hash, extract, classify, validate, and queue changes.'}
+                    {lt(
+                      '9 specialized Python agents autonomously discover, crawl, hash, extract, classify, validate, and queue changes.',
+                      '9 विशिष्ट एजेंट क्रमिक रूप से सार्वजनिक स्रोतों से नियम निकालते हैं एवं साक्ष्य की पुष्टि के बाद ही मानव समीक्षा हेतु प्रस्तुत करते हैं।',
+                      '९ विशिष्ट पायथन एजंट स्वायत्तपणे शोधतात, क्रॉल करतात, हॅश करतात, माहिती काढतात, वर्गीकरण करतात आणि रांगेत ठेवतात.',
+                      '৯টি বিশেষায়িত পাইথন এজেন্ট স্বায়ত্তশাসিতভাবে অনুসন্ধান, ক্রলিং, হ্যাশিং, তথ্য নিষ্কাশন ও যাচাইকরণ সম্পন্ন করে।'
+                    )}
                   </p>
                 </div>
                 <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700">
@@ -754,7 +819,7 @@ export default function S9_AdminMonitoringScreen() {
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-3">
               <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                 <History className="w-4 h-4 text-slate-500" />
-                {language === 'hi' ? 'हालिया एजेंट रन एवं ऑडिट ट्रेल' : 'Recent Agent Execution Runs'}
+                {lt('Recent Agent Execution Runs', 'हालिया एजेंट रन एवं ऑडिट ट्रेल', 'अलीकडील एजंट रन आणि ऑडिट ट्रेल', 'সাম্প্রতিক এজেন্ট রান ও অডিট ট্রেল')}
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
@@ -772,7 +837,7 @@ export default function S9_AdminMonitoringScreen() {
                       <tr key={run.id} className="hover:bg-slate-50/60">
                         <td className="py-2.5 px-3 font-mono text-[11px] text-slate-600">{run.id}</td>
                         <td className="py-2.5 px-3 font-medium text-slate-800">
-                          {AGENT_METADATA[run.agent_name]?.titleEn || run.agent_name}
+                          {getAgentTitle(run.agent_name)}
                         </td>
                         <td className="py-2.5 px-3">
                           <span
@@ -800,7 +865,12 @@ export default function S9_AdminMonitoringScreen() {
                     {agentRuns.length === 0 && (
                       <tr>
                         <td colSpan="5" className="py-6 text-center text-slate-400">
-                          {language === 'hi' ? 'कोई रन रिकॉर्ड नहीं मिला। ऊपर दिए बटन से रन प्रारंभ करें।' : 'No agent runs recorded yet. Click Run Monitoring above to trigger a cycle.'}
+                          {lt(
+                            'No agent runs recorded yet. Click Run Monitoring above to trigger a cycle.',
+                            'कोई रन रिकॉर्ड नहीं मिला। ऊपर दिए बटन से रन प्रारंभ करें।',
+                            'अद्याप कोणतेही एजंट रन नोंदवले गेले नाहीत. वरील बटणावर क्लिक करा.',
+                            'এখনো কোনো এজেন্ট রান রেকর্ড করা হয়নি। উপরে রান মনিটরিং ক্লিক করুন।'
+                          )}
                         </td>
                       </tr>
                     )}
@@ -819,19 +889,22 @@ export default function S9_AdminMonitoringScreen() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">
-                  {language === 'hi' ? 'सभी 9 विशेषज्ञ एजेंटों की लाइव स्थिति' : 'Live Status of 9 Specialized Agents'}
+                  {lt('Live Status of 9 Specialized Agents', 'सभी 9 विशेषज्ञ एजेंटों की लाइव स्थिति', 'सर्व ९ विशेष एजंट्सची थेट स्थिती', 'সমস্ত ৯টি বিশেষ এজেন্টের লাইভ স্ট্যাটাস')}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  {language === 'hi'
-                    ? 'प्रत्येक एजेंट अपने निर्दिष्ट कार्य क्षेत्र में स्वायत्त एवं सुरक्षित रूप से कार्य करता है।'
-                    : 'Each agent is strictly scoped and decoupled from the deterministic eligibility decision engine.'}
+                  {lt(
+                    'Each agent is strictly scoped and decoupled from the deterministic eligibility decision engine.',
+                    'प्रत्येक एजेंट अपने निर्दिष्ट कार्य क्षेत्र में स्वायत्त एवं सुरक्षित रूप से कार्य करता है।',
+                    'प्रत्येक एजंट त्याच्या नियुक्त कार्यक्षेत्रात स्वायत्तपणे काम करतो.',
+                    'প্রতিটি এজেন্ট নিজস্ব নির্দিষ্ট পরিধিতে স্বাধীনভাবে কাজ করে।'
+                  )}
                 </p>
               </div>
               <button
                 onClick={loadAllData}
                 className="text-xs text-emerald-700 hover:text-emerald-800 font-medium flex items-center gap-1"
               >
-                <RefreshCw className="w-3.5 h-3.5" /> {language === 'hi' ? 'ताज़ा करें' : 'Refresh Agents'}
+                <RefreshCw className="w-3.5 h-3.5" /> {lt('Refresh Agents', 'ताज़ा करें', 'ताजे करा', 'রিফ্রেশ করুন')}
               </button>
             </div>
 
@@ -865,16 +938,16 @@ export default function S9_AdminMonitoringScreen() {
                       </div>
 
                       <h3 className="font-semibold text-sm text-slate-900">
-                        {language === 'hi' ? meta.titleHi : meta.titleEn}
+                        {getAgentTitle(agentKey)}
                       </h3>
                       <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                        {language === 'hi' ? meta.descHi : meta.descEn}
+                        {getAgentDesc(agentKey)}
                       </p>
                     </div>
 
                     <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 space-y-1">
                       <div className="flex items-center justify-between">
-                        <span>{language === 'hi' ? 'अंतिम रन:' : 'Last run:'}</span>
+                        <span>{lt('Last run:', 'अंतिम रन:', 'शेवटचा रन:', 'সর্বশেষ রান:')}</span>
                         <span className="font-medium text-slate-700">
                           {liveStatus.last_run ? new Date(liveStatus.last_run).toLocaleTimeString() : 'Never / Initialized'}
                         </span>
@@ -898,12 +971,15 @@ export default function S9_AdminMonitoringScreen() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">
-                  {language === 'hi' ? 'खोजे गए एवं ट्रैक किए गए सरकारी स्रोत' : 'Discovered Government Sources'}
+                  {lt('Discovered Government Sources', 'खोजे गए एवं ट्रैक किए गए सरकारी स्रोत', 'शोधलेले शासकीय स्रोत', 'আবিষ্কৃত সরকারি উৎস')}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  {language === 'hi'
-                    ? 'data.gov.in और MP e-Seva से शुरू होकर सरकारी डोमेन (.gov.in, .nic.in) के सभी अधिकृत पृष्ठ।'
-                    : 'Discovered official government web pages, datasets, and circulars with verified domain boundaries.'}
+                  {lt(
+                    'Discovered official government web pages, datasets, and circulars with verified domain boundaries.',
+                    'data.gov.in और MP e-Seva से शुरू होकर सरकारी डोमेन (.gov.in, .nic.in) के सभी अधिकृत पृष्ठ।',
+                    'शासकीय डोमेनवरील (.gov.in, .nic.in) अधिकृत पृष्ठे आणि परिपत्रके.',
+                    'সরকারি ডোমেইনের (.gov.in, .nic.in) সমস্ত অনুমোদিত পৃষ্ঠা ও সার্কুলার।'
+                  )}
                 </p>
               </div>
 
@@ -913,7 +989,7 @@ export default function S9_AdminMonitoringScreen() {
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
                   <input
                     type="text"
-                    placeholder={language === 'hi' ? 'URL या डोमेन खोजें...' : 'Filter URL or domain...'}
+                    placeholder={lt('Filter URL or domain...', 'URL या डोमेन खोजें...', 'URL किंवा डोमेन शोधा...', 'URL বা ডোমেন অনুসন্ধান...')}
                     value={searchSourceText}
                     onChange={(e) => setSearchSourceText(e.target.value)}
                     className="pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48 md:w-64"
@@ -925,7 +1001,7 @@ export default function S9_AdminMonitoringScreen() {
                   onChange={(e) => setSourceFilter(e.target.value)}
                   className="text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 >
-                  <option value="all">{language === 'hi' ? 'सभी स्थितियां' : 'All Status'}</option>
+                  <option value="all">{lt('All Status', 'सभी स्थितियां', 'सर्व स्थिती', 'সকল স্থিতি')}</option>
                   <option value="crawled">crawled</option>
                   <option value="discovered">discovered</option>
                   <option value="failed">failed</option>
@@ -987,7 +1063,7 @@ export default function S9_AdminMonitoringScreen() {
                             className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-medium"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
-                            {language === 'hi' ? 'देखें' : 'Visit'}
+                            {lt('Visit', 'देखें', 'पहा', 'দেখুন')}
                           </a>
                         </td>
                       </tr>
@@ -995,7 +1071,7 @@ export default function S9_AdminMonitoringScreen() {
                     {filteredSources.length === 0 && (
                       <tr>
                         <td colSpan="7" className="py-8 text-center text-slate-400">
-                          {language === 'hi' ? 'कोई स्रोत नहीं मिला।' : 'No sources found matching filter.'}
+                          {lt('No sources found matching filter.', 'कोई स्रोत नहीं मिला।', 'कोणतेही स्रोत आढळले नाही.', 'কোনো উৎস পাওয়া যায়নি।')}
                         </td>
                       </tr>
                     )}
@@ -1014,12 +1090,15 @@ export default function S9_AdminMonitoringScreen() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">
-                  {language === 'hi' ? 'नीति परिवर्तन समीक्षा एवं अनुमोदन द्वार' : 'Policy Change Review Gate'}
+                  {lt('Policy Change Review Gate', 'नीति परिवर्तन समीक्षा एवं अनुमोदन द्वार', 'धोरण बदल पुनरावलोकन द्वार', 'নীতি পরিবর্তন পর্যালোচনা গেট')}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  {language === 'hi'
-                    ? 'नागरिक पात्रता अथवा लाभ को प्रभावित करने वाले प्रत्येक परिवर्तन पर प्रशासनिक स्वीकृति आवश्यक है।'
-                    : 'Human approval required for any change affecting eligibility criteria, benefits, or documents.'}
+                  {lt(
+                    'Human approval required for any change affecting eligibility criteria, benefits, or documents.',
+                    'नागरिक पात्रता अथवा लाभ को प्रभावित करने वाले प्रत्येक परिवर्तन पर प्रशासनिक स्वीकृति आवश्यक है।',
+                    'नागरिक पात्रता किंवा लाभांवर परिणाम करणाऱ्या प्रत्येक बदलासाठी मानवी मंजुरी आवश्यक आहे.',
+                    'নাগরিকের योग्यता বা সুবিধার পরিবর্তনের জন্য মানব অনুমোদন আবশ্যক।'
+                  )}
                 </p>
               </div>
 
@@ -1078,7 +1157,7 @@ export default function S9_AdminMonitoringScreen() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
                       <span className="font-semibold text-slate-500 uppercase text-[10px]">
-                        {language === 'hi' ? 'मौजूदा नियम / मान' : 'Current Value in Catalog'}
+                        {lt('Current Value in Catalog', 'मौजूदा नियम / मान', 'कॅटलॉगमधील वर्तमान मूल्य', 'ক্যাটালগে বর্তমান মান')}
                       </span>
                       <div className="text-slate-700 font-mono text-[11px] whitespace-pre-wrap">
                         {upd.old_value || 'None (New Initiative)'}
@@ -1087,7 +1166,7 @@ export default function S9_AdminMonitoringScreen() {
 
                     <div className="p-3 bg-emerald-50/50 border border-emerald-200 rounded-lg space-y-1">
                       <span className="font-semibold text-emerald-800 uppercase text-[10px]">
-                        {language === 'hi' ? 'प्रस्तावित नया मान' : 'Proposed New Value'}
+                        {lt('Proposed New Value', 'प्रस्तावित नया मान', 'प्रस्तावित नवीन मूल्य', 'প্রস্তাবিত নতুন মান')}
                       </span>
                       <div className="text-emerald-950 font-mono text-[11px] whitespace-pre-wrap">
                         {upd.proposed_value}
@@ -1100,7 +1179,7 @@ export default function S9_AdminMonitoringScreen() {
                     <div className="p-3 bg-amber-50/40 border border-amber-200/80 rounded-lg text-xs space-y-1">
                       <span className="font-semibold text-amber-900 flex items-center gap-1 text-[11px]">
                         <FileCheck className="w-3.5 h-3.5 text-amber-700" />
-                        {language === 'hi' ? 'सत्यापित साक्ष्य उद्धरण' : 'Grounded Evidence Citation from Official Source'}
+                        {lt('Grounded Evidence Citation from Official Source', 'सत्यापित साक्ष्य उद्धरण', 'स्रोतातून अधिकृत पुरावा उद्धरण', 'সরকারি উৎস থেকে যাচাইকৃত প্রমাণ')}
                       </span>
                       <div className="text-amber-950/90 italic font-serif text-[11px]">
                         "{typeof upd.evidence === 'object' ? JSON.stringify(upd.evidence, null, 1) : upd.evidence}"
@@ -1130,14 +1209,14 @@ export default function S9_AdminMonitoringScreen() {
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition"
                       >
                         <X className="w-3.5 h-3.5" />
-                        {language === 'hi' ? 'अस्वीकार करें' : 'Reject'}
+                        {lt('Reject', 'अस्वीकार करें', 'नाकारा', 'প্রত্যাখ্যান করুন')}
                       </button>
                       <button
                         onClick={() => handleApproveUpdate(upd.id)}
                         className="inline-flex items-center gap-1 px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs transition"
                       >
                         <Check className="w-3.5 h-3.5" />
-                        {language === 'hi' ? 'स्वीकृत करें और प्रकाशित करें' : 'Approve & Publish'}
+                        {lt('Approve & Publish', 'स्वीकृत करें और प्रकाशित करें', 'मंजूर करा आणि प्रकाशित करा', 'অনুমোদন ও প্রকাশ করুন')}
                       </button>
                     </div>
                   )}
@@ -1148,12 +1227,15 @@ export default function S9_AdminMonitoringScreen() {
                 <div className="bg-white p-12 text-center rounded-xl border border-slate-200 text-slate-400">
                   <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500 mb-2" />
                   <p className="text-sm font-medium text-slate-700">
-                    {language === 'hi' ? 'कोई लंबित अपडेट नहीं है।' : 'No updates found in this status category.'}
+                    {lt('No updates found in this status category.', 'कोई लंबित अपडेट नहीं है।', 'या श्रेणीत कोणतेही अपडेट आढळले नाहीत.', 'এই বিভাগে কোনো আপডেট পাওয়া যায়নি।')}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
-                    {language === 'hi'
-                      ? 'नए अपडेट खोजने के लिए "पूर्ण निगरानी चलाएं" पर क्लिक करें।'
-                      : 'Click "Run Monitoring" above to check government portals for new changes.'}
+                    {lt(
+                      'Click "Run Monitoring" above to check government portals for new changes.',
+                      'नए अपडेट खोजने के लिए "पूर्ण निगरानी चलाएं" पर क्लिक करें।',
+                      'नवीन बदलांसाठी शासकीय पोर्टल्स तपासण्यासाठी वरील "पूर्ण देखरेख चालवा" क्लिक करा.',
+                      'নতুন পরিবর্তনের জন্য সরকারি পোর্টাল পরীক্ষা করতে উপরে "সম্পূর্ণ পর্যবেক্ষণ চালান" ক্লিক করুন।'
+                    )}
                   </p>
                 </div>
               )}
@@ -1169,18 +1251,21 @@ export default function S9_AdminMonitoringScreen() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">
-                  {language === 'hi' ? 'योजना संस्करण इतिहास एवं ऑडिट ट्रेल' : 'Scheme Version History & Audit Trail'}
+                  {lt('Scheme Version History & Audit Trail', 'योजना संस्करण इतिहास एवं ऑडिट ट्रेल', 'योजना आवृत्ती इतिहास आणि ऑडिट ट्रेल', 'স্কিম সংস্করণ ইতিহাস ও অডিট ট্রেল')}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  {language === 'hi'
-                    ? 'प्रत्येक स्वीकृत नीति परिवर्तन के साथ योजना का अपरिवर्तनीय नया संस्करण सुरक्षित रखा जाता है।'
-                    : 'Every approved update creates an immutable version record ensuring transparent traceability.'}
+                  {lt(
+                    'Every approved update creates an immutable version record ensuring transparent traceability.',
+                    'प्रत्येक स्वीकृत नीति परिवर्तन के साथ योजना का अपरिवर्तनीय नया संस्करण सुरक्षित रखा जाता है।',
+                    'प्रत्येक मंजूर धोरण बदलासह योजनेची नवीन अपरिवर्तनीय आवृत्ती नोंदवली जाते.',
+                    'প্রতিটি অনুমোদিত নীতি পরিবর্তনের সাথে স্কিমের অপরিবর্তনীয় নতুন সংস্করণ সংরক্ষিত হয়।'
+                  )}
                 </p>
               </div>
 
               {/* Scheme Picker */}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500">{language === 'hi' ? 'योजना चुनें:' : 'Select Scheme:'}</span>
+                <span className="text-xs text-slate-500">{lt('Select Scheme:', 'योजना चुनें:', 'योजना निवडा:', 'স্কিম নির্বাচন করুন:')}</span>
                 <select
                   value={selectedSchemeId}
                   onChange={(e) => {
@@ -1246,9 +1331,12 @@ export default function S9_AdminMonitoringScreen() {
                 </div>
               ) : (
                 <div className="py-8 text-center text-slate-400 text-xs">
-                  {language === 'hi'
-                    ? 'इस योजना के लिए कोई अतिरिक्त संस्करण दर्ज नहीं है। वर्तमान में मूल संस्करण सक्रिय है।'
-                    : 'No additional versions recorded for this scheme yet. Baseline v1 is active.'}
+                  {lt(
+                    'No additional versions recorded for this scheme yet. Baseline v1 is active.',
+                    'इस योजना के लिए कोई अतिरिक्त संस्करण दर्ज नहीं है। वर्तमान में मूल संस्करण सक्रिय है।',
+                    'या योजनेसाठी कोणतीही अतिरिक्त आवृत्ती नोंदवलेली नाही. सध्या मूळ आवृत्ती सक्रिय आहे.',
+                    'এই স্কিমের জন্য কোনো অতিরিক্ত সংস্করণ রেকর্ড করা হয়নি। বর্তমানে মূল সংস্করণ সক্রিয় রয়েছে।'
+                  )}
                 </div>
               )}
             </div>
@@ -1262,16 +1350,19 @@ export default function S9_AdminMonitoringScreen() {
           <div className="bg-white rounded-xl max-w-md w-full p-5 space-y-4 shadow-xl border border-slate-200">
             <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-rose-600" />
-              {language === 'hi' ? 'परिवर्तन अस्वीकृति का कारण' : 'Reason for Rejecting Update'}
+              {lt('Reason for Rejecting Update', 'परिवर्तन अस्वीकृति का कारण', 'बदल नाकारण्याचे कारण', 'আপডেট প্রত্যাখ্যানের কারণ')}
             </h3>
             <p className="text-xs text-slate-500">
-              {language === 'hi'
-                ? 'कृपया ऑडिट रिकॉर्ड हेतु अस्वीकृति का आधिकारिक कारण दर्ज करें।'
-                : 'Provide mandatory audit rationale for rejecting this proposed policy change.'}
+              {lt(
+                'Provide mandatory audit rationale for rejecting this proposed policy change.',
+                'कृपया ऑडिट रिकॉर्ड हेतु अस्वीकृति का आधिकारिक कारण दर्ज करें।',
+                'कृपया ऑडिट नोंदीसाठी नकाराचे अधिकृत कारण प्रविष्ट करा.',
+                'অডিট রেকর্ডের জন্য প্রত্যাখ্যানের কারণ লিখুন।'
+              )}
             </p>
             <textarea
               rows={3}
-              placeholder={language === 'hi' ? 'जैसे: विभागीय परिपत्र से विसंगति पाई गई...' : 'e.g. Discrepancy with official departmental gazette notification...'}
+              placeholder={lt('e.g. Discrepancy with official departmental gazette notification...', 'जैसे: विभागीय परिपत्र से विसंगति पाई गई...', 'उदा. अधिकृत शासन निर्णयाशी विसंगती आढळली...', 'যেমন: অফিসিয়াল সার্কুলারের সাথে অসঙ্গতি...')}
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               className="w-full text-xs p-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-rose-500"
@@ -1281,14 +1372,14 @@ export default function S9_AdminMonitoringScreen() {
                 onClick={() => setRejectingUpdateId(null)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {language === 'hi' ? 'रद्द करें' : 'Cancel'}
+                {lt('Cancel', 'रद्द करें', 'रद्द करा', 'বাতিল করুন')}
               </button>
               <button
                 onClick={handleRejectUpdate}
                 disabled={!rejectReason.trim()}
                 className="px-4 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg disabled:opacity-50"
               >
-                {language === 'hi' ? 'अस्वीकार करें' : 'Confirm Rejection'}
+                {lt('Confirm Rejection', 'अस्वीकार करें', 'नकाराची पुष्टी करा', 'প্রত্যাখ্যান নিশ্চিত করুন')}
               </button>
             </div>
           </div>

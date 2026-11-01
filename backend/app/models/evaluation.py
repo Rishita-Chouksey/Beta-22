@@ -50,6 +50,7 @@ class SchemeEvaluationResult(BaseModel):
     review_status: str = "verified" # 'draft', 'verified', 'auto_updated', 'needs_review'
     auto_updated_at: Optional[str] = None
     machine_translated: Dict[str, bool] = Field(default_factory=lambda: {"hi": False, "bn": False})
+    is_relevant_to_persona: bool = True
 
 class OverallEvaluationResponse(BaseModel):
     eligible: List[SchemeEvaluationResult] = Field(default_factory=list)
@@ -57,5 +58,6 @@ class OverallEvaluationResponse(BaseModel):
     not_eligible: List[SchemeEvaluationResult] = Field(default_factory=list)
     no_rules: List[SchemeEvaluationResult] = Field(default_factory=list)
     total_evaluated: int = 0
+    other_ineligible_count: int = 0
     active_profile_summary: Dict[str, Any] = Field(default_factory=dict)
     contradictions: List[Dict[str, Any]] = Field(default_factory=list)
