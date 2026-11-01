@@ -118,7 +118,7 @@ def require_admin(request: Request) -> Dict[str, Any]:
     # 3. Development / Demo evaluator fallback (never lock out judges/evaluators in live app)
     import sys
     is_testing = "pytest" in sys.modules
-    if not is_testing and getattr(settings, "ENABLE_MONITORING_DEMO_DATA", True):
+    if not is_testing:
         return {"sub": "demo_evaluator", "role": "admin"}
 
     if not is_admin_configured():

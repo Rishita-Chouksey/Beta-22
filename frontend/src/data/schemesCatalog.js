@@ -1713,3 +1713,139 @@ export function getOfflineAllSchemes() {
 export function getOfflineSchemeById(schemeId) {
   return EMBEDDED_SCHEMES.find(s => s.id === schemeId) || null;
 }
+
+
+export function evaluateProfileOffline(profile = {}) {
+  const eligible = [];
+  const not_sure = [];
+  const not_eligible = [];
+  const no_rules = [];
+
+  for (const s of EMBEDDED_SCHEMES) {
+    const schemeResult = {
+      scheme_id: s.id,
+      scheme_name_en: s.name_en,
+      scheme_name_hi: s.name_hi,
+      scheme_name_mr: s.name_mr || s.name_en,
+      scheme_name_bn: s.name_bn || s.name_en,
+      level: s.level,
+      state: s.state,
+      category: s.category,
+      benefit_en: s.benefit_en,
+      benefit_hi: s.benefit_hi,
+      benefit_mr: s.benefit_mr || s.benefit_en,
+      benefit_bn: s.benefit_bn || s.benefit_en,
+      official_source_url: s.official_source_url,
+      last_verified_date: s.last_verified_date,
+      missing_fields: [],
+      satisfied_conditions_en: [],
+      satisfied_conditions_hi: [],
+      satisfied_conditions_mr: [],
+      satisfied_conditions_bn: [],
+      unknown_conditions_en: [],
+      unknown_conditions_hi: [],
+      unknown_conditions_mr: [],
+      unknown_conditions_bn: [],
+      failed_conditions_en: [],
+      failed_conditions_hi: [],
+      failed_conditions_mr: [],
+      failed_conditions_bn: [],
+      rule_results: []
+    };
+
+    if (!s.rules || s.rules.length === 0 || s.review_status !== 'verified') {
+      schemeResult.status = 'NO CURRENT RULES';
+      schemeResult.deciding_reason_en = 'Scheme rules are currently under review / verification.';
+      schemeResult.deciding_reason_hi = 'योजना के नियम वर्तमान में समीक्षा / सत्यापन के अधीन हैं।';
+      schemeResult.deciding_reason_mr = 'योजनेचे नियम सध्या पडताळणी प्रक्रियेत आहेत.';
+      schemeResult.deciding_reason_bn = 'প্রকল্পের নিয়মাবলী বর্তমানে পর্যালোচনার অধীনে রয়েছে।';
+      no_rules.push(schemeResult);
+      continue;
+    }
+
+    let hasFail = false;
+    let hasUnknown = false;
+
+    for (const r of s.rules) {
+      const actual = profile[r.field];
+      if (actual === undefined || actual === null || actual === '') {
+        hasUnknown = true;
+        if (!schemeResult.missing_fields.includes(r.field)) {
+          schemeResult.missing_fields.push(r.field);
+        }
+        schemeResult.unknown_conditions_en.push(Information for '' has not been provided yet.);
+        schemeResult.unknown_conditions_hi.push('' के लिए जानकारी अभी प्रदान नहीं की गई है।);
+        schemeResult.unknown_conditions_mr.push('' ची माहिती अद्याप दिलेली नाही.);
+        schemeResult.unknown_conditions_bn.push(''-এর তথ্য এখনও প্রদান করা হয়নি।);
+        continue;
+      }
+
+      let pass = false;
+      const op = (r.operator || '').toLowerCase();
+      if (op === 'eq') {
+        pass = String(actual).toLowerCase() === String(r.value).toLowerCase();
+      } else if (op === 'lte') {
+        pass = Number(actual) <= Number(r.value);
+      } else if (op === 'gte') {
+        pass = Number(actual) >= Number(r.value);
+      } else if (op === 'between' && Array.isArray(r.value)) {
+        pass = Number(actual) >= Number(r.value[0]) && Number(actual) <= Number(r.value[1]);
+      } else if (op === 'in' && Array.isArray(r.value)) {
+        pass = r.value.map(v => String(v).toLowerCase()).includes(String(actual).toLowerCase());
+      } else {
+        pass = true;
+      }
+
+      const descEn = r.description_en || r.field;
+      const descHi = r.description_hi || r.field;
+      const descMr = r.description_mr || descEn;
+      const descBn = r.description_bn || descEn;
+
+      if (pass) {
+        schemeResult.satisfied_conditions_en.push(descEn);
+        schemeResult.satisfied_conditions_hi.push(descHi);
+        schemeResult.satisfied_conditions_mr.push(descMr);
+        schemeResult.satisfied_conditions_bn.push(descBn);
+      } else {
+        hasFail = true;
+        schemeResult.failed_conditions_en.push(Does not meet:  (Provided: ));
+        schemeResult.failed_conditions_hi.push(शर्त पूरी नहीं होती:  (प्रदान किया गया: ));
+        schemeResult.failed_conditions_mr.push(अट पूर्ण होत नाही:  (दिलेले: ));
+        schemeResult.failed_conditions_bn.push(শর্ত পূরণ হয়নি:  (প্রদত্ত: ));
+      }
+    }
+
+    if (hasFail) {
+      schemeResult.status = 'NOT ELIGIBLE';
+      schemeResult.deciding_reason_en = schemeResult.failed_conditions_en[0] || 'Criteria not met.';
+      schemeResult.deciding_reason_hi = schemeResult.failed_conditions_hi[0] || 'पात्रता मानदंड पूरे नहीं हुए।';
+      schemeResult.deciding_reason_mr = schemeResult.failed_conditions_mr[0] || 'पात्रता निकष पूर्ण झाले नाहीत.';
+      schemeResult.deciding_reason_bn = schemeResult.failed_conditions_bn[0] || 'যোগ্যতার মানদণ্ড পূরণ হয়নি।';
+      not_eligible.push(schemeResult);
+    } else if (hasUnknown) {
+      schemeResult.status = 'NOT SURE';
+      schemeResult.deciding_reason_en = schemeResult.unknown_conditions_en[0] || 'Verification required.';
+      schemeResult.deciding_reason_hi = schemeResult.unknown_conditions_hi[0] || 'सत्यापन आवश्यक है।';
+      schemeResult.deciding_reason_mr = schemeResult.unknown_conditions_mr[0] || 'पडताळणी आवश्यक आहे.';
+      schemeResult.deciding_reason_bn = schemeResult.unknown_conditions_bn[0] || 'যাচাই প্রয়োজন।';
+      not_sure.push(schemeResult);
+    } else {
+      schemeResult.status = 'ELIGIBLE';
+      schemeResult.deciding_reason_en = All eligibility criteria satisfied based on confirmed profile.;
+      schemeResult.deciding_reason_hi = पुष्ट प्रोफ़ाइल के आधार पर सभी पात्रता मानदंड पूरे हुए।;
+      schemeResult.deciding_reason_mr = पुष्टी केलेल्या प्रोफाइलवर आधारित सर्व पात्रता निकष पूर्ण झाले आहेत.;
+      schemeResult.deciding_reason_bn = নিশ্চিত প্রোফাইলের ভিত্তিতে সমস্ত যোগ্যতার মানদণ্ড পূরণ হয়েছে।;
+      eligible.push(schemeResult);
+    }
+  }
+
+  return {
+    eligible,
+    not_sure,
+    not_eligible,
+    no_rules,
+    total_evaluated: EMBEDDED_SCHEMES.length,
+    active_profile_summary: profile,
+    contradictions: []
+  };
+}
