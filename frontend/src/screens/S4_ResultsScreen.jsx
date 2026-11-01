@@ -70,28 +70,28 @@ export default function S4_ResultsScreen() {
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
             <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{lt('Likely Eligible', 'संभावित पात्र')}</span>
+            <span>{lt('Likely Eligible', 'संभावित पात्र', 'संभाव्य पात्र', 'সম্ভাব্য যোগ্য')}</span>
           </span>
         );
       case 'NOT SURE':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300">
             <HelpCircle className="w-3.5 h-3.5 text-amber-600" />
-            <span>{lt('Needs Verification', 'सत्यापन आवश्यक')}</span>
+            <span>{lt('Needs Verification', 'सत्यापन आवश्यक', 'पडताळणी आवश्यक', 'যাচাই প্রয়োজন')}</span>
           </span>
         );
       case 'NOT ELIGIBLE':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-800 border border-rose-300">
             <XCircle className="w-3.5 h-3.5 text-rose-600" />
-            <span>{lt('Not Eligible', 'अपात्र')}</span>
+            <span>{lt('Not Eligible', 'अपात्र', 'अपात्र', 'অযোগ্য')}</span>
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300">
             <AlertCircle className="w-3.5 h-3.5 text-slate-500" />
-            <span>{lt('No Current Rules', 'नियम प्रतीक्षारत')}</span>
+            <span>{lt('No Current Rules', 'नियम प्रतीक्षारत', 'नियम प्रलंबित', 'নিয়ম প্রতীক্ষারত')}</span>
           </span>
         );
     }
@@ -99,9 +99,10 @@ export default function S4_ResultsScreen() {
 
   // Render a single scheme card
   const renderSchemeCard = (scheme) => {
-    const name = lt(scheme.scheme_name_en, scheme.scheme_name_hi);
-    const reason = lt(scheme.deciding_reason_en, scheme.deciding_reason_hi);
-    const benefit = lt(scheme.benefit_en, scheme.benefit_hi);
+    const name = getBilingualText(scheme, 'scheme_name') || getBilingualText(scheme, 'name') || lt(scheme.scheme_name_en, scheme.scheme_name_hi, scheme.scheme_name_mr || scheme.name_mr, scheme.scheme_name_bn || scheme.name_bn);
+    const reason = getBilingualText(scheme, 'deciding_reason') || lt(scheme.deciding_reason_en, scheme.deciding_reason_hi, scheme.deciding_reason_mr, scheme.deciding_reason_bn);
+    const benefit = getBilingualText(scheme, 'benefit') || lt(scheme.benefit_en, scheme.benefit_hi, scheme.benefit_mr, scheme.benefit_bn);
+    const category = getBilingualText(scheme, 'category') || lt(scheme.category, scheme.category_hi || scheme.category, scheme.category_mr || scheme.category, scheme.category_bn || scheme.category);
     const isInlineVerifying = activeInlineVerifySchemeId === scheme.scheme_id;
     const schemeMissingFields = scheme.missing_fields || [];
 
@@ -119,7 +120,7 @@ export default function S4_ResultsScreen() {
                 {scheme.level === 'central' ? t('central_scheme') : t('state_scheme')}
               </span>
               <span className="text-xs font-semibold text-slate-500">
-                {lt(scheme.category, scheme.category_hi || scheme.category, scheme.category_bn)}
+                {category}
               </span>
             </div>
 
@@ -139,19 +140,19 @@ export default function S4_ResultsScreen() {
           {/* Deciding Reason Box */}
           <div className="space-y-1.5 text-xs text-slate-700 bg-slate-50 border border-slate-100 p-3 rounded-xl">
             <p className="font-semibold text-slate-900">
-              {scheme.status === 'ELIGIBLE' && '✓ ' + (lt('Why recommended: ', 'पात्रता कारण: '))}
-              {scheme.status === 'NOT ELIGIBLE' && '✗ ' + (lt('Reason not eligible: ', 'अपात्रता कारण: '))}
-              {scheme.status === 'NOT SURE' && '? ' + (lt('Verification required: ', 'सत्यापन कारण: '))}
-              {scheme.status === 'NO CURRENT RULES' && '! ' + (lt('Unverified: ', 'असत्यापित: '))}
+              {scheme.status === 'ELIGIBLE' && '✓ ' + (lt('Why recommended: ', 'पात्रता कारण: ', 'शिफारस कारण: ', 'সুপারিশের কারণ: '))}
+              {scheme.status === 'NOT ELIGIBLE' && '✗ ' + (lt('Reason not eligible: ', 'अपात्रता कारण: ', 'अपात्रता कारण: ', 'অযোগ্যতার কারণ: '))}
+              {scheme.status === 'NOT SURE' && '? ' + (lt('Verification required: ', 'सत्यापन कारण: ', 'पडताळणी आवश्यक कारण: ', 'যাচাইকরণের কারণ: '))}
+              {scheme.status === 'NO CURRENT RULES' && '! ' + (lt('Unverified: ', 'असत्यापित: ', 'अपडताळलेले: ', 'অযাচাইকৃত: '))}
               <span className="font-normal text-slate-700">{reason}</span>
             </p>
           </div>
 
           {/* Conditions Breakdown Preview */}
           {(() => {
-            const satList = getBilingualText({ ...scheme, satisfied_conditions_en: scheme.satisfied_conditions_en?.length ? scheme.satisfied_conditions_en : scheme.satisfied_conditions }, 'satisfied_conditions');
-            const unkList = getBilingualText({ ...scheme, unknown_conditions_en: scheme.unknown_conditions_en?.length ? scheme.unknown_conditions_en : scheme.unknown_conditions }, 'unknown_conditions');
-            const failList = getBilingualText({ ...scheme, failed_conditions_en: scheme.failed_conditions_en?.length ? scheme.failed_conditions_en : scheme.failed_conditions }, 'failed_conditions');
+            const satList = getBilingualText(scheme, 'satisfied_conditions');
+            const unkList = getBilingualText(scheme, 'unknown_conditions');
+            const failList = getBilingualText(scheme, 'failed_conditions');
 
             return (
               <div className="space-y-2 pt-1 border-t border-slate-100 text-xs">
@@ -250,7 +251,7 @@ export default function S4_ResultsScreen() {
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>
-                  {isInlineVerifying ? lt('Close', 'बंद करें') : lt('Verify Now', 'सत्यापित करें')}
+                  {isInlineVerifying ? lt('Close', 'बंद करें', 'बंद करा', 'বন্ধ করুন') : lt('Verify Now', 'सत्यापित करें', 'पडताळणी करा', 'এখনই যাচাই করুন')}
                 </span>
               </button>
             )}
@@ -281,7 +282,7 @@ export default function S4_ResultsScreen() {
               </h1>
               <AudioSpeaker
                 text={
-                  lt(`You are likely eligible for ${eligibleSchemes.length} schemes, with ${notSureSchemes.length} requiring further verification.`, `आप ${eligibleSchemes.length} योजनाओं के लिए संभावित पात्र हैं, और ${notSureSchemes.length} योजनाओं में अतिरिक्त सत्यापन की आवश्यकता है।`)
+                  lt(`You are likely eligible for ${eligibleSchemes.length} schemes, with ${notSureSchemes.length} requiring further verification.`, `आप ${eligibleSchemes.length} योजनाओं के लिए संभावित पात्र हैं, और ${notSureSchemes.length} योजनाओं में अतिरिक्त सत्यापन की आवश्यकता है।`, `तुम्ही ${eligibleSchemes.length} योजनांसाठी संभाव्य पात्र आहात, आणि ${notSureSchemes.length} योजनांमध्ये पुढील पडताळणी आवश्यक आहे.`, `আপনি ${eligibleSchemes.length}টি প্রকল্পের জন্য সম্ভাব্য যোগ্য, এবং ${notSureSchemes.length}টি প্রকল্পে আরও যাচাই প্রয়োজন।`)
                 }
               />
             </div>
@@ -380,7 +381,7 @@ export default function S4_ResultsScreen() {
             }`}
           >
             <Layers className="w-3.5 h-3.5 text-teal-400" />
-            <span>{lt('All Schemes (All-in-One)', 'सभी योजनाएं (एक साथ)')}</span>
+            <span>{lt('All Schemes (All-in-One)', 'सभी योजनाएं (एक साथ)', 'सर्व योजना (एकत्रित)', 'সকল প্রকল্প (এক সাথে)')}</span>
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${activeTab === 'all' ? 'bg-slate-800 text-teal-300' : 'bg-slate-300 text-slate-800'}`}>
               {totalSchemesCount}
             </span>

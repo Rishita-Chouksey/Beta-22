@@ -23,7 +23,7 @@ import {
 import AudioSpeaker from '../components/AudioSpeaker';
 
 export default function S5_SchemeDetailsScreen() {
-  const { language, t } = useLanguage();
+  const { language, t, lt, getBilingualText } = useLanguage();
   const {
     activeSchemeModal,
     setActiveSchemeModal,
@@ -78,10 +78,10 @@ export default function S5_SchemeDetailsScreen() {
     );
   }
 
-  const name = getBilingualText(currentEvaluation, 'scheme_name') || lt(currentEvaluation.scheme_name_en, currentEvaluation.scheme_name_hi);
+  const name = getBilingualText(currentEvaluation, 'scheme_name') || getBilingualText(currentEvaluation, 'name') || lt(currentEvaluation.scheme_name_en, currentEvaluation.scheme_name_hi, currentEvaluation.scheme_name_mr || currentEvaluation.name_mr, currentEvaluation.scheme_name_bn || currentEvaluation.name_bn);
   const secondaryName = language === 'en' ? (currentEvaluation.scheme_name_hi || '') : (currentEvaluation.scheme_name_en || '');
-  const benefit = getBilingualText(currentEvaluation, 'benefit') || lt(currentEvaluation.benefit_en, currentEvaluation.benefit_hi);
-  const reason = getBilingualText(currentEvaluation, 'deciding_reason') || lt(currentEvaluation.deciding_reason_en, currentEvaluation.deciding_reason_hi);
+  const benefit = getBilingualText(currentEvaluation, 'benefit') || lt(currentEvaluation.benefit_en, currentEvaluation.benefit_hi, currentEvaluation.benefit_mr, currentEvaluation.benefit_bn);
+  const reason = getBilingualText(currentEvaluation, 'deciding_reason') || lt(currentEvaluation.deciding_reason_en, currentEvaluation.deciding_reason_hi, currentEvaluation.deciding_reason_mr, currentEvaluation.deciding_reason_bn);
   const isEligible = currentEvaluation.status === 'ELIGIBLE';
   const isNotSure = currentEvaluation.status === 'NOT SURE';
   const isNotEligible = currentEvaluation.status === 'NOT ELIGIBLE';
@@ -311,7 +311,7 @@ export default function S5_SchemeDetailsScreen() {
         {ruleResults && ruleResults.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {ruleResults.map((r, idx) => {
-              const ruleReason = getBilingualText(r, 'reason') || lt(r.reason_en, r.reason_hi);
+              const ruleReason = getBilingualText(r, 'reason') || lt(r.reason_en, r.reason_hi, r.reason_mr, r.reason_bn);
               const isPass = r.outcome === 'PASS';
               const isFail = r.outcome === 'FAIL';
               const isUnk = r.outcome === 'UNKNOWN';

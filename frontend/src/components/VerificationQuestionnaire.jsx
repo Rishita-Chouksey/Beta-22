@@ -170,7 +170,7 @@ export default function VerificationQuestionnaire({
             </div>
             {successInfo.scheme && (
               <p className="text-xs mt-2 leading-relaxed opacity-90">
-                {getBilingualText(successInfo.scheme, 'deciding_reason') || lt(successInfo.scheme.deciding_reason_en, successInfo.scheme.deciding_reason_hi)}
+                {getBilingualText(successInfo.scheme, 'deciding_reason') || lt(successInfo.scheme.deciding_reason_en, successInfo.scheme.deciding_reason_hi, successInfo.scheme.deciding_reason_mr, successInfo.scheme.deciding_reason_bn)}
               </p>
             )}
           </div>

@@ -36,6 +36,7 @@ class SchemeRule(BaseModel):
     description_en: str = Field(..., description="Human-readable rule explanation in English")
     description_hi: str = Field(..., description="Human-readable rule explanation in Hindi")
     description_bn: Optional[str] = Field("", description="Human-readable rule explanation in Bengali")
+    description_mr: Optional[str] = Field("", description="Human-readable rule explanation in Marathi")
     why_template: Optional[Dict[str, str]] = Field(
         default=None,
         description="Bilingual templates with {value} placeholder: {en, hi, bn}"
@@ -48,12 +49,15 @@ class DocumentRequirement(BaseModel):
     name_en: str = Field(..., description="Document title in English")
     name_hi: str = Field(..., description="Document title in Hindi")
     name_bn: Optional[str] = Field("", description="Document title in Bengali")
+    name_mr: Optional[str] = Field("", description="Document title in Marathi")
     purpose_en: str = Field(..., description="Why this document is required")
     purpose_hi: str = Field(..., description="दस्तावेज़ की आवश्यकता का कारण")
     purpose_bn: Optional[str] = Field("", description="প্রয়োজনীয়তার উদ্দেশ্য")
+    purpose_mr: Optional[str] = Field("", description="कागदपत्रांची आवश्यकता")
     how_to_get_en: str = Field(..., description="Procurement steps in English")
     how_to_get_hi: str = Field(..., description="दस्तावेज़ प्राप्त करने की प्रक्रिया")
     how_to_get_bn: Optional[str] = Field("", description="পাওয়ার উপায়")
+    how_to_get_mr: Optional[str] = Field("", description="कागदपत्र मिळवण्याची प्रक्रिया")
     online_url: Optional[str] = Field(None, description="Official portal link to apply online")
     offline_office: Optional[str] = Field(None, description="Physical authority/office to visit if offline")
 
@@ -62,17 +66,23 @@ class SchemeDefinition(BaseModel):
     name_en: str = Field(..., description="Official scheme name in English")
     name_hi: str = Field(..., description="Official scheme name in Hindi")
     name_bn: Optional[str] = Field("", description="Official scheme name in Bengali")
+    name_mr: Optional[str] = Field("", description="Official scheme name in Marathi")
     level: Literal["central", "state"] = Field("central", description="'central' or 'state'")
     state: Optional[str] = Field(None, description="Two-letter ISO 3166-2:IN state code (e.g., MP, MH, WB), null for central")
     applicable_states: List[str] = Field(default_factory=lambda: ["ALL"], description="States where applicable or ['ALL']")
     category: str = Field("General", description="Sector (e.g. Agriculture, Education, Women, Housing, Health)")
+    category_hi: Optional[str] = None
+    category_bn: Optional[str] = None
+    category_mr: Optional[str] = None
     personas: List[str] = Field(default_factory=list, description="Target personas: farmer, widow, student")
     benefit_en: str = Field(..., description="Key financial or material entitlement in English")
     benefit_hi: str = Field(..., description="मुख्य लाभ विवरण (हिंदी)")
     benefit_bn: Optional[str] = Field("", description="প্রধান সুবিধা বিবরণ (বাংলা)")
+    benefit_mr: Optional[str] = Field("", description="मुख्य लाभ तपशील (मराठी)")
     description_en: str = Field(..., description="Overview in English")
     description_hi: str = Field(..., description="Overview in Hindi")
     description_bn: Optional[str] = Field("", description="Overview in Bengali")
+    description_mr: Optional[str] = Field("", description="Overview in Marathi")
     rules: List[SchemeRule] = Field(default_factory=list, description="List of deterministic eligibility criteria")
     restrictions: List[str] = Field(default_factory=list, description="Important disqualification restrictions")
     required_documents: List[DocumentRequirement] = Field(default_factory=list, description="Document checklist items")

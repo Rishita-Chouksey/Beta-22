@@ -11,12 +11,22 @@ INCOME_BAND_RANGES = {
     "above_6_lakh": (600000, 10000000),
 }
 
+def _get_rule_desc(rule: SchemeRule, lang: str) -> str:
+    if lang == "bn":
+        return getattr(rule, "description_bn", "") or rule.description_en
+    if lang == "mr":
+        return getattr(rule, "description_mr", "") or rule.description_en
+    if lang == "hi":
+        return getattr(rule, "description_hi", "") or rule.description_en
+    return rule.description_en
+
 def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvaluationResult:
     """
     Evaluates a single SchemeRule against a CitizenProfile.
     Returns RuleEvaluationResult with outcome: 'PASS', 'FAIL', or 'UNKNOWN'.
     Never guesses unknown values.
     Handles income ranges crossing limits, borderline values, OR combinations, and unconfirmed fields.
+    Fully multilingual: generates English, Hindi, Bengali, and Marathi reasons.
     """
     # 0. Handle composite OR rules
     if rule.operator.lower() == "or" or (rule.or_rules and len(rule.or_rules) > 0):
@@ -24,17 +34,22 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
         sub_results = [evaluate_single_rule(r, profile) for r in sub_rules]
         passed = [sr for sr in sub_results if sr.outcome == "PASS"]
         if passed:
+            p = passed[0]
             return RuleEvaluationResult(
                 field=rule.field,
                 operator="or",
                 expected_value=rule.value,
-                actual_value=passed[0].actual_value,
+                actual_value=p.actual_value,
                 outcome="PASS",
-                reason_en=f"Satisfied alternative condition: {passed[0].reason_en}",
-                reason_hi=f"वैकल्पिक शर्त पूरी हुई: {passed[0].reason_hi}",
+                reason_en=f"Satisfied alternative condition: {p.reason_en}",
+                reason_hi=f"वैकल्पिक शर्त पूरी हुई: {p.reason_hi}",
+                reason_bn=f"বিকল্প শর্ত পূরণ হয়েছে: {getattr(p, 'reason_bn', '') or p.reason_en}",
+                reason_mr=f"पर्यायी अट पूर्ण झाली: {getattr(p, 'reason_mr', '') or p.reason_en}",
                 is_external_unverifiable=False
             )
         if all(sr.outcome == "FAIL" for sr in sub_results):
+            desc_bn = _get_rule_desc(rule, "bn")
+            desc_mr = _get_rule_desc(rule, "mr")
             return RuleEvaluationResult(
                 field=rule.field,
                 operator="or",
@@ -43,8 +58,12 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
                 outcome="FAIL",
                 reason_en=f"None of the alternative criteria met: {rule.description_en}",
                 reason_hi=f"वैकल्पिक मानदंडों में से कोई भी पूरा नहीं हुआ: {rule.description_hi}",
+                reason_bn=f"বিকল্প মানদণ্ডের কোনটিই পূরণ হয়নি: {desc_bn}",
+                reason_mr=f"कोणतेही पर्यायी निकष पूर्ण झाले नाहीत: {desc_mr}",
                 is_external_unverifiable=False
             )
+        desc_bn = _get_rule_desc(rule, "bn")
+        desc_mr = _get_rule_desc(rule, "mr")
         return RuleEvaluationResult(
             field=rule.field,
             operator="or",
@@ -53,6 +72,8 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
             outcome="UNKNOWN",
             reason_en=f"Verification required for one of the alternative conditions: {rule.description_en}",
             reason_hi=f"वैकल्पिक शर्तों में से एक के सत्यापन की आवश्यकता है: {rule.description_hi}",
+            reason_bn=f"বিকল্প শর্তাবলীর একটির যাচাইকরণ প্রয়োজন: {desc_bn}",
+            reason_mr=f"पर्यायी अटींपैकी एकाच्या पडताळणीची आवश्यकता आहे: {desc_mr}",
             is_external_unverifiable=False
         )
 
@@ -73,6 +94,8 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
             outcome="UNKNOWN",
             reason_en=f"Information for '{field_name}' has not been provided yet.",
             reason_hi=f"'{field_name}' के लिए जानकारी अभी प्रदान नहीं की गई है।",
+            reason_bn=f"'{field_name}'-এর তথ্য এখনও প্রদান করা হয়নি।",
+            reason_mr=f"'{field_name}' ची माहिती अद्याप दिलेली नाही.",
             is_external_unverifiable=rule.is_external_unverifiable
         )
         
@@ -86,11 +109,15 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
             outcome="UNKNOWN",
             reason_en=f"Value for '{field_name}' is extracted but not yet confirmed by citizen.",
             reason_hi=f"'{field_name}' का मान निकाला गया है लेकिन नागरिक द्वारा पुष्टि नहीं की गई है।",
+            reason_bn=f"'{field_name}'-এর মান পাওয়া গেছে কিন্তু নাগরিক এখনও নিশ্চিত করেননি।",
+            reason_mr=f"'{field_name}' चे मूल्य प्राप्त झाले आहे परंतु नागरिकाने अद्याप पुष्टी केलेली नाही.",
             is_external_unverifiable=rule.is_external_unverifiable
         )
         
     # 3. External unverifiable condition flag
     if rule.is_external_unverifiable:
+        desc_bn = _get_rule_desc(rule, "bn")
+        desc_mr = _get_rule_desc(rule, "mr")
         return RuleEvaluationResult(
             field=field_name,
             operator=rule.operator,
@@ -99,6 +126,8 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
             outcome="UNKNOWN",
             reason_en=f"External official verification required: {rule.description_en}",
             reason_hi=f"बाहरी आधिकारिक सत्यापन आवश्यक: {rule.description_hi}",
+            reason_bn=f"বাহ্যিক অফিসিয়াল যাচাইকরণ প্রয়োজন: {desc_bn}",
+            reason_mr=f"बाह्य अधिकृत पडताळणी आवश्यक: {desc_mr}",
             is_external_unverifiable=True
         )
 
@@ -130,6 +159,8 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
                 outcome="UNKNOWN",
                 reason_en=f"Unsupported operator '{op}'.",
                 reason_hi=f"असमर्थित ऑपरेटर '{op}'।",
+                reason_bn=f"অসমর্থিত অপারেটর '{op}'।",
+                reason_mr=f"असमर्थित ऑपरेटर '{op}'.",
                 is_external_unverifiable=False
             )
     except Exception as e:
@@ -141,6 +172,8 @@ def evaluate_single_rule(rule: SchemeRule, profile: CitizenProfile) -> RuleEvalu
             outcome="UNKNOWN",
             reason_en=f"Error evaluating condition: {str(e)}",
             reason_hi=f"शर्त का मूल्यांकन करने में त्रुटि: {str(e)}",
+            reason_bn=f"শর্ত মূল্যায়নে ত্রুটি: {str(e)}",
+            reason_mr=f"अट तपासण्यात त्रुटी: {str(e)}",
             is_external_unverifiable=False
         )
 
@@ -150,6 +183,9 @@ def _eval_eq(rule: SchemeRule, actual: Any, expected: Any) -> RuleEvaluationResu
     else:
         match = actual == expected
         
+    desc_bn = _get_rule_desc(rule, "bn")
+    desc_mr = _get_rule_desc(rule, "mr")
+
     if match:
         return RuleEvaluationResult(
             field=rule.field,
@@ -158,7 +194,9 @@ def _eval_eq(rule: SchemeRule, actual: Any, expected: Any) -> RuleEvaluationResu
             actual_value=actual,
             outcome="PASS",
             reason_en=f"Matches requirement: {rule.description_en} (Provided: {actual})",
-            reason_hi=f"आवश्यकता से मेल खाता है: {rule.description_hi} (प्रदान किया गया: {actual})"
+            reason_hi=f"आवश्यकता से मेल खाता है: {rule.description_hi} (प्रदान किया गया: {actual})",
+            reason_bn=f"প্রয়োজনীয় শর্ত পূরণ হয়েছে: {desc_bn} (প্রদত্ত: {actual})",
+            reason_mr=f"आवश्यकतेनुसार जुळते: {desc_mr} (दिलेले: {actual})"
         )
     else:
         return RuleEvaluationResult(
@@ -168,7 +206,9 @@ def _eval_eq(rule: SchemeRule, actual: Any, expected: Any) -> RuleEvaluationResu
             actual_value=actual,
             outcome="FAIL",
             reason_en=f"Does not match requirement: {rule.description_en} (Provided: {actual})",
-            reason_hi=f"आवश्यकता से मेल नहीं खाता: {rule.description_hi} (प्रदान किया गया: {actual})"
+            reason_hi=f"आवश्यकता से मेल नहीं खाता: {rule.description_hi} (प्रदान किया गया: {actual})",
+            reason_bn=f"প্রয়োজনীয় শর্ত পূরণ হয়নি: {desc_bn} (প্রদত্ত: {actual})",
+            reason_mr=f"आवश्यकतेनुसार जुळत नाही: {desc_mr} (दिलेले: {actual})"
         )
 
 def _eval_ne(rule: SchemeRule, actual: Any, expected: Any) -> RuleEvaluationResult:
@@ -177,6 +217,9 @@ def _eval_ne(rule: SchemeRule, actual: Any, expected: Any) -> RuleEvaluationResu
     else:
         match = actual != expected
         
+    desc_bn = _get_rule_desc(rule, "bn")
+    desc_mr = _get_rule_desc(rule, "mr")
+
     if match:
         return RuleEvaluationResult(
             field=rule.field,
@@ -185,7 +228,9 @@ def _eval_ne(rule: SchemeRule, actual: Any, expected: Any) -> RuleEvaluationResu
             actual_value=actual,
             outcome="PASS",
             reason_en=f"Satisfies exclusion criteria: {rule.description_en}",
-            reason_hi=f"अपवर्जन मानदंड को पूरा करता है: {rule.description_hi}"
+            reason_hi=f"अपवर्जन मानदंड को पूरा करता है: {rule.description_hi}",
+            reason_bn=f"বর্জনীয় মানদণ্ড পূরণ করেছে: {desc_bn}",
+            reason_mr=f"बहिष्कार निकष पूर्ण करतो: {desc_mr}"
         )
     else:
         return RuleEvaluationResult(
@@ -195,7 +240,9 @@ def _eval_ne(rule: SchemeRule, actual: Any, expected: Any) -> RuleEvaluationResu
             actual_value=actual,
             outcome="FAIL",
             reason_en=f"Violates restriction: {rule.description_en} (Provided: {actual})",
-            reason_hi=f"प्रतिबंध का उल्लंघन करता है: {rule.description_hi} (प्रदान किया गया: {actual})"
+            reason_hi=f"प्रतिबंध का उल्लंघन करता है: {rule.description_hi} (प्रदान किया गया: {actual})",
+            reason_bn=f"নিষেধাজ্ঞা লঙ্ঘন করে: {desc_bn} (প্রদত্ত: {actual})",
+            reason_mr=f"निर्बंधांचे उल्लंघन करतो: {desc_mr} (दिलेले: {actual})"
         )
 
 def _eval_in(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluationResult:
@@ -206,6 +253,9 @@ def _eval_in(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluationRes
     else:
         match = actual in expected
         
+    desc_bn = _get_rule_desc(rule, "bn")
+    desc_mr = _get_rule_desc(rule, "mr")
+
     if match:
         return RuleEvaluationResult(
             field=rule.field,
@@ -214,7 +264,9 @@ def _eval_in(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluationRes
             actual_value=actual,
             outcome="PASS",
             reason_en=f"Value '{actual}' falls within permissible categories: {expected}",
-            reason_hi=f"मान '{actual}' अनुमेय श्रेणियों के अंतर्गत आता है: {expected}"
+            reason_hi=f"मान '{actual}' अनुमेय श्रेणियों के अंतर्गत आता है: {expected}",
+            reason_bn=f"মান '{actual}' অনুমোদিত শ্রেণীর অন্তর্ভুক্ত: {expected}",
+            reason_mr=f"मूल्य '{actual}' अनुमत श्रेणीत येते: {expected}"
         )
     else:
         return RuleEvaluationResult(
@@ -224,7 +276,9 @@ def _eval_in(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluationRes
             actual_value=actual,
             outcome="FAIL",
             reason_en=f"Value '{actual}' is not in allowed categories: {rule.description_en}",
-            reason_hi=f"मान '{actual}' अनुमत श्रेणियों में नहीं है: {rule.description_hi}"
+            reason_hi=f"मान '{actual}' अनुमत श्रेणियों में नहीं है: {rule.description_hi}",
+            reason_bn=f"মান '{actual}' অনুমোদিত শ্রেণীতে নেই: {desc_bn}",
+            reason_mr=f"मूल्य '{actual}' अनुमत श्रेणीत नाही: {desc_mr}"
         )
 
 def _eval_not_in(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluationResult:
@@ -235,6 +289,9 @@ def _eval_not_in(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluatio
     else:
         match = actual not in expected
         
+    desc_bn = _get_rule_desc(rule, "bn")
+    desc_mr = _get_rule_desc(rule, "mr")
+
     if match:
         return RuleEvaluationResult(
             field=rule.field,
@@ -243,7 +300,9 @@ def _eval_not_in(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluatio
             actual_value=actual,
             outcome="PASS",
             reason_en=f"Condition met: {rule.description_en}",
-            reason_hi=f"शर्त पूरी हुई: {rule.description_hi}"
+            reason_hi=f"शर्त पूरी हुई: {rule.description_hi}",
+            reason_bn=f"শর্ত পূরণ হয়েছে: {desc_bn}",
+            reason_mr=f"अट पूर्ण झाली: {desc_mr}"
         )
     else:
         return RuleEvaluationResult(
@@ -253,12 +312,16 @@ def _eval_not_in(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluatio
             actual_value=actual,
             outcome="FAIL",
             reason_en=f"Value '{actual}' falls under restricted categories.",
-            reason_hi=f"मान '{actual}' प्रतिबंधित श्रेणियों के अंतर्गत आता है।"
+            reason_hi=f"मान '{actual}' प्रतिबंधित श्रेणियों के अंतर्गत आता है।",
+            reason_bn=f"মান '{actual}' সীমাবদ্ধ শ্রেণীর আওতায় পড়ে।",
+            reason_mr=f"मूल्य '{actual}' प्रतिबंधित श्रेणीत येते."
         )
 
 def _eval_lte(rule: SchemeRule, actual: Any, expected: float) -> RuleEvaluationResult:
     actual_num = float(actual)
     expected_num = float(expected)
+    desc_bn = _get_rule_desc(rule, "bn")
+    desc_mr = _get_rule_desc(rule, "mr")
     
     # Borderline threshold check (within 1% near the threshold)
     if expected_num > 0 and abs(actual_num - expected_num) <= (0.01 * expected_num) and actual_num <= expected_num:
@@ -269,7 +332,9 @@ def _eval_lte(rule: SchemeRule, actual: Any, expected: float) -> RuleEvaluationR
             actual_value=actual_num,
             outcome="UNKNOWN",
             reason_en=f"Value {actual_num} is borderline close to limit {expected_num}. Official documentation required to confirm exact boundary.",
-            reason_hi=f"मान {actual_num} सीमा {expected_num} के बहुत करीब है। सटीक सीमा की पुष्टि के लिए आधिकारिक दस्तावेज़ आवश्यक हैं।"
+            reason_hi=f"मान {actual_num} सीमा {expected_num} के बहुत करीब है। सटीक सीमा की पुष्टि के लिए आधिकारिक दस्तावेज़ आवश्यक हैं।",
+            reason_bn=f"মান {actual_num} সীমার ({expected_num}) অত্যন্ত কাছাকাছি। সঠিক সীমা নিশ্চিত করতে নথিপত্র প্রয়োজন।",
+            reason_mr=f"मूल्य {actual_num} मर्यादेच्या ({expected_num}) अगदी जवळ आहे. अचूक सीमा निश्चित करण्यासाठी अधिकृत कागदपत्रे आवश्यक आहेत."
         )
         
     if actual_num <= expected_num:
@@ -280,7 +345,9 @@ def _eval_lte(rule: SchemeRule, actual: Any, expected: float) -> RuleEvaluationR
             actual_value=actual_num,
             outcome="PASS",
             reason_en=f"Satisfies maximum limit: {actual_num} <= {expected_num} ({rule.description_en})",
-            reason_hi=f"अधिकतम सीमा को पूरा करता है: {actual_num} <= {expected_num} ({rule.description_hi})"
+            reason_hi=f"अधिकतम सीमा को पूरा करता है: {actual_num} <= {expected_num} ({rule.description_hi})",
+            reason_bn=f"সর্বোচ্চ সীমা পূরণ করেছে: {actual_num} <= {expected_num} ({desc_bn})",
+            reason_mr=f"कमाल मर्यादा पूर्ण करते: {actual_num} <= {expected_num} ({desc_mr})"
         )
     else:
         return RuleEvaluationResult(
@@ -290,12 +357,16 @@ def _eval_lte(rule: SchemeRule, actual: Any, expected: float) -> RuleEvaluationR
             actual_value=actual_num,
             outcome="FAIL",
             reason_en=f"Exceeds maximum permissible limit: {actual_num} > {expected_num} ({rule.description_en})",
-            reason_hi=f"अधिकतम अनुमेय सीमा से अधिक है: {actual_num} > {expected_num} ({rule.description_hi})"
+            reason_hi=f"अधिकतम अनुमेय सीमा से अधिक है: {actual_num} > {expected_num} ({rule.description_hi})",
+            reason_bn=f"সর্বোচ্চ অনুমোদনযোগ্য সীমার বেশি: {actual_num} > {expected_num} ({desc_bn})",
+            reason_mr=f"कमाल परवानगी मर्यादेपेक्षा जास्त आहे: {actual_num} > {expected_num} ({desc_mr})"
         )
 
 def _eval_gte(rule: SchemeRule, actual: Any, expected: float) -> RuleEvaluationResult:
     actual_num = float(actual)
     expected_num = float(expected)
+    desc_bn = _get_rule_desc(rule, "bn")
+    desc_mr = _get_rule_desc(rule, "mr")
     
     if actual_num >= expected_num:
         return RuleEvaluationResult(
@@ -305,7 +376,9 @@ def _eval_gte(rule: SchemeRule, actual: Any, expected: float) -> RuleEvaluationR
             actual_value=actual_num,
             outcome="PASS",
             reason_en=f"Meets minimum threshold: {actual_num} >= {expected_num} ({rule.description_en})",
-            reason_hi=f"न्यूनतम सीमा को पूरा करता है: {actual_num} >= {expected_num} ({rule.description_hi})"
+            reason_hi=f"न्यूनतम सीमा को पूरा करता है: {actual_num} >= {expected_num} ({rule.description_hi})",
+            reason_bn=f"ন্যূনতম প্রয়োজনীয়তা পূরণ করেছে: {actual_num} >= {expected_num} ({desc_bn})",
+            reason_mr=f"किमान मर्यादा पूर्ण करते: {actual_num} >= {expected_num} ({desc_mr})"
         )
     else:
         return RuleEvaluationResult(
@@ -315,13 +388,17 @@ def _eval_gte(rule: SchemeRule, actual: Any, expected: float) -> RuleEvaluationR
             actual_value=actual_num,
             outcome="FAIL",
             reason_en=f"Below minimum required threshold: {actual_num} < {expected_num} ({rule.description_en})",
-            reason_hi=f"आवश्यक न्यूनतम सीमा से कम है: {actual_num} < {expected_num} ({rule.description_hi})"
+            reason_hi=f"आवश्यक न्यूनतम सीमा से कम है: {actual_num} < {expected_num} ({rule.description_hi})",
+            reason_bn=f"প্রয়োজনীয় ন্যূনতম সীমার নিচে: {actual_num} < {expected_num} ({desc_bn})",
+            reason_mr=f"आवश्यक किमान मर्यादेपेक्षा कमी आहे: {actual_num} < {expected_num} ({desc_mr})"
         )
 
 def _eval_between(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluationResult:
     actual_num = float(actual)
     min_val = float(expected[0])
     max_val = float(expected[1])
+    desc_bn = _get_rule_desc(rule, "bn")
+    desc_mr = _get_rule_desc(rule, "mr")
     
     if min_val <= actual_num <= max_val:
         return RuleEvaluationResult(
@@ -331,7 +408,9 @@ def _eval_between(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluati
             actual_value=actual_num,
             outcome="PASS",
             reason_en=f"Value {actual_num} is within eligible range [{min_val}, {max_val}] ({rule.description_en})",
-            reason_hi=f"मान {actual_num} पात्र सीमा [{min_val}, {max_val}] के अंतर्गत है ({rule.description_hi})"
+            reason_hi=f"मान {actual_num} पात्र सीमा [{min_val}, {max_val}] के अंतर्गत है ({rule.description_hi})",
+            reason_bn=f"মান {actual_num} যোগ্য সীমার মধ্যে রয়েছে [{min_val}, {max_val}] ({desc_bn})",
+            reason_mr=f"मूल्य {actual_num} पात्र मर्यादेत आहे [{min_val}, {max_val}] ({desc_mr})"
         )
     else:
         return RuleEvaluationResult(
@@ -341,7 +420,9 @@ def _eval_between(rule: SchemeRule, actual: Any, expected: list) -> RuleEvaluati
             actual_value=actual_num,
             outcome="FAIL",
             reason_en=f"Value {actual_num} falls outside eligible range [{min_val}, {max_val}] ({rule.description_en})",
-            reason_hi=f"मान {actual_num} पात्र सीमा [{min_val}, {max_val}] से बाहर है ({rule.description_hi})"
+            reason_hi=f"मान {actual_num} पात्र सीमा [{min_val}, {max_val}] से बाहर है ({rule.description_hi})",
+            reason_bn=f"মান {actual_num} যোগ্য সীমার বাইরে [{min_val}, {max_val}] ({desc_bn})",
+            reason_mr=f"मूल्य {actual_num} पात्र मर्यादेच्या बाहेर आहे [{min_val}, {max_val}] ({desc_mr})"
         )
 
 def _evaluate_income_band(rule: SchemeRule, band_key: str) -> RuleEvaluationResult:
@@ -355,7 +436,9 @@ def _evaluate_income_band(rule: SchemeRule, band_key: str) -> RuleEvaluationResu
             actual_value=band_key,
             outcome="UNKNOWN",
             reason_en=f"Income range '{band_key}' cannot be evaluated deterministically.",
-            reason_hi=f"आय सीमा '{band_key}' का निश्चित मूल्यांकन नहीं किया जा सकता।"
+            reason_hi=f"आय सीमा '{band_key}' का निश्चित मूल्यांकन नहीं किया जा सकता।",
+            reason_bn=f"আয় সীমা '{band_key}' নির্দিষ্টভাবে মূল্যায়ন করা সম্ভব নয়।",
+            reason_mr=f"उत्पन्न गट '{band_key}' चे निश्चित मूल्यांकन करता येत नाही."
         )
         
     b_min, b_max = band_range
@@ -371,7 +454,9 @@ def _evaluate_income_band(rule: SchemeRule, band_key: str) -> RuleEvaluationResu
                 actual_value=f"{b_min}-{b_max}",
                 outcome="PASS",
                 reason_en=f"Income band up to ₹{b_max} is completely within eligibility threshold of ₹{limit}.",
-                reason_hi=f"₹{b_max} तक का आय वर्ग पूरी तरह से ₹{limit} की पात्रता सीमा के भीतर है।"
+                reason_hi=f"₹{b_max} तक का आय वर्ग पूरी तरह से ₹{limit} की पात्रता सीमा के भीतर है।",
+                reason_bn=f"₹{b_max} পর্যন্ত আয়ের বন্ধনী সম্পূর্ণভাবে ₹{limit}-এর যোগ্যতার সীমার মধ্যে।",
+                reason_mr=f"₹{b_max} पर्यंतचा उत्पन्न गट ₹{limit} च्या पात्रता मर्यादेत पूर्णपणे बसतो."
             )
         elif b_min > limit:
             return RuleEvaluationResult(
@@ -381,7 +466,9 @@ def _evaluate_income_band(rule: SchemeRule, band_key: str) -> RuleEvaluationResu
                 actual_value=f"{b_min}-{b_max}",
                 outcome="FAIL",
                 reason_en=f"Income band starting at ₹{b_min} exceeds maximum eligibility limit of ₹{limit}.",
-                reason_hi=f"₹{b_min} से शुरू होने वाला आय वर्ग ₹{limit} की अधिकतम पात्रता सीमा से अधिक है।"
+                reason_hi=f"₹{b_min} से शुरू होने वाला आय वर्ग ₹{limit} की अधिकतम पात्रता सीमा से अधिक है।",
+                reason_bn=f"₹{b_min} থেকে শুরু হওয়া আয়ের বন্ধনী ₹{limit}-এর সর্বোচ্চ যোগ্যতার সীমা ছাড়িয়ে গেছে।",
+                reason_mr=f"₹{b_min} पासून सुरू होणारा उत्पन्न गट ₹{limit} च्या कमाल पात्रता मर्यादेपेक्षा जास्त आहे."
             )
         else:
             # Range crosses eligibility limit! Must return UNKNOWN / Not sure
@@ -392,7 +479,9 @@ def _evaluate_income_band(rule: SchemeRule, band_key: str) -> RuleEvaluationResu
                 actual_value=f"{b_min}-{b_max}",
                 outcome="UNKNOWN",
                 reason_en=f"Selected income range (₹{b_min} - ₹{b_max}) straddles the scheme limit (₹{limit}). Exact income certificate required to confirm.",
-                reason_hi=f"चयनित आय वर्ग (₹{b_min} - ₹{b_max}) योजना सीमा (₹{limit}) के दोनों ओर पड़ता है। पुष्टि के लिए सटीक आय प्रमाण पत्र आवश्यक है।"
+                reason_hi=f"चयनित आय वर्ग (₹{b_min} - ₹{b_max}) योजना सीमा (₹{limit}) के दोनों ओर पड़ता है। पुष्टि के लिए सटीक आय प्रमाण पत्र आवश्यक है।",
+                reason_bn=f"নির্বাচিত আয়ের সীমা (₹{b_min} - ₹{b_max}) প্রকল্পের সীমার (₹{limit}) উভয় পাশে পড়ে। নিশ্চিতকরণের জন্য সুনির্দিষ্ট আয় শংসাপত্র প্রয়োজন।",
+                reason_mr=f"निवडलेला उत्पन्न गट (₹{b_min} - ₹{b_max}) योजनेच्या मर्यादेच्या (₹{limit}) दोन्ही बाजूंनी येतो. पुष्टीकरणासाठी अचूक उत्पन्न प्रमाणपत्र आवश्यक आहे."
             )
             
     return RuleEvaluationResult(
@@ -402,5 +491,7 @@ def _evaluate_income_band(rule: SchemeRule, band_key: str) -> RuleEvaluationResu
         actual_value=band_key,
         outcome="UNKNOWN",
         reason_en="Income range requires specific value for deterministic evaluation.",
-        reason_hi="निश्चित मूल्यांकन के लिए विशिष्ट आय मान आवश्यक है।"
+        reason_hi="निश्चित मूल्यांकन के लिए विशिष्ट आय मान आवश्यक है।",
+        reason_bn="নির্দিষ্ট মূল্যায়নের জন্য সুনির্দিষ্ট আয়ের মান প্রয়োজন।",
+        reason_mr="निश्चित मूल्यांकनासाठी विशिष्ट उत्पन्न मूल्य आवश्यक आहे."
     )

@@ -25,15 +25,27 @@ export async function evaluateCitizenProfile(profile) {
 }
 
 export async function fetchAllSchemes(lang = null) {
-  const resp = await fetch(`${API_BASE_URL}/schemes${lang ? `?lang=${lang}` : ''}`);
-  if (!resp.ok) throw new Error(`Fetch schemes failed: ${resp.status}`);
-  return await resp.json();
+  try {
+    const resp = await fetch(`${API_BASE_URL}/schemes${lang ? `?lang=${lang}` : ''}`);
+    if (!resp.ok) throw new Error(`Fetch schemes failed: ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn('fetchAllSchemes network fallback:', err);
+    const { getOfflineAllSchemes } = await import('../data/schemesCatalog.js');
+    return getOfflineAllSchemes();
+  }
 }
 
 export async function fetchSchemeDetails(schemeId, lang = null) {
-  const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}${lang ? `?lang=${lang}` : ''}`);
-  if (!resp.ok) throw new Error(`Fetch scheme details failed: ${resp.status}`);
-  return await resp.json();
+  try {
+    const resp = await fetch(`${API_BASE_URL}/schemes/${schemeId}${lang ? `?lang=${lang}` : ''}`);
+    if (!resp.ok) throw new Error(`Fetch scheme details failed: ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn('fetchSchemeDetails network fallback:', err);
+    const { getOfflineSchemeById } = await import('../data/schemesCatalog.js');
+    return getOfflineSchemeById(schemeId);
+  }
 }
 
 export async function fetchDocumentChecklist(schemeIds) {
@@ -113,19 +125,31 @@ export async function submitFeedback(schemeId = null, rating = 5, isHelpful = tr
 // Document Guide API
 // ==============================================================================
 export async function fetchDocumentList(query = null, category = null) {
-  const params = new URLSearchParams();
-  if (query) params.append('query', query);
-  if (category && category !== 'all') params.append('category', category);
-  const url = `${API_BASE_URL}/documents${params.toString() ? `?${params.toString()}` : ''}`;
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error(`Fetch documents failed: ${resp.status}`);
-  return await resp.json();
+  try {
+    const params = new URLSearchParams();
+    if (query) params.append('query', query);
+    if (category && category !== 'all') params.append('category', category);
+    const url = `${API_BASE_URL}/documents${params.toString() ? `?${params.toString()}` : ''}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Fetch documents failed: ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn('fetchDocumentList network fallback:', err);
+    const { getOfflineDocumentList } = await import('../data/documentCatalog.js');
+    return getOfflineDocumentList(query || '', category || 'all');
+  }
 }
 
 export async function fetchDocumentDetails(docId) {
-  const resp = await fetch(`${API_BASE_URL}/documents/${encodeURIComponent(docId)}`);
-  if (!resp.ok) throw new Error(`Fetch document details failed: ${resp.status}`);
-  return await resp.json();
+  try {
+    const resp = await fetch(`${API_BASE_URL}/documents/${encodeURIComponent(docId)}`);
+    if (!resp.ok) throw new Error(`Fetch document details failed: ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn('fetchDocumentDetails network fallback:', err);
+    const { getOfflineDocumentDetails } = await import('../data/documentCatalog.js');
+    return getOfflineDocumentDetails(docId);
+  }
 }
 
 // ==============================================================================

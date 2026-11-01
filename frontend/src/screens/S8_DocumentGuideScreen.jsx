@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useSession } from '../context/SessionContext';
 import { fetchDocumentList, fetchDocumentDetails } from '../services/api';
+import { getOfflineDocumentList, getOfflineDocumentDetails } from '../data/documentCatalog';
 import {
   FileText,
   Search,
@@ -35,24 +36,24 @@ export default function S8_DocumentGuideScreen() {
     setActiveSchemeModal
   } = useSession();
 
-  const [documents, setDocuments] = useState([]);
+  const [documents, setDocuments] = useState(() => getOfflineDocumentList());
   const [activeDoc, setActiveDoc] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Fetch documents list on mount
   useEffect(() => {
-    setIsLoading(true);
     fetchDocumentList()
       .then((data) => {
-        setDocuments(data);
+        if (data && data.length > 0) {
+          setDocuments(data);
+        }
         setError(null);
       })
       .catch((err) => {
-        console.error('Error fetching documents list:', err);
-        setError('Could not load document catalog.');
+        console.warn('Backend sync failed, using offline catalog:', err);
       })
       .finally(() => setIsLoading(false));
   }, []);
@@ -60,17 +61,18 @@ export default function S8_DocumentGuideScreen() {
   // Fetch active document details if selectedDocId changes
   useEffect(() => {
     if (selectedDocId) {
-      setIsLoading(true);
+      const localDetail = getOfflineDocumentDetails(selectedDocId);
+      if (localDetail) {
+        setActiveDoc(localDetail);
+      }
       fetchDocumentDetails(selectedDocId)
         .then((doc) => {
-          setActiveDoc(doc);
+          if (doc) setActiveDoc(doc);
           setError(null);
         })
         .catch((err) => {
-          console.error('Error fetching document details:', err);
-          setError('Document details could not be retrieved.');
-        })
-        .finally(() => setIsLoading(false));
+          console.warn('Backend details sync failed, using offline:', err);
+        });
     } else {
       setActiveDoc(null);
     }
