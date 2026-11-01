@@ -5,9 +5,13 @@
   "name_bn": "মুখ্যমন্ত্রী লাডলি বহনা যোজনা",
   "level": "state",
   "state": "MP",
-  "applicable_states": ["MP"],
+  "applicable_states": [
+    "MP"
+  ],
   "category": "Women Welfare",
-  "personas": ["widow"],
+  "personas": [
+    "widow"
+  ],
   "benefit_en": "Direct monthly financial assistance of ₹1,250 transferred every month directly into beneficiary's DBT-enabled bank account.",
   "benefit_hi": "प्रत्येक माह ₹1,250 की प्रत्यक्ष वित्तीय सहायता सीधे लाभार्थी के आधार-लिंक्ड बैंक खाते में।",
   "benefit_bn": "আধার সংযুক্ত ডিবিটি ব্যাঙ্ক অ্যাকাউন্টে প্রতি মাসে ₹১,২৫০ সরাসরি আর্থিক সহায়তা।",
@@ -15,7 +19,10 @@
   "description_hi": "महिलाओं के आर्थिक स्वावलंबन, स्वास्थ्य और पोषण में निरंतर सुधार के लिए मध्य प्रदेश शासन की प्रमुख योजना।",
   "description_bn": "মধ্যপ্রদেশে নারীদের ও বিধবাদের অর্থনৈতিকভাবে ক্ষমতায়নের প্রধান উদ্যোগ।",
   "review_status": "verified",
-  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "verified_by": [
+    "A. Sharma",
+    "R. Chouksey"
+  ],
   "auto_update": null,
   "machine_translated": {
     "hi": false,
@@ -47,7 +54,11 @@
       "rule_id": "marital_status_eligible",
       "field": "marital_status",
       "operator": "in",
-      "value": ["married", "widow", "divorced"],
+      "value": [
+        "married",
+        "widow",
+        "divorced"
+      ],
       "description_en": "Applicant must be a married woman, widow, or divorced/deserted woman (unmarried women are excluded).",
       "description_hi": "आवेदिका विवाहित, विधवा या तलाकशुदा/परित्यक्ता महिला होनी चाहिए।",
       "description_bn": "আবেদনকারীকে বিবাহিত, বিধবা বা পরিত্যক্তা মহিলা হতে হবে।",
@@ -61,7 +72,10 @@
       "rule_id": "age_between",
       "field": "age",
       "operator": "between",
-      "value": [21, 60],
+      "value": [
+        21,
+        60
+      ],
       "description_en": "Age must be between 21 and 60 years.",
       "description_hi": "आयु 21 से 60 वर्ष के बीच होनी चाहिए।",
       "description_bn": "বয়স ২১ থেকে ৬০ বছরের মধ্যে হতে হবে।",
@@ -161,5 +175,8 @@
   "max_allowed_age_days": 180,
   "verification_status": "verified",
   "conflicting_schemes": [],
-  "helpline": "0755-2700800"
+  "helpline": "0755-2700800",
+  "name_mr": "मुख्यमंत्री लाडकी बहीण योजना",
+  "benefit_mr": "पात्र महिलांच्या थेट बँक खात्यात दरमहा ₹१,२५० आर्थिक मदत.",
+  "description_mr": "महिलांचे आर्थिक स्वावलंबन आणि आरोग्य सुधारण्यासाठी मध्य प्रदेश सरकारची योजना."
 }

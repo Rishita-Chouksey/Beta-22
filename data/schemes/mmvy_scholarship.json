@@ -5,9 +5,13 @@
   "name_bn": "মুখ্যমন্ত্রী মেধাবী বিদ্যার্থী যোজনা",
   "level": "state",
   "state": "MP",
-  "applicable_states": ["MP"],
+  "applicable_states": [
+    "MP"
+  ],
   "category": "Education",
-  "personas": ["student"],
+  "personas": [
+    "student"
+  ],
   "benefit_en": "100% academic tuition fee coverage for undergraduate courses in Engineering, Medical, Law, Management and Degree colleges.",
   "benefit_hi": "इंजीनियरिंग, मेडिकल, लॉ, प्रबंधन और डिग्री कॉलेजों में स्नातक पाठ्यक्रमों के लिए 100% शैक्षणिक शिक्षण शुल्क का भुगतान।",
   "benefit_bn": "ইঞ্জিনিয়ারিং, মেডিকেল, আইন ইত্যাদিতে ১০০% টিউশন ফি পরিশোধ।",
@@ -15,7 +19,10 @@
   "description_hi": "मध्य प्रदेश सरकार की प्रमुख छात्रवृत्ति योजना जो मेधावी छात्रों को वित्तीय बाधाओं के बिना उच्च शिक्षा प्राप्त करने में सक्षम बनाती है।",
   "description_bn": "মধ্যপ্রদেশ সরকারের প্রধান ছাত্রবৃত্তি প্রকল্প যা মেধাবী শিক্ষার্থীদের আর্থিক সহায়তা প্রদান করে।",
   "review_status": "verified",
-  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "verified_by": [
+    "A. Sharma",
+    "R. Chouksey"
+  ],
   "auto_update": null,
   "machine_translated": {
     "hi": false,
@@ -190,5 +197,8 @@
   "max_allowed_age_days": 180,
   "verification_status": "verified",
   "conflicting_schemes": [],
-  "helpline": "0755-2660063 / 181"
+  "helpline": "0755-2660063 / 181",
+  "name_mr": "मुख्यमंत्री मेधावी विद्यार्थी योजना (MMVY)",
+  "benefit_mr": "अभियांत्रिकी, वैद्यकीय, कायदा आणि पदवी अभ्यासक्रमांचे १००% शैक्षणिक शुल्क सरकारद्वारे अदा केले जाते.",
+  "description_mr": "गुणवंत विद्यार्थ्यांना आर्थिक अडचणींशिवाय उच्च शिक्षण पूर्ण करता यावे यासाठीची योजना."
 }

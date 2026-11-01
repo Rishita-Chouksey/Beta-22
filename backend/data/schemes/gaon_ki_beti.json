@@ -5,9 +5,13 @@
   "name_bn": "গাঁও কি বেটি",
   "level": "state",
   "state": "MP",
-  "applicable_states": ["MP"],
+  "applicable_states": [
+    "MP"
+  ],
   "category": "Education",
-  "personas": ["student"],
+  "personas": [
+    "student"
+  ],
   "benefit_en": "The myScheme page lists ₹500 per month for up to 10 months per year for selected students.",
   "benefit_hi": "myScheme पृष्ठ के अनुसार चयनित छात्राओं को प्रति वर्ष अधिकतम 10 महीने तक ₹500 प्रतिमाह छात्रवृत्ति दी जाती है।",
   "benefit_bn": "myScheme পৃষ্ঠা অনুযায়ী নির্বাচিত শিক্ষার্থীরা বছরে সর্বোচ্চ ১০ মাস মাসে ₹৫০০ বৃত্তি পান।",
@@ -15,17 +19,27 @@
   "description_hi": "ग्रामीण क्षेत्रों की प्रतिभाशाली छात्राओं को उच्च शिक्षा जारी रखने में सहायता देने वाली मध्य प्रदेश की छात्रवृत्ति।",
   "description_bn": "গ্রামীণ এলাকার মেধাবী ছাত্রীদের উচ্চশিক্ষা চালিয়ে যেতে সহায়তার মধ্যপ্রদেশের বৃত্তি।",
   "rules": [],
-  "restrictions": ["The myScheme page lists 60% or higher in Class 12, rural residence with a Gaon Ki Beti certificate, and enrollment in a recognized higher-education institution. Rules remain under review."],
+  "restrictions": [
+    "The myScheme page lists 60% or higher in Class 12, rural residence with a Gaon Ki Beti certificate, and enrollment in a recognized higher-education institution. Rules remain under review."
+  ],
   "required_documents": [],
-  "application_procedure": ["The myScheme page describes online registration and application through the scholarship portal."],
+  "application_procedure": [
+    "The myScheme page describes online registration and application through the scholarship portal."
+  ],
   "official_source_url": "https://www.myscheme.gov.in/schemes/gkb",
   "last_verified_date": "2026-10-31",
   "max_allowed_age_days": 180,
   "verification_status": "needs_review",
   "review_status": "needs_review",
   "verified_by": [],
-  "machine_translated": {"hi": false, "bn": false},
+  "machine_translated": {
+    "hi": false,
+    "bn": false
+  },
   "tracked": [],
   "conflicting_schemes": [],
-  "helpline": null
+  "helpline": null,
+  "name_mr": "गाव की बेटी योजना",
+  "benefit_mr": "ग्रामीण भागातील गुणवंत विद्यार्थिनींना उच्च शिक्षणासाठी दरमहा ₹५०० (वर्षाला ₹५,०००) प्रोत्साहन भत्ता.",
+  "description_mr": "ग्रामीण भागातील बारावी उत्तीर्ण मुलींना उच्च शिक्षणासाठी प्रोत्साहन देणारी योजना."
 }

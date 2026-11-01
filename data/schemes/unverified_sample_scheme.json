@@ -5,9 +5,13 @@
   "name_bn": "খসড়া কৃষি উদ্ভাবনী অনুদান",
   "level": "central",
   "state": null,
-  "applicable_states": ["ALL"],
+  "applicable_states": [
+    "ALL"
+  ],
   "category": "Agriculture",
-  "personas": ["farmer"],
+  "personas": [
+    "farmer"
+  ],
   "benefit_en": "Subsidy for farm mechanization up to ₹50,000.",
   "benefit_hi": "कृषि यंत्रीकरण हेतु ₹50,000 तक का अनुदान।",
   "benefit_bn": "কৃষি যান্ত্রিকীকরণের জন্য ₹৫০,০০০ পর্যন্ত ভর্তুকি।",
@@ -31,5 +35,8 @@
   "max_allowed_age_days": 180,
   "verification_status": "unverified",
   "conflicting_schemes": [],
-  "helpline": null
+  "helpline": null,
+  "name_mr": "नमुना कल्याणकारी उपक्रम (पडताळणी प्रलंबित)",
+  "benefit_mr": "प्रायोगिक कल्याणकारी लाभ.",
+  "description_mr": "प्रशासकीय पडताळणीसाठी प्रलंबित असलेला नमुना उपक्रम."
 }

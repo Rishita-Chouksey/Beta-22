@@ -120,12 +120,14 @@ export default function Header() {
             <Shield className="w-3.5 h-3.5 text-teal-400" />
           </button>
 
-          {/* Language Toggle: Hindi, English, Bengali */}
+          {/* Multilingual Selector: Hindi, English, Marathi, Bengali */}
           <div className="flex items-center bg-[#102042] p-0.5 rounded-lg border border-blue-900/60 shadow-inner">
             <button
               onClick={() => setLanguage('hi')}
               className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
-                lt('text-slate-300 hover:text-white', 'bg-blue-600 text-white shadow-sm')
+                language === 'hi'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-300 hover:text-white'
               }`}
               aria-label="हिंदी भाषा चुनें"
             >
@@ -134,11 +136,24 @@ export default function Header() {
             <button
               onClick={() => setLanguage('en')}
               className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
-                lt('bg-blue-600 text-white shadow-sm', 'text-slate-300 hover:text-white')
+                language === 'en'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-300 hover:text-white'
               }`}
               aria-label="Select English language"
             >
               English
+            </button>
+            <button
+              onClick={() => setLanguage('mr')}
+              className={`px-2 sm:px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                language === 'mr'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+              aria-label="मराठी भाषा निवडा"
+            >
+              मराठी
             </button>
             <button
               onClick={() => setLanguage('bn')}

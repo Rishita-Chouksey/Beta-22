@@ -5,9 +5,13 @@
   "name_bn": "ইন্দিরা গান্ধী জাতীয় বিধবা পেনশন যোজনা",
   "level": "central",
   "state": null,
-  "applicable_states": ["ALL"],
+  "applicable_states": [
+    "ALL"
+  ],
   "category": "Social Security",
-  "personas": ["widow"],
+  "personas": [
+    "widow"
+  ],
   "benefit_en": "Monthly pension assistance (central + state matching contribution, typically ₹600 - ₹1,500/month depending on state).",
   "benefit_hi": "मासिक पेंशन सहायता (केंद्र + राज्य का संयुक्त अंशदान, राज्य के अनुसार ₹600 से ₹1,500/माह)।",
   "benefit_bn": "প্রতি মাসে পেনশন সহায়তা (কেন্দ্র ও রাজ্যের যৌথ অনুদান, সাধারণতঃ ₹৬০০ থেকে ₹১,৫০০/মাস)।",
@@ -15,7 +19,10 @@
   "description_hi": "गरीबी रेखा से नीचे जीवन यापन करने वाली निराश्रित विधवा महिलाओं को नियमित वित्तीय सहायता प्रदान करने वाली राष्ट्रीय सामाजिक सहायता कार्यक्रम योजना।",
   "description_bn": "দারিদ্র্যসীমার নিচে বসবাসকারী বিধবা মহিলাদের নিয়মিত আর্থিক সহায়তা প্রদানকারী জাতীয় সামাজিক সহায়তা কর্মসূচি।",
   "review_status": "verified",
-  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "verified_by": [
+    "A. Sharma",
+    "R. Chouksey"
+  ],
   "auto_update": null,
   "machine_translated": {
     "hi": false,
@@ -61,7 +68,10 @@
       "rule_id": "min_age",
       "field": "age",
       "operator": "between",
-      "value": [40, 79],
+      "value": [
+        40,
+        79
+      ],
       "description_en": "Applicant must be aged between 40 and 79 years.",
       "description_hi": "आवेदिका की आयु 40 से 79 वर्ष के बीच होनी चाहिए।",
       "description_bn": "আবেদনকারীর বয়স ৪০ থেকে ৭৯ বছরের মধ্যে হতে হবে।",
@@ -160,5 +170,8 @@
   "max_allowed_age_days": 180,
   "verification_status": "verified",
   "conflicting_schemes": [],
-  "helpline": "14445 / 011-23381669"
+  "helpline": "14445 / 011-23381669",
+  "name_mr": "इंदिरा गांधी राष्ट्रीय विधवा पेन्शन योजना (IGNWPS)",
+  "benefit_mr": "दारिद्र्यरेषेखालील (BPL) पात्र विधवा महिलांना दरमहा निश्चित मासिक पेन्शन.",
+  "description_mr": "निराधार आणि विधवा महिलांना सामाजिक व आर्थिक सुरक्षा देण्यासाठी राष्ट्रीय पेन्शन योजना."
 }

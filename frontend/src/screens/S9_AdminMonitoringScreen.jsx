@@ -115,7 +115,7 @@ const AGENT_METADATA = {
 };
 
 export default function S9_AdminMonitoringScreen() {
-  const { language, lt } = useLanguage();
+  const { language } = useLanguage();
   const { setCurrentScreen } = useSession();
 
   // Authentication states for Restricted Administrative Portal
@@ -166,10 +166,6 @@ export default function S9_AdminMonitoringScreen() {
   const [rejectReason, setRejectReason] = useState('');
 
   useEffect(() => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
     if (isAuthenticated) {
       loadAllData();
     }
@@ -215,57 +211,6 @@ export default function S9_AdminMonitoringScreen() {
     setPassword('');
     setAuthError('');
   };
-<<<<<<< HEAD
-=======
-    fetchAdminSession()
-      .then((session) => {
-        if (session.authenticated) {
-          setAdminUser(session.username);
-          loadAllData();
-        } else if (!session.configured) {
-          setAuthError(lt('Admin login is not configured. Set secure ADMIN_* values on the server.', 'प्रशासक लॉगिन कॉन्फ़िगर नहीं है। सर्वर पर सुरक्षित ADMIN_* मान सेट करें।'));
-        }
-      })
-      .catch((err) => setAuthError(err.message))
-      .finally(() => setAuthChecked(true));
-  }, []);
->>>>>>> shreya/main
-
-  useEffect(() => {
-    const onSessionExpired = () => {
-      setAdminUser(null);
-      setSources([]); setUpdates([]); setAgentRuns([]); setSchemeCatalog([]); setSchemeVersions([]);
-      setAuthError(lt('Admin session expired. Please sign in again.', 'प्रशासक सत्र समाप्त हो गया। फिर से लॉगिन करें।'));
-    };
-    window.addEventListener('admin-session-expired', onSessionExpired);
-    return () => window.removeEventListener('admin-session-expired', onSessionExpired);
-  }, [language]);
-
-  const handleAdminLogin = async (event) => {
-    event.preventDefault();
-    setAuthBusy(true);
-    setAuthError('');
-    try {
-      const session = await loginAdmin(loginUsername, loginPassword);
-      setAdminUser(session.username);
-      setLoginPassword('');
-      await loadAllData();
-    } catch (err) {
-      setAuthError(err.message);
-    } finally {
-      setAuthBusy(false);
-    }
-  };
-
-  const handleAdminLogout = async () => {
-    try { await logoutAdmin(); } finally {
-      setAdminUser(null);
-      setSources([]); setUpdates([]); setAgentRuns([]); setSchemeCatalog([]); setSchemeVersions([]);
-      setCurrentScreen('S0');
-    }
-  };
-=======
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 
   const loadAllData = async () => {
     setIsLoading(true);
@@ -335,7 +280,7 @@ export default function S9_AdminMonitoringScreen() {
   // Section F: Working Manual Controls
   const handleDiscoverSources = async () => {
     setIsActionRunning(true);
-    setActionNotification({ type: 'info', message: lt('Running Source Discovery Agent across seed portals...', 'स्रोत खोज एजेंट सक्रिय हो रहा है...') });
+    setActionNotification({ type: 'info', message: language === 'hi' ? 'स्रोत खोज एजेंट सक्रिय हो रहा है...' : 'Running Source Discovery Agent across seed portals...' });
     try {
       const res = await triggerAgentDiscover();
       if (!res.success) {
@@ -357,12 +302,14 @@ export default function S9_AdminMonitoringScreen() {
 
   const handleRunCrawler = async () => {
     setIsActionRunning(true);
-    setActionNotification({ type: 'info', message: lt('Crawling Agent fetching approved government pages & circulars...', 'क्रॉलिंग एजेंट पेजों व सर्कुलरों का विश्लेषण कर रहा है...') });
+    setActionNotification({ type: 'info', message: language === 'hi' ? 'क्रॉलिंग एजेंट पेजों व सर्कुलरों का विश्लेषण कर रहा है...' : 'Crawling Agent fetching approved government pages & circulars...' });
     try {
       const res = await triggerAgentCrawl(null, 10);
       setActionNotification({
         type: 'success',
-        message: lt(`Crawl complete! Processed ${res.count || 0} sources.`, `क्रॉलिंग पूर्ण! ${res.count || 0} स्रोत सफलतापूर्वक प्रोसेस किए गए।`)
+        message: language === 'hi'
+          ? `क्रॉलिंग पूर्ण! ${res.count || 0} स्रोत सफलतापूर्वक प्रोसेस किए गए।`
+          : `Crawl complete! Processed ${res.count || 0} sources.`
       });
       await loadAllData();
     } catch (err) {
@@ -374,12 +321,14 @@ export default function S9_AdminMonitoringScreen() {
 
   const handleRunMonitoring = async () => {
     setIsActionRunning(true);
-    setActionNotification({ type: 'info', message: lt('Running full monitoring cycle (Crawl -> Hash -> Extract -> Validate)...', 'पूर्ण निगरानी चक्र चल रहा है (क्रॉल -> हैश -> निष्कर्षण -> सत्यापन)...') });
+    setActionNotification({ type: 'info', message: language === 'hi' ? 'पूर्ण निगरानी चक्र चल रहा है (क्रॉल -> हैश -> निष्कर्षण -> सत्यापन)...' : 'Running full monitoring cycle (Crawl -> Hash -> Extract -> Validate)...' });
     try {
       const res = await triggerAgentMonitor(null, 10);
       setActionNotification({
         type: 'success',
-        message: lt(`Monitoring cycle complete! ${res.summary || 'Finished successfully.'}`, `निगरानी चक्र पूर्ण! ${res.summary || 'कार्य संपन्न।'}`)
+        message: language === 'hi'
+          ? `निगरानी चक्र पूर्ण! ${res.summary || 'कार्य संपन्न।'}`
+          : `Monitoring cycle complete! ${res.summary || 'Finished successfully.'}`
       });
       await loadAllData();
     } catch (err) {
@@ -395,7 +344,9 @@ export default function S9_AdminMonitoringScreen() {
       await approveAgentUpdate(updateId, 'Admin Verification Officer', 'Approved following official government notification verification.');
       setActionNotification({
         type: 'success',
-        message: lt(`Update approved! Changes successfully published to active scheme catalog with new version.`, `अपडेट स्वीकृत! योजना कैटलॉग अपडेट हो चुका है एवं नया संस्करण दर्ज हुआ।`)
+        message: language === 'hi'
+          ? `अपडेट स्वीकृत! योजना कैटलॉग अपडेट हो चुका है एवं नया संस्करण दर्ज हुआ।`
+          : `Update approved! Changes successfully published to active scheme catalog with new version.`
       });
       await loadAllData();
       if (selectedSchemeId) {
@@ -412,7 +363,7 @@ export default function S9_AdminMonitoringScreen() {
       await rejectAgentUpdate(rejectingUpdateId, 'Admin Verification Officer', rejectReason.trim());
       setActionNotification({
         type: 'info',
-        message: lt('Proposed update was rejected.', 'अपडेट अस्वीकृत कर दिया गया है।')
+        message: language === 'hi' ? 'अपडेट अस्वीकृत कर दिया गया है।' : 'Proposed update was rejected.'
       });
       setRejectingUpdateId(null);
       setRejectReason('');
@@ -433,10 +384,6 @@ export default function S9_AdminMonitoringScreen() {
     return u.review_status === updateFilter;
   });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
   if (!isAuthenticated) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
@@ -555,29 +502,6 @@ export default function S9_AdminMonitoringScreen() {
       </div>
     );
   }
-<<<<<<< HEAD
-=======
-  if (!authChecked) return <div className="p-8 text-center text-slate-600">{lt('Checking administrator session…', 'प्रशासक सत्र जाँचा जा रहा है…')}</div>;
-  if (!adminUser) return (
-    <section className="max-w-md mx-auto my-12 w-full rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
-      <button onClick={() => setCurrentScreen('S0')} className="mb-5 text-sm text-slate-500 hover:text-slate-900">← {lt('Back', 'वापस')}</button>
-      <h1 className="mb-2 text-2xl font-bold text-slate-900">{lt('Administrator sign in', 'प्रशासक लॉगिन')}</h1>
-      <p className="mb-6 text-sm text-slate-600">{lt('Only authorized administrators can access monitoring and scheme review.', 'इस निगरानी पोर्टल तक केवल अधिकृत प्रशासक पहुँच सकते हैं।')}</p>
-      <form onSubmit={handleAdminLogin} className="space-y-4">
-        <label className="block text-sm font-medium">{lt('Username', 'उपयोगकर्ता नाम')}
-          <input autoComplete="username" required value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
-        </label>
-        <label className="block text-sm font-medium">{lt('Password', 'पासवर्ड')}
-          <input autoComplete="current-password" type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
-        </label>
-        {authError && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{authError}</p>}
-        <button disabled={authBusy} className="w-full rounded-lg bg-teal-700 px-4 py-2.5 font-semibold text-white disabled:opacity-60">{authBusy ? (lt('Signing in…', 'जाँच जारी है…')) : (lt('Sign in securely', 'सुरक्षित लॉगिन'))}</button>
-      </form>
-    </section>
-  );
->>>>>>> shreya/main
-=======
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-16">
@@ -588,7 +512,7 @@ export default function S9_AdminMonitoringScreen() {
             <button
               onClick={() => setCurrentScreen('S0')}
               className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition"
-              title={lt('Back to Home', 'वापस जाएं')}
+              title={language === 'hi' ? 'वापस जाएं' : 'Back to Home'}
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -596,12 +520,12 @@ export default function S9_AdminMonitoringScreen() {
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
                   <ShieldCheck className="w-3 h-3 mr-1" />
-                  {lt('Autonomous Multi-Agent System', 'स्वायत्त बहु-एजेंट प्रणाली')}
+                  {language === 'hi' ? 'स्वायत्त बहु-एजेंट प्रणाली' : 'Autonomous Multi-Agent System'}
                 </span>
                 <span className="text-xs text-slate-400">• YojnaSarthi v2.0</span>
               </div>
               <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
-                {lt('Scheme Intelligence & Agent Monitoring', 'योजना इंटेलिजेंस एवं बहु-एजेंट निगरानी डैशबोर्ड')}
+                {language === 'hi' ? 'योजना इंटेलिजेंस एवं बहु-एजेंट निगरानी डैशबोर्ड' : 'Scheme Intelligence & Agent Monitoring'}
               </h1>
             </div>
           </div>
@@ -614,7 +538,7 @@ export default function S9_AdminMonitoringScreen() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition disabled:opacity-50"
             >
               <Globe className="w-3.5 h-3.5" />
-              {lt('Discover Sources', 'स्रोत खोजें')}
+              {language === 'hi' ? 'स्रोत खोजें' : 'Discover Sources'}
             </button>
             <button
               onClick={handleRunCrawler}
@@ -622,7 +546,7 @@ export default function S9_AdminMonitoringScreen() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition disabled:opacity-50"
             >
               <FileText className="w-3.5 h-3.5" />
-              {lt('Run Crawler', 'क्रॉल चलाएं')}
+              {language === 'hi' ? 'क्रॉल चलाएं' : 'Run Crawler'}
             </button>
             <button
               onClick={handleRunMonitoring}
@@ -630,7 +554,7 @@ export default function S9_AdminMonitoringScreen() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition disabled:opacity-50"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              {lt('Run Monitoring', 'पूर्ण निगरानी चलाएं')}
+              {language === 'hi' ? 'पूर्ण निगरानी चलाएं' : 'Run Monitoring'}
             </button>
             <button
               onClick={loadAllData}
@@ -640,10 +564,6 @@ export default function S9_AdminMonitoringScreen() {
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
             </button>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
 
             <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
               <span className="hidden xl:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
@@ -659,12 +579,6 @@ export default function S9_AdminMonitoringScreen() {
                 <span>{language === 'hi' ? 'लॉगआउट' : 'Lock Portal'}</span>
               </button>
             </div>
-<<<<<<< HEAD
-=======
-            <button onClick={handleAdminLogout} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100">{lt(`Sign out (${adminUser})`, 'लॉग आउट')}</button>
->>>>>>> shreya/main
-=======
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
           </div>
         </div>
       </header>
@@ -691,7 +605,7 @@ export default function S9_AdminMonitoringScreen() {
               onClick={() => setActionNotification(null)}
               className="text-xs opacity-70 hover:opacity-100 underline ml-3"
             >
-              {lt('Dismiss', 'बंद करें')}
+              {language === 'hi' ? 'बंद करें' : 'Dismiss'}
             </button>
           </div>
         </div>
@@ -721,7 +635,7 @@ export default function S9_AdminMonitoringScreen() {
                 }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
-                <span>{lt(tab.labelEn, tab.labelHi)}</span>
+                <span>{language === 'hi' ? tab.labelHi : tab.labelEn}</span>
               </button>
             );
           })}
@@ -736,7 +650,7 @@ export default function S9_AdminMonitoringScreen() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {lt('Total Sources', 'कुल खोजे गए स्रोत')}
+                  {language === 'hi' ? 'कुल खोजे गए स्रोत' : 'Total Sources'}
                 </span>
                 <div className="text-2xl font-bold text-slate-900 mt-1">{overview.total_discovered_sources}</div>
                 <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
@@ -746,7 +660,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {lt('Monitored Sources', 'सक्रिय मॉनिटर')}
+                  {language === 'hi' ? 'सक्रिय मॉनिटर' : 'Monitored Sources'}
                 </span>
                 <div className="text-2xl font-bold text-emerald-600 mt-1">{overview.successfully_monitored_sources}</div>
                 <div className="text-[11px] text-emerald-600/80 mt-1 flex items-center gap-1">
@@ -756,7 +670,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {lt('Discovered Schemes', 'खोजे गए योजना नियम')}
+                  {language === 'hi' ? 'खोजे गए योजना नियम' : 'Discovered Schemes'}
                 </span>
                 <div className="text-2xl font-bold text-blue-600 mt-1">{overview.schemes_discovered}</div>
                 <div className="text-[11px] text-blue-600/80 mt-1 flex items-center gap-1">
@@ -766,7 +680,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-amber-200 bg-amber-50/20 shadow-2xs">
                 <span className="text-xs font-medium text-amber-800">
-                  {lt('Pending Updates', 'समीक्षा हेतु लंबित')}
+                  {language === 'hi' ? 'समीक्षा हेतु लंबित' : 'Pending Updates'}
                 </span>
                 <div className="text-2xl font-bold text-amber-700 mt-1">{overview.pending_updates}</div>
                 <div className="text-[11px] text-amber-700 mt-1 flex items-center gap-1">
@@ -776,7 +690,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {lt('Approved Updates', 'स्वीकृत व प्रकाशित')}
+                  {language === 'hi' ? 'स्वीकृत व प्रकाशित' : 'Approved Updates'}
                 </span>
                 <div className="text-2xl font-bold text-emerald-700 mt-1">{overview.approved_updates}</div>
                 <div className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1">
@@ -786,7 +700,7 @@ export default function S9_AdminMonitoringScreen() {
 
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-xs font-medium text-slate-500">
-                  {lt('Failed Agent Runs', 'विफल एजेंट रन')}
+                  {language === 'hi' ? 'विफल एजेंट रन' : 'Failed Agent Runs'}
                 </span>
                 <div className="text-2xl font-bold text-rose-600 mt-1">{overview.failed_agent_runs}</div>
                 <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
@@ -800,16 +714,12 @@ export default function S9_AdminMonitoringScreen() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-base font-semibold text-slate-900">
-                    {lt('Autonomous Multi-Agent Intelligence Pipeline', 'स्वायत्त बहु-एजेंट पाइपलाइन कार्यप्रणाली')}
+                    {language === 'hi' ? 'स्वायत्त बहु-एजेंट पाइपलाइन कार्यप्रणाली' : 'Autonomous Multi-Agent Intelligence Pipeline'}
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
-<<<<<<< HEAD
-                    {lt('The agent pipeline runs only when an administrator starts a manual action. Background page scraping is disabled; citizen scheme data comes from the local curated catalogue.', '9 विशिष्ट एजेंट क्रमिक रूप से सार्वजनिक स्रोतों से नियम निकालते हैं एवं साक्ष्य की पुष्टि के बाद ही मानव समीक्षा हेतु प्रस्तुत करते हैं।')}
-=======
                     {language === 'hi'
                       ? '9 विशिष्ट एजेंट क्रमिक रूप से सार्वजनिक स्रोतों से नियम निकालते हैं एवं साक्ष्य की पुष्टि के बाद ही मानव समीक्षा हेतु प्रस्तुत करते हैं।'
                       : '9 specialized Python agents autonomously discover, crawl, hash, extract, classify, validate, and queue changes.'}
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
                   </p>
                 </div>
                 <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700">
@@ -844,7 +754,7 @@ export default function S9_AdminMonitoringScreen() {
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-3">
               <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                 <History className="w-4 h-4 text-slate-500" />
-                {lt('Recent Agent Execution Runs', 'हालिया एजेंट रन एवं ऑडिट ट्रेल')}
+                {language === 'hi' ? 'हालिया एजेंट रन एवं ऑडिट ट्रेल' : 'Recent Agent Execution Runs'}
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
@@ -890,7 +800,7 @@ export default function S9_AdminMonitoringScreen() {
                     {agentRuns.length === 0 && (
                       <tr>
                         <td colSpan="5" className="py-6 text-center text-slate-400">
-                          {lt('No agent runs recorded yet. Click Run Monitoring above to trigger a cycle.', 'कोई रन रिकॉर्ड नहीं मिला। ऊपर दिए बटन से रन प्रारंभ करें।')}
+                          {language === 'hi' ? 'कोई रन रिकॉर्ड नहीं मिला। ऊपर दिए बटन से रन प्रारंभ करें।' : 'No agent runs recorded yet. Click Run Monitoring above to trigger a cycle.'}
                         </td>
                       </tr>
                     )}
@@ -909,17 +819,19 @@ export default function S9_AdminMonitoringScreen() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">
-                  {lt('Live Status of 9 Specialized Agents', 'सभी 9 विशेषज्ञ एजेंटों की लाइव स्थिति')}
+                  {language === 'hi' ? 'सभी 9 विशेषज्ञ एजेंटों की लाइव स्थिति' : 'Live Status of 9 Specialized Agents'}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  {lt('Each agent is strictly scoped and decoupled from the deterministic eligibility decision engine.', 'प्रत्येक एजेंट अपने निर्दिष्ट कार्य क्षेत्र में स्वायत्त एवं सुरक्षित रूप से कार्य करता है।')}
+                  {language === 'hi'
+                    ? 'प्रत्येक एजेंट अपने निर्दिष्ट कार्य क्षेत्र में स्वायत्त एवं सुरक्षित रूप से कार्य करता है।'
+                    : 'Each agent is strictly scoped and decoupled from the deterministic eligibility decision engine.'}
                 </p>
               </div>
               <button
                 onClick={loadAllData}
                 className="text-xs text-emerald-700 hover:text-emerald-800 font-medium flex items-center gap-1"
               >
-                <RefreshCw className="w-3.5 h-3.5" /> {lt('Refresh Agents', 'ताज़ा करें')}
+                <RefreshCw className="w-3.5 h-3.5" /> {language === 'hi' ? 'ताज़ा करें' : 'Refresh Agents'}
               </button>
             </div>
 
@@ -953,16 +865,16 @@ export default function S9_AdminMonitoringScreen() {
                       </div>
 
                       <h3 className="font-semibold text-sm text-slate-900">
-                        {lt(meta.titleEn, meta.titleHi)}
+                        {language === 'hi' ? meta.titleHi : meta.titleEn}
                       </h3>
                       <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                        {lt(meta.descEn, meta.descHi)}
+                        {language === 'hi' ? meta.descHi : meta.descEn}
                       </p>
                     </div>
 
                     <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 space-y-1">
                       <div className="flex items-center justify-between">
-                        <span>{lt('Last run:', 'अंतिम रन:')}</span>
+                        <span>{language === 'hi' ? 'अंतिम रन:' : 'Last run:'}</span>
                         <span className="font-medium text-slate-700">
                           {liveStatus.last_run ? new Date(liveStatus.last_run).toLocaleTimeString() : 'Never / Initialized'}
                         </span>
@@ -986,16 +898,12 @@ export default function S9_AdminMonitoringScreen() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">
-                  {lt('Discovered Government Sources', 'खोजे गए एवं ट्रैक किए गए सरकारी स्रोत')}
+                  {language === 'hi' ? 'खोजे गए एवं ट्रैक किए गए सरकारी स्रोत' : 'Discovered Government Sources'}
                 </h2>
                 <p className="text-xs text-slate-500">
-<<<<<<< HEAD
-                  {lt('Discovered official government web pages, datasets, and circulars with verified domain boundaries.', 'myScheme के योजना पृष्ठ स्थानीय कैटलॉग में संदर्भित हैं; पृष्ठों की स्वचालित स्क्रैपिंग बंद है।')}
-=======
                   {language === 'hi'
                     ? 'data.gov.in और MP e-Seva से शुरू होकर सरकारी डोमेन (.gov.in, .nic.in) के सभी अधिकृत पृष्ठ।'
                     : 'Discovered official government web pages, datasets, and circulars with verified domain boundaries.'}
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
                 </p>
               </div>
 
@@ -1005,7 +913,7 @@ export default function S9_AdminMonitoringScreen() {
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
                   <input
                     type="text"
-                    placeholder={lt('Filter URL or domain...', 'URL या डोमेन खोजें...')}
+                    placeholder={language === 'hi' ? 'URL या डोमेन खोजें...' : 'Filter URL or domain...'}
                     value={searchSourceText}
                     onChange={(e) => setSearchSourceText(e.target.value)}
                     className="pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48 md:w-64"
@@ -1017,7 +925,7 @@ export default function S9_AdminMonitoringScreen() {
                   onChange={(e) => setSourceFilter(e.target.value)}
                   className="text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 >
-                  <option value="all">{lt('All Status', 'सभी स्थितियां')}</option>
+                  <option value="all">{language === 'hi' ? 'सभी स्थितियां' : 'All Status'}</option>
                   <option value="crawled">crawled</option>
                   <option value="discovered">discovered</option>
                   <option value="failed">failed</option>
@@ -1079,7 +987,7 @@ export default function S9_AdminMonitoringScreen() {
                             className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-medium"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
-                            {lt('Visit', 'देखें')}
+                            {language === 'hi' ? 'देखें' : 'Visit'}
                           </a>
                         </td>
                       </tr>
@@ -1087,7 +995,7 @@ export default function S9_AdminMonitoringScreen() {
                     {filteredSources.length === 0 && (
                       <tr>
                         <td colSpan="7" className="py-8 text-center text-slate-400">
-                          {lt('No sources found matching filter.', 'कोई स्रोत नहीं मिला।')}
+                          {language === 'hi' ? 'कोई स्रोत नहीं मिला।' : 'No sources found matching filter.'}
                         </td>
                       </tr>
                     )}
@@ -1106,10 +1014,12 @@ export default function S9_AdminMonitoringScreen() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">
-                  {lt('Policy Change Review Gate', 'नीति परिवर्तन समीक्षा एवं अनुमोदन द्वार')}
+                  {language === 'hi' ? 'नीति परिवर्तन समीक्षा एवं अनुमोदन द्वार' : 'Policy Change Review Gate'}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  {lt('Human approval required for any change affecting eligibility criteria, benefits, or documents.', 'नागरिक पात्रता अथवा लाभ को प्रभावित करने वाले प्रत्येक परिवर्तन पर प्रशासनिक स्वीकृति आवश्यक है।')}
+                  {language === 'hi'
+                    ? 'नागरिक पात्रता अथवा लाभ को प्रभावित करने वाले प्रत्येक परिवर्तन पर प्रशासनिक स्वीकृति आवश्यक है।'
+                    : 'Human approval required for any change affecting eligibility criteria, benefits, or documents.'}
                 </p>
               </div>
 
@@ -1168,7 +1078,7 @@ export default function S9_AdminMonitoringScreen() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
                       <span className="font-semibold text-slate-500 uppercase text-[10px]">
-                        {lt('Current Value in Catalog', 'मौजूदा नियम / मान')}
+                        {language === 'hi' ? 'मौजूदा नियम / मान' : 'Current Value in Catalog'}
                       </span>
                       <div className="text-slate-700 font-mono text-[11px] whitespace-pre-wrap">
                         {upd.old_value || 'None (New Initiative)'}
@@ -1177,7 +1087,7 @@ export default function S9_AdminMonitoringScreen() {
 
                     <div className="p-3 bg-emerald-50/50 border border-emerald-200 rounded-lg space-y-1">
                       <span className="font-semibold text-emerald-800 uppercase text-[10px]">
-                        {lt('Proposed New Value', 'प्रस्तावित नया मान')}
+                        {language === 'hi' ? 'प्रस्तावित नया मान' : 'Proposed New Value'}
                       </span>
                       <div className="text-emerald-950 font-mono text-[11px] whitespace-pre-wrap">
                         {upd.proposed_value}
@@ -1190,7 +1100,7 @@ export default function S9_AdminMonitoringScreen() {
                     <div className="p-3 bg-amber-50/40 border border-amber-200/80 rounded-lg text-xs space-y-1">
                       <span className="font-semibold text-amber-900 flex items-center gap-1 text-[11px]">
                         <FileCheck className="w-3.5 h-3.5 text-amber-700" />
-                        {lt('Grounded Evidence Citation from Official Source', 'सत्यापित साक्ष्य उद्धरण')}
+                        {language === 'hi' ? 'सत्यापित साक्ष्य उद्धरण' : 'Grounded Evidence Citation from Official Source'}
                       </span>
                       <div className="text-amber-950/90 italic font-serif text-[11px]">
                         "{typeof upd.evidence === 'object' ? JSON.stringify(upd.evidence, null, 1) : upd.evidence}"
@@ -1220,14 +1130,14 @@ export default function S9_AdminMonitoringScreen() {
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition"
                       >
                         <X className="w-3.5 h-3.5" />
-                        {lt('Reject', 'अस्वीकार करें')}
+                        {language === 'hi' ? 'अस्वीकार करें' : 'Reject'}
                       </button>
                       <button
                         onClick={() => handleApproveUpdate(upd.id)}
                         className="inline-flex items-center gap-1 px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs transition"
                       >
                         <Check className="w-3.5 h-3.5" />
-                        {lt('Approve & Publish', 'स्वीकृत करें और प्रकाशित करें')}
+                        {language === 'hi' ? 'स्वीकृत करें और प्रकाशित करें' : 'Approve & Publish'}
                       </button>
                     </div>
                   )}
@@ -1238,10 +1148,12 @@ export default function S9_AdminMonitoringScreen() {
                 <div className="bg-white p-12 text-center rounded-xl border border-slate-200 text-slate-400">
                   <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500 mb-2" />
                   <p className="text-sm font-medium text-slate-700">
-                    {lt('No updates found in this status category.', 'कोई लंबित अपडेट नहीं है।')}
+                    {language === 'hi' ? 'कोई लंबित अपडेट नहीं है।' : 'No updates found in this status category.'}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
-                    {lt('Click "Run Monitoring" above to check government portals for new changes.', 'नए अपडेट खोजने के लिए "पूर्ण निगरानी चलाएं" पर क्लिक करें।')}
+                    {language === 'hi'
+                      ? 'नए अपडेट खोजने के लिए "पूर्ण निगरानी चलाएं" पर क्लिक करें।'
+                      : 'Click "Run Monitoring" above to check government portals for new changes.'}
                   </p>
                 </div>
               )}
@@ -1257,16 +1169,18 @@ export default function S9_AdminMonitoringScreen() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">
-                  {lt('Scheme Version History & Audit Trail', 'योजना संस्करण इतिहास एवं ऑडिट ट्रेल')}
+                  {language === 'hi' ? 'योजना संस्करण इतिहास एवं ऑडिट ट्रेल' : 'Scheme Version History & Audit Trail'}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  {lt('Every approved update creates an immutable version record ensuring transparent traceability.', 'प्रत्येक स्वीकृत नीति परिवर्तन के साथ योजना का अपरिवर्तनीय नया संस्करण सुरक्षित रखा जाता है।')}
+                  {language === 'hi'
+                    ? 'प्रत्येक स्वीकृत नीति परिवर्तन के साथ योजना का अपरिवर्तनीय नया संस्करण सुरक्षित रखा जाता है।'
+                    : 'Every approved update creates an immutable version record ensuring transparent traceability.'}
                 </p>
               </div>
 
               {/* Scheme Picker */}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500">{lt('Select Scheme:', 'योजना चुनें:')}</span>
+                <span className="text-xs text-slate-500">{language === 'hi' ? 'योजना चुनें:' : 'Select Scheme:'}</span>
                 <select
                   value={selectedSchemeId}
                   onChange={(e) => {
@@ -1332,7 +1246,9 @@ export default function S9_AdminMonitoringScreen() {
                 </div>
               ) : (
                 <div className="py-8 text-center text-slate-400 text-xs">
-                  {lt('No additional versions recorded for this scheme yet. Baseline v1 is active.', 'इस योजना के लिए कोई अतिरिक्त संस्करण दर्ज नहीं है। वर्तमान में मूल संस्करण सक्रिय है।')}
+                  {language === 'hi'
+                    ? 'इस योजना के लिए कोई अतिरिक्त संस्करण दर्ज नहीं है। वर्तमान में मूल संस्करण सक्रिय है।'
+                    : 'No additional versions recorded for this scheme yet. Baseline v1 is active.'}
                 </div>
               )}
             </div>
@@ -1346,14 +1262,16 @@ export default function S9_AdminMonitoringScreen() {
           <div className="bg-white rounded-xl max-w-md w-full p-5 space-y-4 shadow-xl border border-slate-200">
             <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-rose-600" />
-              {lt('Reason for Rejecting Update', 'परिवर्तन अस्वीकृति का कारण')}
+              {language === 'hi' ? 'परिवर्तन अस्वीकृति का कारण' : 'Reason for Rejecting Update'}
             </h3>
             <p className="text-xs text-slate-500">
-              {lt('Provide mandatory audit rationale for rejecting this proposed policy change.', 'कृपया ऑडिट रिकॉर्ड हेतु अस्वीकृति का आधिकारिक कारण दर्ज करें।')}
+              {language === 'hi'
+                ? 'कृपया ऑडिट रिकॉर्ड हेतु अस्वीकृति का आधिकारिक कारण दर्ज करें।'
+                : 'Provide mandatory audit rationale for rejecting this proposed policy change.'}
             </p>
             <textarea
               rows={3}
-              placeholder={lt('e.g. Discrepancy with official departmental gazette notification...', 'जैसे: विभागीय परिपत्र से विसंगति पाई गई...')}
+              placeholder={language === 'hi' ? 'जैसे: विभागीय परिपत्र से विसंगति पाई गई...' : 'e.g. Discrepancy with official departmental gazette notification...'}
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               className="w-full text-xs p-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-rose-500"
@@ -1363,14 +1281,14 @@ export default function S9_AdminMonitoringScreen() {
                 onClick={() => setRejectingUpdateId(null)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {lt('Cancel', 'रद्द करें')}
+                {language === 'hi' ? 'रद्द करें' : 'Cancel'}
               </button>
               <button
                 onClick={handleRejectUpdate}
                 disabled={!rejectReason.trim()}
                 className="px-4 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg disabled:opacity-50"
               >
-                {lt('Confirm Rejection', 'अस्वीकार करें')}
+                {language === 'hi' ? 'अस्वीकार करें' : 'Confirm Rejection'}
               </button>
             </div>
           </div>

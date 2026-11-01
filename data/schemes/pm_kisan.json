@@ -5,9 +5,13 @@
   "name_bn": "প্রধানমন্ত্রী কিষাণ সম্মান নিধি",
   "level": "central",
   "state": null,
-  "applicable_states": ["ALL"],
+  "applicable_states": [
+    "ALL"
+  ],
   "category": "Agriculture",
-  "personas": ["farmer"],
+  "personas": [
+    "farmer"
+  ],
   "benefit_en": "Direct income support of ₹6,000 per year in 3 equal installments of ₹2,000 directly into bank account.",
   "benefit_hi": "बैंक खाते में सीधे ₹2,000 की 3 समान किस्तों में प्रति वर्ष ₹6,000 की प्रत्यक्ष आय सहायता।",
   "benefit_bn": "ব্যাঙ্ক অ্যাকাউন্টে সরাসরি ₹২,০০০ টাকার ৩টি সমান কিস্তিতে প্রতি বছর ₹৬,০০০ টাকার সরাসরি আয় সহায়তা।",
@@ -15,7 +19,10 @@
   "description_hi": "देश भर के सभी भूमिधारक किसान परिवारों की आय बढ़ाने के लिए केंद्रीय क्षेत्र की योजना।",
   "description_bn": "সারা দেশে সমস্ত জমিধারী কৃষক পরিবারের আয় বৃদ্ধির জন্য কেন্দ্রীয় খাতের প্রকল্প।",
   "review_status": "verified",
-  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "verified_by": [
+    "A. Sharma",
+    "R. Chouksey"
+  ],
   "auto_update": null,
   "machine_translated": {
     "hi": false,
@@ -147,5 +154,8 @@
   "max_allowed_age_days": 180,
   "verification_status": "verified",
   "conflicting_schemes": [],
-  "helpline": "155261 / 1800-115-526"
+  "helpline": "155261 / 1800-115-526",
+  "name_mr": "प्रधानमंत्री किसान सन्मान निधी (PM-KISAN)",
+  "benefit_mr": "दरवर्षी ₹६,००० थेट बँक खात्यात ३ समान हप्त्यांमध्ये (प्रत्येकी ₹२,०००) आर्थिक सहाय्य.",
+  "description_mr": "देशभरातील सर्व जमीनधारक शेतकरी कुटुंबांचे उत्पन्न वाढवण्यासाठी केंद्र सरकारची योजना."
 }

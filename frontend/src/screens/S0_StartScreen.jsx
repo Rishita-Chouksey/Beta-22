@@ -132,11 +132,7 @@ export default function S0_StartScreen() {
               <span className="flex items-center gap-1.5 bg-blue-950/60 px-3 py-1.5 rounded-lg border border-blue-800/40">
                 <Lock className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                 <span>
-<<<<<<< HEAD
-                  {lt('No profile storage', 'प्रोफ़ाइल सहेजी नहीं जाती')}
-=======
-                  {language === 'hi' ? 'शून्य डेटा संचयन' : 'Zero Data Retention'}
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
+{lt('Zero Data Retention', 'शून्य डेटा संचयन (Zero Retention)')}
                 </span>
               </span>
             </div>
@@ -243,21 +239,13 @@ export default function S0_StartScreen() {
                   <Mic className="w-7 h-7" />
                 </div>
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
-<<<<<<< HEAD
-                  {lt('Voice or Text', 'आवाज़ या विवरण')}
-=======
-                  {language === 'hi' ? '🎙️ दो-तरफ़ा आवाज़ एआई' : '🎙️ Two-Way Voice AI'}
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
+{lt('Voice or Text (Two-Way AI)', 'दो-तरफ़ा आवाज़ व विवरण')}
                 </span>
               </div>
 
               <div className="space-y-2">
                 <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-teal-700 transition-colors">
-<<<<<<< HEAD
-                  {lt('2. Tell Us About Yourself', '२. अपने बारे में बोलकर या लिखकर बताएं')}
-=======
-                  {language === 'hi' ? '२. दो-तरफ़ा एआई आवाज़ सहायक (Voice Model)' : '2. Talk to Two-Way Voice AI Model'}
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
+{lt('2. Tell Us About Yourself', '२. अपने बारे में बोलकर या लिखकर बताएं')}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {lt('Speak in your mother tongue or type naturally. Our assistant extracts profile fields for your explicit review before applying verified rules.', 'अपनी भाषा में बोलें या लिखें (जैसे "मैं रीवा का किसान हूँ, 2 एकड़ जमीन है")। एआई जानकारी निकालेगा और पुष्टि के बाद ही नियम लागू होंगे।')}
@@ -458,11 +446,7 @@ export default function S0_StartScreen() {
             {lt('Privacy Guarantee', 'गोपनीयता की गारंटी')}
           </h5>
           <p className="text-[11px] text-slate-500">
-<<<<<<< HEAD
-            {lt('No profile storage', 'प्रोफ़ाइल सहेजी नहीं जाती')}
-=======
-            {language === 'hi' ? 'शून्य डेटा संचयन' : 'Zero Data Retention'}
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
+{lt('Zero Data Retention', 'शून्य डेटा संचयन (Zero Retention)')}
           </p>
         </div>
       </section>

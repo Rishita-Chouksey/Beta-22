@@ -207,7 +207,6 @@ export default function S4_ResultsScreen() {
                 </p>
               ))}
             </div>
-<<<<<<< HEAD
             <div className="flex flex-col gap-2 border-t border-amber-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs leading-relaxed text-amber-950">
                 {lt('Review these answers. If official records differ, confirm with the relevant scheme office before relying on the result.', 'इन उत्तरों को जाँचें। यदि सरकारी अभिलेख अलग हों, तो नतीजे पर भरोसा करने से पहले संबंधित योजना कार्यालय से पुष्टि करें।')}
@@ -216,8 +215,6 @@ export default function S4_ResultsScreen() {
                 {lt('Review answers', 'उत्तर जाँचें')}
               </button>
             </div>
-=======
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
           </div>
         )}
 
@@ -395,17 +392,11 @@ export default function S4_ResultsScreen() {
             </div>
           ) : (
             activeList.map((scheme) => {
-<<<<<<< HEAD
-              const name = language === 'hi' ? scheme.scheme_name_hi : scheme.scheme_name_en;
-              const reason = language === 'hi' ? scheme.deciding_reason_hi : scheme.deciding_reason_en;
-              const benefit = language === 'hi' ? scheme.benefit_hi : scheme.benefit_en;
-              const isInlineVerifying = activeInlineVerifySchemeId === scheme.scheme_id;
-              const schemeMissingFields = scheme.missing_fields || [];
-=======
               const name = lt(scheme.scheme_name_en, scheme.scheme_name_hi);
               const reason = lt(scheme.deciding_reason_en, scheme.deciding_reason_hi);
               const benefit = lt(scheme.benefit_en, scheme.benefit_hi);
->>>>>>> shreya/main
+              const isInlineVerifying = activeInlineVerifySchemeId === scheme.scheme_id;
+              const schemeMissingFields = scheme.missing_fields || [];
 
               return (
                 <div

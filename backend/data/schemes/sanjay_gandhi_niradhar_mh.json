@@ -5,9 +5,13 @@
   "name_bn": "সঞ্জয় গান্ধী নিরাধার অনুদান যোজনা",
   "level": "state",
   "state": "MH",
-  "applicable_states": ["MH"],
+  "applicable_states": [
+    "MH"
+  ],
   "category": "Social Security",
-  "personas": ["widow"],
+  "personas": [
+    "widow"
+  ],
   "benefit_en": "Monthly financial assistance of ₹1,500 per month for destitute persons, widows, and severely disabled individuals.",
   "benefit_hi": "निराधार व्यक्तियों, विधवाओं और गंभीर रूप से दिव्यांग व्यक्तियों के लिए ₹1,500 प्रति माह की आर्थिक सहायता।",
   "benefit_bn": "নিরাশ্রয়ী ব্যক্তি, বিধবা এবং গুরুতর প্রতিবন্ধীদের জন্য প্রতি মাসে ₹১,৫০০ আর্থিক সহায়তা।",
@@ -15,7 +19,10 @@
   "description_hi": "महाराष्ट्र राज्य सामाजिक सहायता योजना जो निराधार विधवाओं एवं असहाय नागरिकों को मासिक वित्तीय पेंशन प्रदान करती है।",
   "description_bn": "মহারাষ্ট্র রাজ্য সামাজিক সহায়তা প্রকল্প যা বিধবা ও অসহায় নাগরিকদের মাসিক আর্থিক পেনশন প্রদান করে।",
   "review_status": "verified",
-  "verified_by": ["A. Sharma", "R. Chouksey"],
+  "verified_by": [
+    "A. Sharma",
+    "R. Chouksey"
+  ],
   "auto_update": null,
   "machine_translated": {
     "hi": false,
@@ -117,5 +124,8 @@
   "max_allowed_age_days": 180,
   "verification_status": "verified",
   "conflicting_schemes": [],
-  "helpline": "1800-120-8040"
+  "helpline": "1800-120-8040",
+  "name_mr": "संजय गांधी निराधार अनुदान योजना (महाराष्ट्र)",
+  "benefit_mr": "एका लाभार्थ्यास दरमहा ₹१,५०० आणि कुटुंबात दोन लाभार्थी असल्यास दरमहा ₹२,४०० आर्थिक निवृत्तीवेतन.",
+  "description_mr": "महाराष्ट्रातील वृद्ध, निराधार, विधवा, दिव्यांग आणि गंभीर आजारी व्यक्तींसाठी राज्य सरकारचे आर्थिक निवृत्तीवेतन."
 }

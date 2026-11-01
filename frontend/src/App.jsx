@@ -55,13 +55,7 @@ function MainAppContent() {
             </span>
             <span>•</span>
             <span>
-<<<<<<< HEAD
-              {lt('No profile storage', 'प्रोफ़ाइल सहेजी नहीं जाती')}
-=======
-              {language === 'hi'
-                ? 'शून्य डेटा संचयन (Zero Retention)'
-                : 'Zero Data Retention'}
->>>>>>> 8ba64483fb397774ab2a0b224248a3bd2948e636
+              {lt('Zero Data Retention', 'शून्य डेटा संचयन (Zero Retention)')}
             </span>
             <span>•</span>
             <button

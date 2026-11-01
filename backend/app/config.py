@@ -18,8 +18,7 @@ class Settings(BaseModel):
     VERSION: str = "2.1.0"
     API_PREFIX: str = "/api"
     
-<<<<<<< HEAD
-    # Sarvam AI Indic Language Integration Configuration
+# Sarvam AI Indic Language Integration Configuration
     SARVAM_API_KEY: str = os.getenv("SARVAM_API_KEY", "")
     ENABLE_SARVAM_TRANSLATION: bool = os.getenv("ENABLE_SARVAM_TRANSLATION", "true").lower() == "true"
     SARVAM_TRANSLATE_URL: str = os.getenv("SARVAM_TRANSLATE_URL", "https://api.sarvam.ai/translate")
@@ -30,11 +29,7 @@ class Settings(BaseModel):
     AZURE_TRANSLATOR_KEY: str = os.getenv("AZURE_TRANSLATOR_KEY", "")
     AZURE_TRANSLATOR_REGION: str = os.getenv("AZURE_TRANSLATOR_REGION", "")
     AZURE_TRANSLATOR_ENDPOINT: str = os.getenv("AZURE_TRANSLATOR_ENDPOINT", "https://api.cognitive.microsofttranslator.com")
-=======
-    # Translation is fully offline (Argos Translate) - no API keys required.
     TRANSLATION_ENABLED: bool = os.getenv("TRANSLATION_ENABLED", "true").lower() == "true"
-
->>>>>>> shreya/main
     
     # Administrative Security & Monitoring
     ADMIN_API_KEY: str = os.getenv("ADMIN_API_KEY", "yojnasarthi-admin-secret-2026")

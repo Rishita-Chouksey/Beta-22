@@ -292,8 +292,8 @@ def get_db_connection() -> sqlite3.Connection:
     """Returns a thread-safe connection to the SQLite database."""
     global _tables_initialized
     os.makedirs(DB_DIR, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False, timeout=30.0)
-    conn.execute("PRAGMA journal_mode = WAL;")
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False, timeout=10.0)
+    conn.execute("PRAGMA journal_mode = DELETE;")
     conn.execute("PRAGMA busy_timeout = 30000;")
     conn.row_factory = sqlite3.Row
     if not _tables_initialized:

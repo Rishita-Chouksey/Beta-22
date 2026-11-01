@@ -5,9 +5,14 @@
   "name_bn": "পিএম বিশ্বকর্মা",
   "level": "central",
   "state": null,
-  "applicable_states": ["ALL"],
+  "applicable_states": [
+    "ALL"
+  ],
   "category": "Skills & Employment",
-  "personas": ["self_employed", "artisan"],
+  "personas": [
+    "self_employed",
+    "artisan"
+  ],
   "benefit_en": "myScheme lists skill training with ₹500/day stipend, a ₹15,000 toolkit grant, collateral-free credit in two tranches, and marketing support. Conditions apply.",
   "benefit_hi": "myScheme के अनुसार कौशल प्रशिक्षण पर ₹500 प्रतिदिन वजीफा, ₹15,000 टूलकिट अनुदान, दो चरणों में बिना जमानत ऋण और विपणन सहायता उपलब्ध है। शर्तें लागू हैं।",
   "benefit_bn": "myScheme-এ প্রশিক্ষণে দৈনিক ₹৫০০ ভাতা, ₹১৫,০০০ টুলকিট অনুদান, দুই ধাপে জামানতবিহীন ঋণ ও বিপণন সহায়তার কথা আছে। শর্ত প্রযোজ্য।",
@@ -15,17 +20,27 @@
   "description_hi": "सूचीबद्ध पारंपरिक व्यवसायों के कारीगरों को पहचान, कौशल, औजार, ऋण और बाजार संपर्क देने वाली केंद्रीय योजना।",
   "description_bn": "তালিকাভুক্ত ঐতিহ্যবাহী পেশার কারিগরদের পরিচিতি, দক্ষতা, সরঞ্জাম, ঋণ ও বাজার-সংযোগে সহায়তার কেন্দ্রীয় প্রকল্প।",
   "rules": [],
-  "restrictions": ["The page lists 18 eligible traditional trades, minimum age 18, one beneficiary per family, and exclusions for government employees and certain recent similar loans. These rules require human review before eligibility decisions."],
+  "restrictions": [
+    "The page lists 18 eligible traditional trades, minimum age 18, one beneficiary per family, and exclusions for government employees and certain recent similar loans. These rules require human review before eligibility decisions."
+  ],
   "required_documents": [],
-  "application_procedure": ["The myScheme page directs applicants to enroll through a nearby CSC. Biometric verification and official screening apply."],
+  "application_procedure": [
+    "The myScheme page directs applicants to enroll through a nearby CSC. Biometric verification and official screening apply."
+  ],
   "official_source_url": "https://www.myscheme.gov.in/schemes/pmv",
   "last_verified_date": "2026-10-31",
   "max_allowed_age_days": 180,
   "verification_status": "needs_review",
   "review_status": "needs_review",
   "verified_by": [],
-  "machine_translated": {"hi": false, "bn": false},
+  "machine_translated": {
+    "hi": false,
+    "bn": false
+  },
   "tracked": [],
   "conflicting_schemes": [],
-  "helpline": null
+  "helpline": null,
+  "name_mr": "प्रधानमंत्री विश्वकर्मा योजना",
+  "benefit_mr": "₹१५,००० टूलकिट अनुदान, ५% सवलतीच्या व्याजाने ₹३ लाखांपर्यंत कर्ज, आणि मोफत कौशल्य प्रशिक्षण.",
+  "description_mr": "पारंपारिक १८ प्रकारच्या कारागीर आणि शिल्पकारांना व्यवसाय वृद्धीसाठी सर्वसमावेशक मदत."
 }
