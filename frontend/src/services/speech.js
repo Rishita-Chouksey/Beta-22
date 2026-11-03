@@ -271,8 +271,13 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
     };
 
     recognition.onresult = (event) => {
-      // If recognition is not actively listening or assistant is speaking, ignore to prevent echoing audio
-      if (!isIntentionallyListening || window.__isAssistantSpeaking) return;
+      const isActivelyEmittingSpeech =
+        window.__isAssistantSpeaking &&
+        typeof window !== 'undefined' &&
+        'speechSynthesis' in window &&
+        window.speechSynthesis.speaking;
+
+      if (!isIntentionallyListening || isActivelyEmittingSpeech) return;
 
       let interim = '';
       let finalized = '';
@@ -290,7 +295,7 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
       const fullCurrentText = (finalized + interim).trim();
       latestLiveTranscript = fullCurrentText;
 
-      if (onInterim && isIntentionallyListening) {
+      if (onInterim && isIntentionallyListening && fullCurrentText) {
         onInterim(fullCurrentText);
       }
     };
@@ -329,9 +334,23 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
   return {
     isSupported: true,
     start: () => {
+      stopSpeaking();
+      window.__isAssistantSpeaking = false;
       accumulatedTranscript = '';
       latestLiveTranscript = '';
       isIntentionallyListening = true;
+
+      // Trigger browser mic permission prompt if needed
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            stream.getTracks().forEach((track) => track.stop());
+          })
+          .catch((e) => {
+            console.warn('getUserMedia mic verification:', e);
+          });
+      }
 
       try {
         recognition?.start();
@@ -361,8 +380,13 @@ export function createSpeechRecognizer({ language = 'hi', onInterim, onFinal, on
       }
       if (onStateChange) onStateChange(false);
 
-      // If assistant is currently speaking, do not fire onFinal to avoid echoing assistant's speech
-      if (window.__isAssistantSpeaking) {
+      const isActivelyEmittingSpeech =
+        window.__isAssistantSpeaking &&
+        typeof window !== 'undefined' &&
+        'speechSynthesis' in window &&
+        window.speechSynthesis.speaking;
+
+      if (isActivelyEmittingSpeech) {
         accumulatedTranscript = '';
         latestLiveTranscript = '';
         return;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Square, AlertCircle, Volume2, Loader2 } from 'lucide-react';
-import { createSpeechRecognizer } from '../services/speech';
+import { createSpeechRecognizer, stopSpeaking } from '../services/speech';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function VoiceMic({ onTranscriptChange, onLiveInterim = null, className = '' }) {
@@ -80,6 +80,7 @@ export default function VoiceMic({ onTranscriptChange, onLiveInterim = null, cla
   }, [isRecording]);
 
   const handleStartRecording = () => {
+    stopSpeaking();
     setErrorMessage('');
     latestTextRef.current = '';
     setHasCapturedSpeech(false);
