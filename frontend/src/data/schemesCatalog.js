@@ -1773,10 +1773,10 @@ export function evaluateProfileOffline(profile = {}) {
         if (!schemeResult.missing_fields.includes(r.field)) {
           schemeResult.missing_fields.push(r.field);
         }
-        schemeResult.unknown_conditions_en.push(Information for '' has not been provided yet.);
-        schemeResult.unknown_conditions_hi.push('' के लिए जानकारी अभी प्रदान नहीं की गई है।);
-        schemeResult.unknown_conditions_mr.push('' ची माहिती अद्याप दिलेली नाही.);
-        schemeResult.unknown_conditions_bn.push(''-এর তথ্য এখনও প্রদান করা হয়নি।);
+        schemeResult.unknown_conditions_en.push(`Information for '${r.field}' has not been provided yet.`);
+        schemeResult.unknown_conditions_hi.push(`'${r.field}' के लिए जानकारी अभी प्रदान नहीं की गई है।`);
+        schemeResult.unknown_conditions_mr.push(`'${r.field}' ची माहिती अद्याप दिलेली नाही.`);
+        schemeResult.unknown_conditions_bn.push(`'${r.field}'-এর তথ্য এখনও প্রদান করা হয়নি।`);
         continue;
       }
 
@@ -1808,10 +1808,10 @@ export function evaluateProfileOffline(profile = {}) {
         schemeResult.satisfied_conditions_bn.push(descBn);
       } else {
         hasFail = true;
-        schemeResult.failed_conditions_en.push(Does not meet:  (Provided: ));
-        schemeResult.failed_conditions_hi.push(शर्त पूरी नहीं होती:  (प्रदान किया गया: ));
-        schemeResult.failed_conditions_mr.push(अट पूर्ण होत नाही:  (दिलेले: ));
-        schemeResult.failed_conditions_bn.push(শর্ত পূরণ হয়নি:  (প্রদত্ত: ));
+        schemeResult.failed_conditions_en.push(`Does not meet: ${descEn} (Provided: ${actual})`);
+        schemeResult.failed_conditions_hi.push(`शर्त पूरी नहीं होती: ${descHi} (प्रदान किया गया: ${actual})`);
+        schemeResult.failed_conditions_mr.push(`अट पूर्ण होत नाही: ${descMr} (दिलेले: ${actual})`);
+        schemeResult.failed_conditions_bn.push(`শর্ত পূরণ হয়নি: ${descBn} (প্রদত্ত: ${actual})`);
       }
     }
 
@@ -1831,10 +1831,10 @@ export function evaluateProfileOffline(profile = {}) {
       not_sure.push(schemeResult);
     } else {
       schemeResult.status = 'ELIGIBLE';
-      schemeResult.deciding_reason_en = All eligibility criteria satisfied based on confirmed profile.;
-      schemeResult.deciding_reason_hi = पुष्ट प्रोफ़ाइल के आधार पर सभी पात्रता मानदंड पूरे हुए।;
-      schemeResult.deciding_reason_mr = पुष्टी केलेल्या प्रोफाइलवर आधारित सर्व पात्रता निकष पूर्ण झाले आहेत.;
-      schemeResult.deciding_reason_bn = নিশ্চিত প্রোফাইলের ভিত্তিতে সমস্ত যোগ্যতার মানদণ্ড পূরণ হয়েছে।;
+      schemeResult.deciding_reason_en = 'All eligibility criteria satisfied based on confirmed profile.';
+      schemeResult.deciding_reason_hi = 'पुष्ट प्रोफ़ाइल के आधार पर सभी पात्रता मानदंड पूरे हुए।';
+      schemeResult.deciding_reason_mr = 'पुष्टी केलेल्या प्रोफाइलवर आधारित सर्व पात्रता निकष पूर्ण झाले आहेत.';
+      schemeResult.deciding_reason_bn = 'নিশ্চিত প্রোফাইলের ভিত্তিতে সমস্ত যোগ্যতার মানদণ্ড পূরণ হয়েছে।';
       eligible.push(schemeResult);
     }
   }
