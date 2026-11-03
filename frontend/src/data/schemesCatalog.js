@@ -1715,7 +1715,30 @@ export function getOfflineSchemeById(schemeId) {
 }
 
 
-export function evaluateProfileOffline(profile = {}) {
+export function evaluateProfileOffline(rawProfile = {}) {
+  // Parity with backend Python Pydantic CitizenProfile defaults
+  const profile = {
+    is_institutional_landholder: false,
+    holds_constitutional_post: false,
+    ...rawProfile,
+  };
+
+  // Domain heuristics for incomplete voice utterances
+  if (profile.occupation === 'farmer') {
+    if (profile.landholding_hectares === undefined || profile.landholding_hectares === null) {
+      profile.landholding_hectares = 1.5;
+    }
+    if (!profile.residence_type) {
+      profile.residence_type = 'rural';
+    }
+    if (!profile.gender) {
+      profile.gender = 'male';
+    }
+  } else if (profile.marital_status === 'widow') {
+    if (!profile.gender) profile.gender = 'female';
+  } else if (profile.occupation === 'student') {
+    if (profile.enrolled_higher_education === undefined) profile.enrolled_higher_education = true;
+  }
   const eligible = [];
   const not_sure = [];
   const not_eligible = [];
@@ -1752,6 +1775,26 @@ export function evaluateProfileOffline(profile = {}) {
       failed_conditions_bn: [],
       rule_results: []
     };
+
+    // Persona & State relevance tagging to prevent mismatched schemes cluttering user results
+    if (profile.occupation === 'farmer' && s.category === 'Agriculture') {
+      schemeResult.is_relevant_to_persona = true;
+    } else if (profile.gender === 'male' && (s.category === 'Women Welfare' || s.id.includes('widow') || s.id.includes('behna') || s.id.includes('beti'))) {
+      schemeResult.is_relevant_to_persona = false;
+    } else if (profile.gender === 'female' && s.id.includes('widow') && profile.marital_status && profile.marital_status !== 'widow') {
+      schemeResult.is_relevant_to_persona = false;
+    } else if (s.level === 'state' && s.state && profile.state) {
+      const pState = String(profile.state).toUpperCase();
+      const sState = String(s.state).toUpperCase();
+      const match = pState.includes(sState) || sState.includes(pState) ||
+                    (pState.includes('MP') && sState.includes('MP')) ||
+                    (pState.includes('MADHYA') && sState.includes('MP')) ||
+                    (pState.includes('MH') && sState.includes('MH')) ||
+                    (pState.includes('MAHARASHTRA') && sState.includes('MH'));
+      schemeResult.is_relevant_to_persona = Boolean(match);
+    } else {
+      schemeResult.is_relevant_to_persona = true;
+    }
 
     if (!s.rules || s.rules.length === 0 || s.review_status !== 'verified') {
       schemeResult.status = 'NO CURRENT RULES';

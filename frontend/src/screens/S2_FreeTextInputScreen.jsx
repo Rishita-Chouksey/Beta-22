@@ -249,6 +249,11 @@ export default function S2_FreeTextInputScreen() {
     // 4. Occupation
     if (t.includes('किसान') || t.includes('kisan') || t.includes('farmer') || t.includes('kheti') || t.includes('farming') || t.includes('krishi') || t.includes('khet')) {
       p.occupation = 'farmer';
+      p.is_institutional_landholder = false;
+      p.holds_constitutional_post = false;
+      if (p.landholding_hectares === undefined) p.landholding_hectares = 1.5;
+      if (!p.gender) p.gender = 'male';
+      if (!p.residence_type) p.residence_type = 'rural';
     } else if (t.includes('छात्र') || t.includes('विद्यार्थी') || t.includes('student') || t.includes('college') || t.includes('padhai') || t.includes('school') || t.includes('b.tech') || t.includes('degree') || t.includes('engineering')) {
       p.occupation = 'student';
       p.enrolled_higher_education = true;
